@@ -162,7 +162,7 @@ export default function Footer() {
                 </button>
               </form>
               {subscribed && (
-                <div className="mt-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                <div className="mt-1 text-xs text-blue-600 dark:text-blue-400 font-medium">
                   Thank you for subscribing!
                 </div>
               )}

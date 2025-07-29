@@ -13,7 +13,7 @@ import MarkdownPreview from '@/components/admin/blog/markdown-preview'
 export default function EditBlogPost({ params }: { params: { id: string } }) {
   const router = useRouter()
   const isNewPost = params.id === 'new'
-  const postId = isNewPost ? 'new' : parseInt(params.id)
+  const postId = isNewPost ? 'new' : params.id
   
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -23,10 +23,13 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     slug: '',
     excerpt: '',
     content: '',
-    status: 'Draft',
+    status: 'Draft' as 'Draft' | 'Published',
     category: '',
     tags: [],
     featuredImage: '',
+    author: 'Admin',
+    date: new Date().toISOString(),
+    readTime: '5 min read',
     seoTitle: '',
     seoDescription: '',
     seoKeywords: ''
@@ -132,7 +135,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
       // Update status if saving as draft
       const postToSave = {
         ...post,
-        status: saveAsDraft ? 'Draft' : 'Published'
+        status: (saveAsDraft ? 'Draft' : 'Published') as 'Draft' | 'Published'
       }
       
       let savedPost: BlogPost | null
@@ -188,7 +191,9 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     setActiveTab('content')
   }
 
-  return ({saveMessage && (
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {saveMessage && (
           <div className={`p-4 rounded-md ${saveMessage.includes('Error') ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300' : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'}`}>
             {saveMessage}
           </div>
@@ -200,6 +205,39 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           <div className="flex justify-center items-center h-64"></div>
         ) : (
           <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            {/* Header with Action Buttons */}
+            <div className="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    {isNewPost ? 'Create New Blog Post' : 'Edit Blog Post'}
+                  </h3>
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowAIGenerator(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  >
+                    🤖 Generate with AI
+                  </button>
+                  <button
+                    onClick={(e) => handleSubmit(e, true)}
+                    disabled={isSaving}
+                    className="inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50"
+                  >
+                    💾 Save Draft
+                  </button>
+                  <button
+                    onClick={(e) => handleSubmit(e, false)}
+                    disabled={isSaving}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark"
+                  >
+                    🚀 Publish
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             {/* Tabs */}
             <div className="border-b border-gray-200 dark:border-gray-700">
               <nav className="flex -mb-px">
@@ -553,7 +591,6 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
             </div>
           </div>
         )}
-      </div>
-    
+    </div>
   )
 }

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Cookies from 'js-cookie'
 import { ADMIN_AUTH_COOKIE } from '@/lib/auth-client'
 import LogoutButton from './logout-button'
+import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -16,8 +17,34 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [userEmail, setUserEmail] = useState('')
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Theme toggle effect
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true)
+      document.documentElement.classList.add('dark')
+    } else {
+      setIsDarkMode(false)
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode
+    setIsDarkMode(newTheme)
+    if (newTheme) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }
 
   useEffect(() => {
     // Check authentication status
@@ -292,9 +319,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {navigation.find(item => item.href === pathname)?.name || 'Admin Panel'}
               </h1>
             </div>
-            <div className="ml-4 flex items-center md:ml-6">
+            <div className="ml-4 flex items-center md:ml-6 space-x-3">
+              {/* Setup Wizard Button */}
+              <button
+                onClick={() => setIsWizardOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Setup Wizard</span>
+              </button>
+              
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDarkMode ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+              
               {/* Profile dropdown */}
-              <div className="ml-3 relative">
+              <div className="relative">
                 <div className="flex items-center">
                   <div className="h-8 w-8 rounded-full bg-royal-blue flex items-center justify-center">
                     <span className="text-white font-medium">
@@ -318,6 +373,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Setup Wizard Modal */}
+      <SimpleSetupWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
+      />
     </div>
   )
 }

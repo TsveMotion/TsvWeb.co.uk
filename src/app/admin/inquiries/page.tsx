@@ -11,6 +11,14 @@ interface Inquiry {
   phone?: string
   createdAt: string
   status: 'new' | 'read' | 'replied' | 'archived'
+  type?: 'inquiry' | 'wizard'
+  // Wizard-specific fields
+  company?: string
+  projectType?: string
+  budget?: string
+  timeline?: string
+  goals?: string[]
+  additionalInfo?: string
 }
 
 export default function AdminInquiries() {
@@ -297,8 +305,23 @@ export default function AdminInquiries() {
                       </div>
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-lg font-medium text-gray-900 dark:text-white">{inquiry.name}</h4>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="text-lg font-medium text-gray-900 dark:text-white">{inquiry.name}</h4>
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          inquiry.type === 'wizard' 
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                          {inquiry.type === 'wizard' ? 'Setup Wizard' : 'Contact Form'}
+                        </span>
+                      </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{inquiry.email}</p>
+                      {inquiry.phone && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">📞 {inquiry.phone}</p>
+                      )}
+                      {inquiry.company && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">🏢 {inquiry.company}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -321,9 +344,46 @@ export default function AdminInquiries() {
                       {inquiry.subject}
                     </p>
                   )}
+                  
+                  {inquiry.type === 'wizard' && (
+                    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      {inquiry.projectType && (
+                        <div>
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Project Type:</span>
+                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.projectType}</p>
+                        </div>
+                      )}
+                      {inquiry.budget && (
+                        <div>
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Budget:</span>
+                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.budget}</p>
+                        </div>
+                      )}
+                      {inquiry.timeline && (
+                        <div>
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Timeline:</span>
+                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.timeline}</p>
+                        </div>
+                      )}
+                      {inquiry.goals && inquiry.goals.length > 0 && (
+                        <div className="md:col-span-2 lg:col-span-3">
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Goals:</span>
+                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.goals.join(', ')}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {inquiry.message}
                   </p>
+                  
+                  {inquiry.type === 'wizard' && inquiry.additionalInfo && (
+                    <div className="mt-2">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Additional Information:</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{inquiry.additionalInfo}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 flex justify-end space-x-3">
                   {inquiry.status !== 'read' && inquiry.status !== 'archived' && (

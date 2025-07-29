@@ -185,7 +185,7 @@ export default function AdminBlog() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex space-x-3 justify-end">
-                          <Link href={`/admin/blog/${post.id}`} className="text-royal-blue hover:text-royal-blue-dark">
+                          <Link href={`/admin/blog/${post.slug || post.id}`} className="text-royal-blue hover:text-royal-blue-dark">
                             Edit
                           </Link>
                           <button

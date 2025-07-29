@@ -7,10 +7,13 @@ interface User {
   id: string
   name: string
   email: string
+  username: string
   role: string
   createdAt: string
   lastLogin?: string
   status: 'active' | 'inactive' | 'pending'
+  websites?: string[]
+  company?: string
 }
 
 function UserAdmin() {
@@ -23,10 +26,13 @@ function UserAdmin() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'user',
+    username: '',
+    role: 'customer',
     password: '',
     confirmPassword: '',
-    status: 'active'
+    status: 'active',
+    websites: '',
+    company: ''
   })
 
   useEffect(() => {
@@ -58,20 +64,26 @@ function UserAdmin() {
       setFormData({
         name: user.name,
         email: user.email,
+        username: user.username || '',
         role: user.role,
         password: '',
         confirmPassword: '',
-        status: user.status
+        status: user.status,
+        websites: user.websites ? user.websites.join(', ') : '',
+        company: user.company || ''
       })
     } else {
       setCurrentUser(null)
       setFormData({
         name: '',
         email: '',
-        role: 'user',
+        username: '',
+        role: 'customer',
         password: '',
         confirmPassword: '',
-        status: 'active'
+        status: 'active',
+        websites: '',
+        company: ''
       })
     }
     setIsModalOpen(true)
@@ -94,7 +106,7 @@ function UserAdmin() {
     e.preventDefault()
     
     // Validate form
-    if (!formData.name || !formData.email || !formData.role) {
+    if (!formData.name || !formData.email || !formData.username || !formData.role) {
       setError('Please fill in all required fields')
       return
     }
@@ -123,6 +135,8 @@ function UserAdmin() {
       
       const payload = {
         ...payloadData,
+        websites: formData.websites ? formData.websites.split(',').map(w => w.trim()).filter(w => w) : [],
+        company: formData.company || '',
         // Only include password if it's provided or if creating a new user
         ...(formData.password || !currentUser ? { password: formData.password } : {})
       }
@@ -252,16 +266,16 @@ function UserAdmin() {
                             </div>
                             <div className="flex items-center space-x-2">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                user.status === 'active' 
+                                (user.status || 'inactive') === 'active' 
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                                  : user.status === 'pending'
+                                  : (user.status || 'inactive') === 'pending'
                                     ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                                     : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                               }`}>
-                                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                                {(user.status || 'inactive').charAt(0).toUpperCase() + (user.status || 'inactive').slice(1)}
                               </span>
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                {user.role}
+                                {user.role || 'user'}
                               </span>
                               <button
                                 type="button"
@@ -364,6 +378,23 @@ function UserAdmin() {
                             </div>
                             
                             <div>
+                              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Username *
+                              </label>
+                              <input
+                                type="text"
+                                name="username"
+                                id="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                                required
+                                autoComplete="username"
+                                className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
+                                placeholder="Enter username for login"
+                              />
+                            </div>
+                            
+                            <div>
                               <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Role *
                               </label>
@@ -375,6 +406,7 @@ function UserAdmin() {
                                 required
                                 className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
                               >
+                                <option value="customer">Customer</option>
                                 <option value="admin">Admin</option>
                                 <option value="editor">Editor</option>
                                 <option value="user">User</option>
@@ -400,6 +432,39 @@ function UserAdmin() {
                             </div>
                             
                             <div>
+                              <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Company Name
+                              </label>
+                              <input
+                                type="text"
+                                name="company"
+                                id="company"
+                                value={formData.company}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
+                                placeholder="e.g., MuscleMatrix"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label htmlFor="websites" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Tracked Websites
+                              </label>
+                              <input
+                                type="text"
+                                name="websites"
+                                id="websites"
+                                value={formData.websites}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
+                                placeholder="e.g., MuscleMatrix.uk, example.com (comma-separated)"
+                              />
+                              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                Enter website URLs that this customer can monitor. Separate multiple websites with commas.
+                              </p>
+                            </div>
+                            
+                            <div>
                               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {currentUser ? 'Password (leave blank to keep current)' : 'Password *'}
                               </label>
@@ -410,6 +475,7 @@ function UserAdmin() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required={!currentUser}
+                                autoComplete="new-password"
                                 className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
                               />
                             </div>
@@ -425,6 +491,7 @@ function UserAdmin() {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required={!currentUser}
+                                autoComplete="new-password"
                                 className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
                               />
                             </div>

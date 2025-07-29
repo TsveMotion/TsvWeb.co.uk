@@ -426,7 +426,7 @@ export default function AdminDashboard() {
                               {post.createdAt}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <Link href={`/admin/blog/${post._id}`} className="text-royal-blue hover:text-royal-blue-dark">
+                              <Link href={`/admin/blog/${post.slug || post._id}`} className="text-royal-blue hover:text-royal-blue-dark">
                                 Edit
                               </Link>
                             </td>

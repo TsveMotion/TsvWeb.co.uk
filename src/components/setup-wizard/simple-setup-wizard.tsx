@@ -38,10 +38,11 @@ const PROJECT_TYPES = [
 ]
 
 const BUDGET_RANGES = [
-  { id: 'under-5k', label: 'Under $5,000' },
-  { id: '5k-15k', label: '$5,000 - $15,000' },
-  { id: '15k-30k', label: '$15,000 - $30,000' },
-  { id: '30k-plus', label: '$30,000+' }
+  { id: 'under-1k', label: 'Under £1,000' },
+  { id: '1k-2k', label: '£1,000 - £2,000' },
+  { id: '2k-3k', label: '£2,000 - £3,000' },
+  { id: '3k-5k', label: '£3,000 - £5,000' },
+  { id: 'discuss', label: 'Let\'s Discuss' }
 ]
 
 const TIMELINE_OPTIONS = [

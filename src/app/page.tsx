@@ -1,12 +1,50 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import PageSEO from '@/components/seo/page-seo'
+import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
+
+interface UptimeStats {
+  totalMonitors: number
+  upMonitors: number
+  downMonitors: number
+  avgUptime: number
+  avgResponseTime: number
+  lastUpdated: string
+}
 
 export default function Home() {
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
+  const [uptimeStats, setUptimeStats] = useState<UptimeStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchUptimeStats()
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchUptimeStats, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchUptimeStats = async () => {
+    try {
+      const response = await fetch('/api/public/uptime?type=stats')
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          setUptimeStats(result.data)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch uptime stats:', error)
+    } finally {
+      setStatsLoading(false)
+    }
+  }
+
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
@@ -41,14 +79,24 @@ export default function Home() {
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-                <span className="text-royal-blue">Professional Web Design</span> for Your Business
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                Professional <span className="text-royal-blue dark:text-blue-400">Web Design</span> & Development
               </h1>
-              <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-                We create stunning, SEO-optimized websites that drive results. Our team of experts will help your business stand out online with custom web solutions.
+              <p className="text-xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                Transform your business with stunning, high-performance websites that drive results. 
+                We create digital experiences that captivate your audience and grow your brand.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/contact" className="btn-primary text-center">
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="btn-primary text-center flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span>Start Project Wizard</span>
+                </button>
+                <Link href="/contact" className="btn-secondary text-center">
                   Get Started
                 </Link>
                 <Link href="/portfolio" className="btn-secondary text-center">
@@ -60,6 +108,154 @@ export default function Home() {
               {/* This would be replaced with an actual AI-generated image */}
               <div className="absolute inset-0 bg-gradient-to-r from-royal-blue to-royal-blue-light rounded-lg flex items-center justify-center text-white text-lg font-medium">
                 AI-Generated Hero Image Will Go Here
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Uptime Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              <span className="text-blue-600 dark:text-blue-400">99%</span> Uptime Guarantee
+            </h2>
+            <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+              Our infrastructure is monitored 24/7 to ensure your website stays online and performs optimally.
+            </p>
+          </div>
+
+          {statsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Average Uptime */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {uptimeStats ? `${uptimeStats.avgUptime.toFixed(1)}%` : '99%'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Average Uptime</div>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500" 
+                    style={{ width: `${uptimeStats ? uptimeStats.avgUptime : 99}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Response Time */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {uptimeStats ? `${Math.round(uptimeStats.avgResponseTime)}ms` : '170ms'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Avg Response Time</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Lightning fast performance worldwide
+                </div>
+              </div>
+
+              {/* Active Monitors */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {uptimeStats ? uptimeStats.totalMonitors : '5'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Active Monitors</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  {uptimeStats ? uptimeStats.upMonitors : 5} online, {uptimeStats ? uptimeStats.downMonitors : 0} offline
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      {uptimeStats && uptimeStats.downMonitors > 0 ? 'Issues' : 'All Systems'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {uptimeStats && uptimeStats.downMonitors > 0 ? 'Degraded' : 'Operational'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${uptimeStats && uptimeStats.downMonitors > 0 ? 'bg-red-500' : 'bg-blue-500 dark:bg-blue-400'} animate-pulse`}></div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    Last updated: {uptimeStats ? new Date(uptimeStats.lastUpdated).toLocaleTimeString() : 'Just now'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Trust Indicators */}
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center space-x-8 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>24/7 Monitoring</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Instant Alerts</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Global CDN</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>SSL Security</span>
               </div>
             </div>
           </div>
@@ -304,6 +500,12 @@ export default function Home() {
       </section>
 
       <Footer />
+      
+      {/* Setup Wizard Modal */}
+      <SimpleSetupWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
+      />
     </main>
   )
 }

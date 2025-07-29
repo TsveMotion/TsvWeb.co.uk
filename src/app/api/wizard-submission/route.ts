@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb'
+import clientPromise from '@/lib/mongodb'
 
 interface WizardSubmission {
   name: string
@@ -15,6 +15,60 @@ interface WizardSubmission {
   status: 'new' | 'contacted' | 'converted'
 }
 
+// Email notification function
+async function sendNotificationEmail(submission: WizardSubmission) {
+  try {
+    // You can integrate with services like:
+    // - Nodemailer with SMTP
+    // - SendGrid
+    // - Resend
+    // - AWS SES
+    
+    // For now, we'll log the email details
+    console.log('📧 New Setup Wizard Submission:')
+    console.log('Name:', submission.name)
+    console.log('Email:', submission.email)
+    console.log('Company:', submission.company)
+    console.log('Project Type:', submission.projectType)
+    console.log('Budget:', submission.budget)
+    console.log('Timeline:', submission.timeline)
+    console.log('Goals:', submission.goals.join(', '))
+    console.log('Additional Info:', submission.additionalInfo)
+    
+    // TODO: Replace with actual email service
+    // Example with Nodemailer:
+    /*
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    })
+    
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: 'your-email@example.com',
+      subject: `New Setup Wizard Submission from ${submission.name}`,
+      html: `
+        <h2>New Project Inquiry</h2>
+        <p><strong>Name:</strong> ${submission.name}</p>
+        <p><strong>Email:</strong> ${submission.email}</p>
+        <p><strong>Company:</strong> ${submission.company}</p>
+        <p><strong>Project Type:</strong> ${submission.projectType}</p>
+        <p><strong>Budget:</strong> ${submission.budget}</p>
+        <p><strong>Timeline:</strong> ${submission.timeline}</p>
+        <p><strong>Goals:</strong> ${submission.goals.join(', ')}</p>
+        <p><strong>Additional Info:</strong> ${submission.additionalInfo}</p>
+      `
+    })
+    */
+    
+  } catch (error) {
+    console.error('Failed to send notification email:', error)
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -28,7 +82,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Connect to database
-    const { db } = await connectToDatabase()
+    const client = await clientPromise
+    const db = client.db()
     
     // Create submission object
     const submission: WizardSubmission = {
@@ -49,7 +104,9 @@ export async function POST(request: NextRequest) {
     const result = await db.collection('wizard_submissions').insertOne(submission)
     
     if (result.insertedId) {
-      // TODO: Send notification email to admin
+      // Send notification email to admin
+      await sendNotificationEmail(submission)
+      
       // TODO: Send confirmation email to user
       // TODO: Integrate with CRM or project management system
       
@@ -79,7 +136,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const status = searchParams.get('status')
     
-    const { db } = await connectToDatabase()
+    const client = await clientPromise
+    const db = client.db()
     
     // Build query
     const query: any = {}

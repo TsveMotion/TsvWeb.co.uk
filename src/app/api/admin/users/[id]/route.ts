@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
-import { User } from '@/models/User';
+import { NextRequest, NextResponse } from 'next/server'
+import { hash } from 'bcryptjs'
+import { ObjectId } from 'mongodb'
+import clientPromise from '@/lib/mongodb'
 
 interface Params {
   params: {
@@ -11,38 +12,63 @@ interface Params {
 // Get a single user by ID
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    await connectToDatabase();
+    const client = await clientPromise
+    const db = client.db()
     
-    const { id } = params;
-    const user = await User.findById(id).select('-password');
+    const { id } = params
+    
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid user ID' },
+        { status: 400 }
+      )
+    }
+    
+    const user = await db.collection('users').findOne(
+      { _id: new ObjectId(id) },
+      { projection: { password: 0 } }
+    )
     
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
         { status: 404 }
-      );
+      )
     }
     
-    return NextResponse.json({ success: true, data: user });
+    const userResponse = {
+      id: user._id.toString(),
+      name: user.name || user.username,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      status: user.status,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+      updatedAt: user.updatedAt
+    }
+    
+    return NextResponse.json({ success: true, user: userResponse })
   } catch (error) {
-    console.error(`Error fetching user ${params.id}:`, error);
+    console.error(`Error fetching user ${params.id}:`, error)
     return NextResponse.json(
       { success: false, message: 'Failed to fetch user' },
       { status: 500 }
-    );
+    )
   }
 }
 
 // Update a user by ID
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    await connectToDatabase();
+    const client = await clientPromise
+    const db = client.db()
     
     const { id } = params;
-    const data = await request.json();
+    const { name, email, username, role, status, password, websites, company } = await request.json();
     
     // Check if user exists
-    const user = await User.findById(id);
+    const user = await db.collection('users').findOne({ _id: new ObjectId(id) });
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
@@ -50,28 +76,41 @@ export async function PUT(request: NextRequest, { params }: Params) {
       );
     }
     
-    // If email is being changed, check if it's already in use
-    if (data.email && data.email !== user.email) {
-      const existingUser = await User.findOne({ email: data.email });
-      if (existingUser) {
-        return NextResponse.json(
-          { success: false, message: 'Email already in use' },
-          { status: 400 }
-        );
-      }
+    // Prepare update data
+    const updateData: any = {
+      updatedAt: new Date()
     }
     
-    // If password is empty, remove it from the update data
-    if (data.password === '' || data.password === undefined) {
-      delete data.password;
+    if (name) updateData.name = name
+    if (email) updateData.email = email.toLowerCase()
+    if (username) updateData.username = username.toLowerCase()
+    if (role) updateData.role = role
+    if (status) updateData.status = status
+    if (websites !== undefined) updateData.websites = websites || []
+    if (company !== undefined) updateData.company = company || ''
+    
+    // Hash password if provided
+    if (password) {
+      updateData.password = await hash(password, 12)
     }
     
-    // Update user
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: data },
-      { new: true, runValidators: true }
-    ).select('-password');
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
+    )
+    
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { success: false, message: 'User not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Get updated user without password
+    const updatedUser = await db.collection('users').findOne(
+      { _id: new ObjectId(id) },
+      { projection: { password: 0 } }
+    )
     
     return NextResponse.json({ success: true, data: updatedUser });
   } catch (error) {
@@ -86,12 +125,13 @@ export async function PUT(request: NextRequest, { params }: Params) {
 // Delete a user by ID
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
-    await connectToDatabase();
+    const client = await clientPromise
+    const db = client.db()
     
     const { id } = params;
     
     // Check if user exists
-    const user = await User.findById(id);
+    const user = await db.collection('users').findOne({ _id: new ObjectId(id) });
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
@@ -99,8 +139,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       );
     }
     
-    // Delete user
-    await User.findByIdAndDelete(id);
+    await db.collection('users').deleteOne({ _id: new ObjectId(id) });
     
     return NextResponse.json({ 
       success: true, 

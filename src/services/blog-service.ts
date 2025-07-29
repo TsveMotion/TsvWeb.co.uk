@@ -125,11 +125,14 @@ export const BlogService = {
       });
       
       if (!response.ok) {
+        if (response.status === 404) {
+          return null; // Post not found
+        }
         throw new Error(`Error: ${response.status}`);
       }
       
       const result = await response.json();
-      return result.post ? convertToClientBlogPost(result.post) : null;
+      return result.success && result.data ? convertToClientBlogPost(result.data) : null;
     } catch (error) {
       console.error(`Error fetching post with slug ${slug}:`, error);
       return null;

@@ -53,12 +53,13 @@ export default function Navbar() {
         <div className="flex-shrink-0">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/TsvWeb_Logo.png" 
+              src={mounted && theme === 'dark' ? "/TsvWeb_Logo_DarkTheme.png" : "/TsvWeb_Logo.png"} 
               alt="TsvWeb Logo" 
               width={150} 
               height={50} 
-              className="h-10 w-auto" 
+              className="h-10 w-auto object-contain" 
               priority
+              style={{ maxWidth: '150px', height: '40px' }}
             />
           </Link>
         </div>
@@ -80,8 +81,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Language Selector (Desktop) */}
-        <div className="hidden md:flex items-center">
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center space-x-4">
+          {/* Customer Login Button */}
+          <Link
+            href="/customer/login"
+            className="inline-flex items-center px-4 py-2 border border-royal-blue text-sm font-medium rounded-md text-royal-blue bg-white hover:bg-royal-blue hover:text-white dark:bg-gray-800 dark:text-royal-blue-light dark:border-royal-blue-light dark:hover:bg-royal-blue-light dark:hover:text-gray-900 transition-colors duration-200"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Customer Login
+          </Link>
+          
           {/* Theme Toggle Button */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -138,6 +150,20 @@ export default function Navbar() {
               {item.name}
             </Link>
           ))}
+          
+          {/* Customer Login Button (Mobile) */}
+          <Link
+            href="/customer/login"
+            className="block px-3 py-2 rounded-md text-base font-medium text-royal-blue dark:text-royal-blue-light bg-gray-50 dark:bg-gray-800 border border-royal-blue dark:border-royal-blue-light"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div className="flex items-center">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Customer Login
+            </div>
+          </Link>
         </div>
       </div>
     </header>
