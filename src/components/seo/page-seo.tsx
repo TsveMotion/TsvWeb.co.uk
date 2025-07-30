@@ -32,6 +32,7 @@ interface PageSEOProps {
   title?: string
   description?: string
   canonical?: string
+  googleSiteVerification?: string
   openGraph?: {
     title?: string
     description?: string
@@ -54,6 +55,7 @@ export default function PageSEO({
   title,
   description,
   canonical,
+  googleSiteVerification,
   openGraph,
   structuredData
 }: PageSEOProps) {
@@ -88,9 +90,16 @@ export default function PageSEO({
         <meta name="twitter:description" content={ogDescription} />
         <meta name="twitter:image" content={ogImage} />
         
+        {/* Google Search Console Verification */}
+        {googleSiteVerification && (
+          <meta name="google-site-verification" content={googleSiteVerification} />
+        )}
+        
         {/* Additional meta tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow" />
       </Head>
       {structuredData && (
         <StructuredData
