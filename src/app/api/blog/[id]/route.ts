@@ -1,24 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
-import mongoose from 'mongoose';
 import { BlogPost } from '@/models/BlogPost';
-
-// Initialize models after connection
-let BlogPostModel: mongoose.Model<any>;
 
 // Helper function to initialize model
 async function getModel() {
   await connectToDatabase();
-  
-  if (!BlogPostModel) {
-    if (mongoose.models.BlogPost) {
-      BlogPostModel = mongoose.models.BlogPost;
-    } else {
-      BlogPostModel = mongoose.model('BlogPost', BlogPost);
-    }
-  }
-  
-  return BlogPostModel;
+  return BlogPost;
 }
 
 // GET handler for fetching a single blog post by ID

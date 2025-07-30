@@ -1,24 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
-import mongoose from 'mongoose';
 import { BlogPost } from '@/models/BlogPost';
-
-// Initialize models after connection
-let BlogPostModel: mongoose.Model<any>;
 
 // GET handler for fetching all blog posts
 export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
-    
-    // Initialize model if not already done
-    if (!BlogPostModel) {
-      if (mongoose.models.BlogPost) {
-        BlogPostModel = mongoose.models.BlogPost;
-      } else {
-        BlogPostModel = mongoose.model('BlogPost', BlogPost);
-      }
-    }
     
     // Parse query parameters
     const { searchParams } = new URL(req.url);
@@ -34,13 +21,13 @@ export async function GET(req: NextRequest) {
     }
     
     // Execute query
-    const posts = await BlogPostModel.find(query)
+    const posts = await BlogPost.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
     
-    const total = await BlogPostModel.countDocuments(query);
+    const total = await BlogPost.countDocuments(query);
     
     return NextResponse.json({
       posts,
@@ -65,19 +52,10 @@ export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
     
-    // Initialize model if not already done
-    if (!BlogPostModel) {
-      if (mongoose.models.BlogPost) {
-        BlogPostModel = mongoose.models.BlogPost;
-      } else {
-        BlogPostModel = mongoose.model('BlogPost', BlogPost);
-      }
-    }
-    
     const data = await req.json();
     
     // Create new blog post
-    const post = new BlogPostModel(data);
+    const post = new BlogPost(data);
     await post.save();
     
     return NextResponse.json(post, { status: 201 });

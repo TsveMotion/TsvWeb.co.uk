@@ -30,7 +30,7 @@ export default function MarkdownPreview({ content, className = '' }: MarkdownPre
           blockquote: ({ node, ...props }) => (
             <blockquote className="border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic my-4" {...props} />
           ),
-          code: ({ node, inline, className, children, ...props }) => {
+          code: ({ node, inline, className, children, ...props }: any) => {
             if (inline) {
               return (
                 <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm" {...props}>
