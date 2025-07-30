@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { uptimeKumaService } from '@/lib/uptime-kuma'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/public/uptime
  * Get public uptime statistics for homepage display

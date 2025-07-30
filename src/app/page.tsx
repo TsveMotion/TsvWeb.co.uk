@@ -115,7 +115,7 @@ export default function Home() {
       </section>
 
       {/* Uptime Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-y border-gray-200 dark:border-gray-700">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">

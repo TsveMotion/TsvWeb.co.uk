@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Portfolio } from '@/models/Portfolio';
 
+export const dynamic = 'force-dynamic';
+
 // Get all portfolio items (with optional filtering) for public consumption
 export async function GET(request: NextRequest) {
   try {
