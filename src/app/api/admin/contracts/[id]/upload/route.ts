@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import Contract from '@/models/Contract';
-import User from '@/models/User';
+import { User } from '@/models/User';
 import { connectToDatabase } from '@/lib/db';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';

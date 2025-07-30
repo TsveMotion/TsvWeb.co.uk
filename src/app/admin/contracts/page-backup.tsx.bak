@@ -544,7 +544,7 @@ function ContractsAdmin() {
                             clientEmail: selectedUser.email,
                             title: `${selectedUser.name} - Service Agreement`,
                             contractType: 'web-development',
-                            amount: 1000,
+                            amount: '1000',
                             currency: 'USD'
                           })
                         }

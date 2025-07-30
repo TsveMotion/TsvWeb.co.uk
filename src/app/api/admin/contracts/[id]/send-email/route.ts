@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import Contract from '@/models/Contract';
-import User from '@/models/User';
+import { User } from '@/models/User';
 import { connectToDatabase } from '@/lib/db';
 import nodemailer from 'nodemailer';
 
@@ -40,7 +40,7 @@ export async function POST(
     }
 
     // Create email transporter
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true',
@@ -84,7 +84,7 @@ export async function POST(
             <div style="background-color: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
               <h4 style="color: #856404; margin-bottom: 10px;">📎 Attached Documents:</h4>
               <ul style="color: #856404;">
-                ${contract.files.map(file => `<li>${file.originalName}</li>`).join('')}
+                ${contract.files.map((file: any) => `<li>${file.originalName}</li>`).join('')}
               </ul>
             </div>
           ` : ''}
