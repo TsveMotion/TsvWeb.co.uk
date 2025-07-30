@@ -17,7 +17,7 @@ export default function EnhancedAIBlogGenerator({ onBlogGenerated, onClose }: En
     targetAudience: 'business owners',
     keyPoints: [],
     desiredLength: 'medium',
-    generateImage: true,
+
     outputFormat: 'html',
     customSpecs: {
       includeTableOfContents: true,
@@ -285,19 +285,7 @@ export default function EnhancedAIBlogGenerator({ onBlogGenerated, onClose }: En
                   </select>
                 </div>
 
-                <div className="flex items-center">
-                  <input
-                    id="generateImage"
-                    name="generateImage"
-                    type="checkbox"
-                    checked={generationRequest.generateImage}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-royal-blue focus:ring-royal-blue border-gray-300 dark:border-gray-600 rounded"
-                  />
-                  <label htmlFor="generateImage" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                    Generate Featured Image
-                  </label>
-                </div>
+
               </div>
             </div>
 

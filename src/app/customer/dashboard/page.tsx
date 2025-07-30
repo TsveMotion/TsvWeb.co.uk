@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import SupportTicketModal from '@/components/customer/support-ticket-modal'
 
 interface CustomerData {
   id: string
@@ -41,6 +42,7 @@ export default function CustomerDashboard() {
   const [uptimeLoading, setUptimeLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [uptimeError, setUptimeError] = useState<string | null>(null)
+  const [showSupportModal, setShowSupportModal] = useState(false)
   const router = useRouter()
   const { theme } = useTheme()
 
@@ -396,6 +398,96 @@ export default function CustomerDashboard() {
             </div>
           </div>
 
+          {/* Contracts & Documents Section */}
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl mb-8">
+            <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg leading-6 font-semibold text-gray-900 dark:text-white flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Contracts & Documents
+                </h3>
+                <button
+                  onClick={() => router.push('/customer/contracts')}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  View All Contracts
+                </button>
+              </div>
+            </div>
+            <div className="px-6 py-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Signed Contracts */}
+                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Signed Contracts</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">View your executed agreements</p>
+                  <button
+                    onClick={() => router.push('/customer/contracts?status=signed')}
+                    className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium"
+                  >
+                    View Signed →
+                  </button>
+                </div>
+
+                {/* Pending Contracts */}
+                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Pending Review</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Contracts awaiting your signature</p>
+                  <button
+                    onClick={() => router.push('/customer/contracts?status=sent')}
+                    className="text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 text-sm font-medium"
+                  >
+                    Review Now →
+                  </button>
+                </div>
+
+                {/* All Documents */}
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">All Documents</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Access invoices and files</p>
+                  <button
+                    onClick={() => router.push('/customer/contracts')}
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                  >
+                    Browse All →
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Access Banner */}
+              <div className="mt-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold mb-1">Need Help with Your Contracts?</h4>
+                    <p className="text-indigo-100 text-sm">Contact TsvWeb support for assistance with your agreements and documents.</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowSupportModal(true)}
+                    className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Contact Support
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Monitors List */}
           <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">
             <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
@@ -463,6 +555,16 @@ export default function CustomerDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Support Ticket Modal */}
+      <SupportTicketModal 
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        onSubmit={(ticketData) => {
+          console.log('Support ticket created:', ticketData);
+          // You can add additional handling here if needed
+        }}
+      />
     </div>
   )
 }

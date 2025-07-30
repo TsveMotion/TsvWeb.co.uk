@@ -22,7 +22,7 @@ export interface BlogGenerationRequest {
   targetAudience?: string;
   keyPoints?: string[];
   desiredLength?: 'short' | 'medium' | 'long';
-  generateImage?: boolean;
+
 }
 
 export interface BlogGenerationResponse {

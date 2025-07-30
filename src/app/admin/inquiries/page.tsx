@@ -11,7 +11,7 @@ interface Inquiry {
   phone?: string
   createdAt: string
   status: 'new' | 'read' | 'replied' | 'archived'
-  type?: 'inquiry' | 'wizard'
+  type?: 'inquiry' | 'wizard' | 'support'
   // Wizard-specific fields
   company?: string
   projectType?: string
@@ -19,6 +19,12 @@ interface Inquiry {
   timeline?: string
   goals?: string[]
   additionalInfo?: string
+  // Support ticket specific fields
+  customerId?: string
+  customerUsername?: string
+  priority?: 'low' | 'medium' | 'high' | 'urgent'
+  category?: string
+  originalMessage?: string
 }
 
 export default function AdminInquiries() {
@@ -310,12 +316,41 @@ export default function AdminInquiries() {
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           inquiry.type === 'wizard' 
                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
+                            : inquiry.type === 'support'
+                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100'
                             : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                         }`}>
-                          {inquiry.type === 'wizard' ? 'Setup Wizard' : 'Contact Form'}
+                          {inquiry.type === 'wizard' ? 'Setup Wizard' : inquiry.type === 'support' ? 'Support Ticket' : 'Contact Form'}
                         </span>
+                        {inquiry.type === 'support' && inquiry.priority && (
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            inquiry.priority === 'urgent' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' :
+                            inquiry.priority === 'high' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' :
+                            inquiry.priority === 'medium' ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' :
+                            'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
+                          }`}>
+                            {inquiry.priority.toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{inquiry.email}</p>
+                      {inquiry.type === 'support' && inquiry.customerUsername && (
+                        <p className="text-sm text-gray-600 dark:text-gray-300">👤 Customer: {inquiry.customerUsername}</p>
+                      )}
+                      {inquiry.type === 'support' && inquiry.category && (
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">Category:</span>
+                          <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                            inquiry.category === 'contracts' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300' :
+                            inquiry.category === 'billing' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300' :
+                            inquiry.category === 'technical' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' :
+                            inquiry.category === 'account' ? 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300' :
+                            'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                          }`}>
+                            {inquiry.category.charAt(0).toUpperCase() + inquiry.category.slice(1)}
+                          </span>
+                        </div>
+                      )}
                       {inquiry.phone && (
                         <p className="text-sm text-gray-500 dark:text-gray-400">📞 {inquiry.phone}</p>
                       )}
@@ -371,6 +406,34 @@ export default function AdminInquiries() {
                           <p className="text-sm text-gray-900 dark:text-white">{inquiry.goals.join(', ')}</p>
                         </div>
                       )}
+                    </div>
+                  )}
+                  
+                  {inquiry.type === 'support' && (
+                    <div className="mt-2 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 11-9.75 9.75A9.75 9.75 0 0112 2.25z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-2">
+                            Customer Support Request
+                          </h4>
+                          {inquiry.originalMessage && (
+                            <div className="bg-white dark:bg-gray-800 p-3 rounded border">
+                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Original Message:</span>
+                              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{inquiry.originalMessage}</p>
+                            </div>
+                          )}
+                          {inquiry.customerId && (
+                            <div className="mt-2 text-xs text-orange-700 dark:text-orange-300">
+                              <strong>Customer ID:</strong> {inquiry.customerId}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                   

@@ -17,7 +17,7 @@ export default function AIBlogGenerator({ onBlogGenerated }: AIBlogGeneratorProp
     targetAudience: 'business owners',
     keyPoints: [],
     desiredLength: 'medium',
-    generateImage: true
+
   });
   const [keyPointInput, setKeyPointInput] = useState('');
   const [error, setError] = useState('');
@@ -220,28 +220,7 @@ export default function AIBlogGenerator({ onBlogGenerated }: AIBlogGeneratorProp
               )}
             </div>
             
-            <div className="sm:col-span-6">
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="generateImage"
-                    name="generateImage"
-                    type="checkbox"
-                    checked={generationRequest.generateImage}
-                    onChange={handleCheckboxChange}
-                    className="focus:ring-royal-blue h-4 w-4 text-royal-blue border-gray-300 dark:border-gray-700 rounded"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="generateImage" className="font-medium text-gray-700 dark:text-gray-300">
-                    Generate Featured Image
-                  </label>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Use AI to generate a featured image for the blog post
-                  </p>
-                </div>
-              </div>
-            </div>
+
           </div>
           
           <div className="mt-6">
