@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "MONGODB_URI": "mongodb+srv://kristiyan:9mnstn5y9dshWBJx@tsvetanov.mjzvg2q.mongodb.net/?retryWrites=true&w=majority&appName=Tsvetanov"
+  }
+}
