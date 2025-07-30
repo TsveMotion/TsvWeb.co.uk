@@ -316,21 +316,57 @@ Format as JSON:
     }
   },
 
-  // Generate blog image using image generation API
+  // Generate blog image using OpenAI DALL-E
   generateBlogImage: async (prompt: string): Promise<string> => {
+    const timestamp = Date.now();
+    const cleanPrompt = prompt.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
+    
     try {
-      // For now, return a placeholder. In production, you could integrate with:
-      // - OpenAI DALL-E
-      // - Midjourney API
-      // - Stable Diffusion
-      // - Unsplash API for stock photos
+      const openai = getOpenAIClient();
       
-      const timestamp = Date.now();
-      const cleanPrompt = prompt.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
-      return `/images/blog/generated-${cleanPrompt}-${timestamp}.jpg`;
+      // Create a professional image prompt for blog content
+      const imagePrompt = `Professional, modern, high-quality illustration for a blog post about ${prompt}. Clean, minimalist design with a business/corporate aesthetic. Use a modern color palette with blues and whites. Make it suitable for a web design and digital marketing website. No text overlays.`;
+      
+      // Generate image using DALL-E
+      const response = await openai.images.generate({
+        model: 'dall-e-3',
+        prompt: imagePrompt,
+        n: 1,
+        size: '1792x1024', // Wide format good for blog headers
+        quality: 'standard',
+        style: 'natural'
+      });
+      
+      if (!response.data || !response.data[0]?.url) {
+        throw new Error('No image URL returned from DALL-E');
+      }
+      
+      const imageUrl = response.data[0].url;
+      
+      // Download and save the image
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error('Failed to download generated image');
+      }
+      
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const fs = require('fs').promises;
+      const path = require('path');
+      
+      // Ensure the images/blog directory exists
+      const imagesDir = path.join(process.cwd(), 'public', 'images', 'blog');
+      await fs.mkdir(imagesDir, { recursive: true });
+      
+      // Save the image
+      const filename = `generated-${cleanPrompt}-${timestamp}.jpg`;
+      const filepath = path.join(imagesDir, filename);
+      await fs.writeFile(filepath, Buffer.from(imageBuffer));
+      
+      return `/images/blog/${filename}`;
     } catch (error) {
-      console.error('Error generating blog image:', error);
-      throw new Error('Failed to generate blog image');
+      console.error('Error generating blog image with DALL-E:', error);
+      // Return a fallback placeholder image instead of throwing to not break blog generation
+      return `/images/blog/placeholder-${cleanPrompt}-${timestamp}.jpg`;
     }
   }
 };
