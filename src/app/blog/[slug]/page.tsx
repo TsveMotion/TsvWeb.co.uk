@@ -4,10 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
+
 import Navbar from '@/components/navigation/navbar';
 import Footer from '@/components/navigation/footer';
 import PageSEO from '@/components/seo/page-seo';
@@ -25,14 +22,16 @@ export default function BlogPostPage() {
       try {
         const response = await fetch(`/api/blog/${slug}`);
         if (response.ok) {
-          const data = await response.json();
-          setPost(data);
-          
-          // Fetch related posts
-          const relatedResponse = await fetch(`/api/blog?category=${data.category}&limit=3&exclude=${data.id}`);
-          if (relatedResponse.ok) {
-            const relatedData = await relatedResponse.json();
-            setRelatedPosts(relatedData.posts || []);
+          const result = await response.json();
+          if (result.success && result.data) {
+            setPost(result.data);
+            
+            // Fetch related posts
+            const relatedResponse = await fetch(`/api/blog?category=${result.data.category}&limit=3&exclude=${result.data.id}`);
+            if (relatedResponse.ok) {
+              const relatedData = await relatedResponse.json();
+              setRelatedPosts(relatedData.posts || []);
+            }
           }
         }
       } catch (error) {
@@ -150,85 +149,11 @@ export default function BlogPostPage() {
               </div>
             )}
             
-            <article className="prose prose-xl dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-royal-blue prose-a:hover:text-blue-600 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-royal-blue prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-50 dark:prose-pre:bg-gray-800 prose-blockquote:border-royal-blue prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 max-w-none">
-              <div className="leading-relaxed text-gray-700 dark:text-gray-300">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                  components={{
-                    // Custom components for better styling
-                    h1: ({ children }) => (
-                      <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6 mt-8">{children}</h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 mt-8">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 mt-6">{children}</h3>
-                    ),
-                    h4: ({ children }) => (
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 mt-4">{children}</h4>
-                    ),
-                    p: ({ children }) => (
-                      <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">{children}</p>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">{children}</ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">{children}</ol>
-                    ),
-                    li: ({ children }) => (
-                      <li className="text-gray-700 dark:text-gray-300">{children}</li>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-4 border-royal-blue pl-4 py-2 mb-4 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 italic">
-                        {children}
-                      </blockquote>
-                    ),
-                    code: ({ children, ...props }) => {
-                      const isInline = !props.className?.includes('language-');
-                      return isInline ? (
-                        <code className="bg-gray-100 dark:bg-gray-800 text-royal-blue px-1 py-0.5 rounded text-sm font-mono">
-                          {children}
-                        </code>
-                      ) : (
-                        <code className="block bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4 rounded-lg overflow-x-auto font-mono text-sm">
-                          {children}
-                        </code>
-                      );
-                    },
-                    pre: ({ children }) => (
-                      <pre className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4">
-                        {children}
-                      </pre>
-                    ),
-                    a: ({ href, children }) => (
-                      <a 
-                        href={href} 
-                        className="text-royal-blue hover:text-blue-600 underline transition-colors"
-                        target={href?.startsWith('http') ? '_blank' : undefined}
-                        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      >
-                        {children}
-                      </a>
-                    ),
-                    img: ({ src, alt }) => (
-                      <div className="my-8">
-                        <Image
-                          src={src || ''}
-                          alt={alt || ''}
-                          width={800}
-                          height={400}
-                          className="w-full h-auto rounded-lg shadow-lg"
-                        />
-                      </div>
-                    ),
-                  }}
-              >
-                {post.content}
-              </ReactMarkdown>
-              </div>
+            <article className="max-w-none">
+              <div 
+                className="blog-content leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
             </article>
             
             {/* Tags */}

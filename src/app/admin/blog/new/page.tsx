@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BlogService } from '@/services/blog-service'
-import { BlogPost, BlogGenerationResponse } from '@/types/blog'
+import { BlogPost } from '@/types/blog'
 import EnhancedAIBlogGenerator from '@/components/admin/blog/enhanced-ai-blog-generator'
+import { BlogGenerationResponse } from '@/types/blog'
 
-export default function EditBlogPost({ params }: { params: { id: string } }) {
+export default function NewBlogPost() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
@@ -25,12 +26,10 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     seoKeywords: ''
   })
   
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
   const [showAIGenerator, setShowAIGenerator] = useState(false)
-  const [originalPost, setOriginalPost] = useState<BlogPost | null>(null)
 
   // Auto-generate slug from title
   const generateSlug = (title: string) => {
@@ -41,41 +40,6 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
       .replace(/-+/g, '-')
       .trim()
   }
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        setIsLoading(true)
-        const post = await BlogService.getPostById(params.id)
-        if (post) {
-          setOriginalPost(post)
-          setFormData({
-            title: post.title,
-            slug: post.slug,
-            excerpt: post.excerpt,
-            content: post.content,
-            tags: post.tags.join(', '),
-            featuredImage: post.featuredImage,
-            author: post.author,
-            status: post.status,
-            seoTitle: post.seoTitle || post.title,
-            seoDescription: post.seoDescription || post.excerpt,
-            seoKeywords: post.seoKeywords || post.tags.join(', ')
-          })
-        } else {
-          // Post not found, redirect to blog list
-          router.push('/admin/blog')
-        }
-      } catch (error) {
-        console.error('Error fetching post:', error)
-        router.push('/admin/blog')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPost()
-  }, [params.id, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -103,13 +67,13 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
 
     setIsUploading(true)
     try {
-      const formDataUpload = new FormData()
-      formDataUpload.append('file', file)
-      formDataUpload.append('type', 'blog')
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'blog')
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
-        body: formDataUpload,
+        body: formData,
       })
 
       if (response.ok) {
@@ -132,13 +96,13 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
 
     setIsUploading(true)
     try {
-      const formDataUpload = new FormData()
-      formDataUpload.append('file', file)
-      formDataUpload.append('type', 'blog')
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'blog')
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
-        body: formDataUpload,
+        body: formData,
       })
 
       if (response.ok) {
@@ -169,14 +133,9 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
       return
     }
 
-    if (!originalPost) {
-      alert('Original post data not found')
-      return
-    }
-
-    setIsSaving(true)
+    setIsLoading(true)
     try {
-      const updatedPost: Partial<BlogPost> = {
+      const blogPost: Omit<BlogPost, 'id'> = {
         title: formData.title,
         slug: formData.slug,
         excerpt: formData.excerpt,
@@ -185,21 +144,23 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         featuredImage: formData.featuredImage,
         author: formData.author,
+        date: new Date().toISOString().split('T')[0],
+        readTime: '',
         status: formData.status,
         seoTitle: formData.seoTitle || formData.title,
         seoDescription: formData.seoDescription || formData.excerpt,
         seoKeywords: formData.seoKeywords || formData.tags
       }
 
-      const result = await BlogService.updatePost(originalPost.id, updatedPost)
-      if (result) {
+      const createdPost = await BlogService.createPost(blogPost)
+      if (createdPost) {
         router.push('/admin/blog')
       }
     } catch (error) {
-      console.error('Error updating blog post:', error)
-      alert('Error updating blog post')
+      console.error('Error creating blog post:', error)
+      alert('Error creating blog post')
     } finally {
-      setIsSaving(false)
+      setIsLoading(false)
     }
   }
 
@@ -212,7 +173,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
       excerpt: generatedBlog.excerpt,
       content: generatedBlog.content,
       tags: generatedBlog.tags.join(', '),
-      featuredImage: generatedBlog.imageUrl || prev.featuredImage,
+      featuredImage: generatedBlog.imageUrl || '',
       seoTitle: generatedBlog.seoTitle || generatedBlog.title,
       seoDescription: generatedBlog.seoDescription || generatedBlog.excerpt,
       seoKeywords: generatedBlog.seoKeywords || generatedBlog.tags.join(', ')
@@ -225,42 +186,15 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     setPreviewMode(true)
   }
 
-  if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-royal-blue"></div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!originalPost) {
-    return (
-      <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Post Not Found</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">The blog post you're looking for doesn't exist.</p>
-          <Link
-            href="/admin/blog"
-            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-royal-blue hover:bg-blue-700"
-          >
-            ← Back to Blog Posts
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Blog Post</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Blog Post</h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Edit your blog post with HTML support and AI assistance
+              Write and publish a new blog post with HTML support and images
             </p>
           </div>
           <Link
@@ -537,10 +471,10 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           </Link>
           <button
             type="submit"
-            disabled={isSaving}
+            disabled={isLoading}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-royal-blue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue disabled:opacity-50"
           >
-            {isSaving ? 'Updating...' : 'Update Blog Post'}
+            {isLoading ? 'Creating...' : 'Create Blog Post'}
           </button>
         </div>
       </form>

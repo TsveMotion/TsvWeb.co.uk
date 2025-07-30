@@ -205,7 +205,7 @@ export default function AdminBlog() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex space-x-3 justify-end">
-                          <Link href={`/admin/blog/${post.slug || post.id}`} className="text-royal-blue hover:text-royal-blue-dark">
+                          <Link href={`/admin/blog/${post.id}`} className="text-royal-blue hover:text-royal-blue-dark">
                             Edit
                           </Link>
                           <button
@@ -214,7 +214,7 @@ export default function AdminBlog() {
                           >
                             Delete
                           </button>
-                          <Link href={`/blog/${post.id}`} target="_blank" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+                          <Link href={`/blog/${post.slug}`} target="_blank" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
                             View
                           </Link>
                         </div>
