@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Cookies from 'js-cookie'
 import { ADMIN_AUTH_COOKIE } from '@/lib/auth-client'
@@ -14,6 +15,7 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const { data: session, status } = useSession()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -51,6 +53,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Check authentication status
     const checkAuth = () => {
       try {
+        // First check NextAuth session
+        if (status === 'authenticated' && session) {
+          console.log('NextAuth session authenticated')
+          setIsAuthenticated(true)
+          setUserEmail(session.user?.email || session.user?.name || '')
+          setIsLoading(false)
+          return
+        }
+        
+        // Then check custom auth cookie
         const authData = Cookies.get(ADMIN_AUTH_COOKIE)
         if (authData) {
           try {
@@ -144,7 +156,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }, 5 * 60 * 1000) // Every 5 minutes
     
     return () => clearInterval(interval)
-  }, [router, pathname])
+  }, [router, pathname, session, status])
 
   // Logout functionality is now handled by the LogoutButton component
 
