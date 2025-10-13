@@ -2,8 +2,10 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { authenticateUser } from '@/lib/auth';
+import { connectToDatabase } from '@/lib/db';
+import { User } from '@/models/User';
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -44,20 +46,45 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // For Google OAuth, check if email is authorized
-      if (account?.provider === 'google') {
-        const authorizedEmails = [
-          'kristiyan@tsvweb.com',
-          'Kristiyan@tsvweb.com', // Case variations
-          // Add more authorized admin emails here
-        ];
-        
-        if (user.email && authorizedEmails.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
-          return true;
+      // For Google OAuth, check if user exists in database or is authorized
+      if (account?.provider === 'google' && user.email) {
+        try {
+          await connectToDatabase();
+          
+          // Check if user exists with this Google ID or email
+          let dbUser = await User.findOne({
+            $or: [
+              { googleId: account.providerAccountId },
+              { email: user.email.toLowerCase() }
+            ]
+          });
+          
+          if (dbUser) {
+            // Update Google ID if not set
+            if (!dbUser.googleId) {
+              dbUser.googleId = account.providerAccountId;
+              dbUser.googleEmail = user.email;
+              await dbUser.save();
+            }
+            return true;
+          }
+          
+          // If no user found, check authorized emails list
+          const authorizedEmails = [
+            'kristiyan@tsvweb.com',
+            // Add more authorized admin emails here
+          ];
+          
+          if (authorizedEmails.some(email => email.toLowerCase() === user.email?.toLowerCase())) {
+            return true;
+          }
+          
+          // Reject unauthorized emails
+          return false;
+        } catch (error) {
+          console.error('Error in Google sign-in:', error);
+          return false;
         }
-        
-        // Reject unauthorized emails
-        return false;
       }
       
       return true;
