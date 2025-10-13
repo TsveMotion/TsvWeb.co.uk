@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import AdminLayout from '@/components/admin/admin-layout'
 import ImageUpload from '@/components/admin/image-upload'
 import { toast } from 'react-hot-toast'
 
@@ -97,13 +96,9 @@ export default function NewPortfolioPage() {
   }
 
   return (
-    <AdminLayout>
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Create New Portfolio Item</h1>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="py-4">
+    <>
+      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Create New Portfolio Item</h1>
+      <div>
             <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
               {/* Title */}
               <div>
@@ -375,9 +370,7 @@ export default function NewPortfolioPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
       </div>
-    </AdminLayout>
+    </>
   )
 }

@@ -45,7 +45,7 @@ export async function POST(
           <h3>${invoice.type === 'invoice' ? 'Invoice' : 'Quote'} #${invoice.invoiceNumber}</h3>
           <p><strong>Date:</strong> ${new Date(invoice.issueDate).toLocaleDateString()}</p>
           ${invoice.dueDate ? `<p><strong>Due Date:</strong> ${new Date(invoice.dueDate).toLocaleDateString()}</p>` : ''}
-          <p><strong>Total:</strong> ${invoice.currency} ${invoice.total.toFixed(2)}</p>
+          <p><strong>Total:</strong> £${invoice.total.toFixed(2)}</p>
         </div>
         
         <p>

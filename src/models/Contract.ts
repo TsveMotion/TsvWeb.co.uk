@@ -35,6 +35,12 @@ export interface IContract {
   signedAt?: Date;
   signedBy?: string;
   signatureUrl?: string;
+  signatureDetails?: {
+    signerName?: string;
+    signedAt?: Date;
+    ip?: string;
+    userAgent?: string;
+  };
   
   // Email tracking
   sentAt?: Date;
@@ -105,6 +111,12 @@ const ContractSchema = new Schema<IContract>(
     signedAt: { type: Date },
     signedBy: { type: String },
     signatureUrl: { type: String },
+    signatureDetails: {
+      signerName: { type: String },
+      signedAt: { type: Date },
+      ip: { type: String },
+      userAgent: { type: String }
+    },
     
     // Email tracking
     sentAt: { type: Date },

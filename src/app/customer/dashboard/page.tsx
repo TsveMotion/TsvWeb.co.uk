@@ -11,6 +11,8 @@ interface CustomerData {
   name: string
   email: string
   username: string
+  websites?: string[]
+  company?: string
 }
 
 interface UptimeStats {
@@ -231,9 +233,11 @@ export default function CustomerDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Welcome, {customer.name}</span>
+              <div className="hidden md:flex items-center space-x-2 text-sm">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-gray-700 dark:text-gray-200 font-medium">{customer.name}</span>
+                </div>
               </div>
               <button
                 onClick={handleLogout}
@@ -258,9 +262,9 @@ export default function CustomerDashboard() {
                 <h2 className="text-2xl md:text-3xl font-bold mb-2">
                   Welcome to Your Dashboard
                 </h2>
-                <p className="text-blue-100 mb-4">
+                <div className="text-blue-100 mb-4">
                   Monitor your website's performance, uptime, and analytics all in one place.
-                </p>
+                </div>
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -310,13 +314,13 @@ export default function CustomerDashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Uptime</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {uptimeLoading ? (
                         <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-16 rounded"></div>
                       ) : (
                         `${uptimeStats?.avgUptime.toFixed(1) || '99.9'}%`
                       )}
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -341,13 +345,13 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Response Time</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {uptimeLoading ? (
                       <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-16 rounded"></div>
                     ) : (
                       `${Math.round(uptimeStats?.avgResponseTime || 245)}ms`
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -362,13 +366,13 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Monitors</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {uptimeLoading ? (
                       <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-8 rounded"></div>
                     ) : (
                       uptimeStats?.totalMonitors || '5'
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -386,13 +390,13 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Overall Status</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {uptimeLoading ? (
                       <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-20 rounded"></div>
                     ) : (
                       (uptimeStats?.downMonitors || 0) > 0 ? 'Issues' : 'All Good'
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -417,57 +421,26 @@ export default function CustomerDashboard() {
               </div>
             </div>
             <div className="px-6 py-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Signed Contracts */}
-                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Signed Contracts</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">View your executed agreements</p>
-                  <button
-                    onClick={() => router.push('/customer/contracts?status=signed')}
-                    className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium"
-                  >
-                    View Signed →
-                  </button>
+              {/* Single Unified Contracts Section */}
+              <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
                 </div>
-
-                {/* Pending Contracts */}
-                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
-                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Pending Review</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Contracts awaiting your signature</p>
-                  <button
-                    onClick={() => router.push('/customer/contracts?status=sent')}
-                    className="text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 text-sm font-medium"
-                  >
-                    Review Now →
-                  </button>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Your Contracts & Agreements</h4>
+                <div className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                  <div>View all your contracts, agreements, and legal documents. Track signatures, download files, and manage your business relationships with TsvWeb.</div>
                 </div>
-
-                {/* All Documents */}
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">All Documents</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Access invoices and files</p>
-                  <button
-                    onClick={() => router.push('/customer/contracts')}
-                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
-                  >
-                    Browse All →
-                  </button>
-                </div>
+                <button
+                  onClick={() => router.push('/customer/contracts')}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  View All Contracts
+                </button>
               </div>
 
               {/* Quick Access Banner */}
@@ -479,7 +452,7 @@ export default function CustomerDashboard() {
                   </div>
                   <button 
                     onClick={() => setShowSupportModal(true)}
-                    className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
                   >
                     Contact Support
                   </button>
@@ -487,6 +460,58 @@ export default function CustomerDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Quick Access Links */}
+          {customer.websites && customer.websites.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* WordPress Site */}
+              <a
+                href={customer.websites[0].startsWith('http') ? customer.websites[0] : `https://${customer.websites[0]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-shadow">
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.158 12.786l-2.698 7.84c.806.236 1.657.365 2.54.365 1.047 0 2.051-.18 2.986-.51-.024-.037-.046-.078-.065-.123l-2.763-7.572zm-5.316 3.713c-1.107-1.62-1.758-3.582-1.758-5.699 0-1.954.67-3.75 1.788-5.178l3.27 8.957-3.3 1.92zm8.666-11.475c.513-.027.976-.084.976-.084.459-.055.406-.73-.054-.705 0 0-1.376.109-2.265.109-.835 0-2.24-.109-2.24-.109-.459-.025-.513.677-.054.705 0 0 .434.057.892.084l1.324 3.63-1.862 5.578-3.096-9.208c.514-.027.976-.084.976-.084.459-.055.406-.73-.053-.705 0 0-1.377.109-2.265.109-.159 0-.347-.004-.547-.01C7.818 3.03 9.783 2 12 2c1.583 0 3.027.57 4.144 1.514-.027-.002-.053-.006-.08-.006-.835 0-1.427.727-1.427 1.509 0 .701.405 1.294.835 1.995.324.567.702 1.294.702 2.346 0 .727-.28 1.572-.648 2.748l-.849 2.833-3.072-9.138zm7.992 1.976c0 2.117-.651 4.08-1.758 5.699l-3.3-1.92 3.27-8.957c1.118 1.428 1.788 3.224 1.788 5.178zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Your WordPress Site</h4>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 truncate">{customer.websites[0]}</div>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </a>
+
+              {/* WordPress Admin */}
+              <a
+                href={`${customer.websites[0].startsWith('http') ? customer.websites[0] : `https://${customer.websites[0]}`}/wp-admin`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/50 transition-shadow">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">WordPress Admin</h4>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Manage your website content</div>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </a>
+            </div>
+          )}
 
           {/* Monitors List */}
           <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl">

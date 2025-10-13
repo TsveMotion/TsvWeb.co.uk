@@ -123,7 +123,7 @@ export default function PaymentForm({ invoiceId, invoiceNumber, total, currency,
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600">Total Amount:</span>
-          <span className="text-2xl font-bold text-gray-900">{currency} {total.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-gray-900">£{total.toFixed(2)}</span>
         </div>
       </div>
 

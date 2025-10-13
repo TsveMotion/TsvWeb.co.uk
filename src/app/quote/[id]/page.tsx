@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 
 interface QuoteItem {
   description: string;
@@ -112,6 +113,14 @@ export default function QuoteViewPage() {
             {/* Header */}
             <div className="flex justify-between items-start mb-8">
               <div>
+                <Image 
+                  src="/TsvWeb_Logo.png" 
+                  alt="TsvWeb Logo" 
+                  width={180} 
+                  height={60}
+                  className="mb-4"
+                  priority
+                />
                 <h1 className="text-3xl font-bold text-green-600">QUOTE</h1>
                 <p className="text-gray-600 mt-1">#{quote.invoiceNumber}</p>
               </div>
@@ -119,6 +128,12 @@ export default function QuoteViewPage() {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(quote.status)}`}>
                   {quote.status.toUpperCase()}
                 </span>
+                <div className="mt-4 text-sm text-gray-600">
+                  <p className="font-semibold text-gray-900">TsvWeb Ltd</p>
+                  <p>United Kingdom</p>
+                  <p>hello@tsvweb.com</p>
+                  <p>www.tsvweb.com</p>
+                </div>
               </div>
             </div>
 
@@ -140,17 +155,17 @@ export default function QuoteViewPage() {
                 <div className="text-gray-600 space-y-1">
                   <div className="flex justify-between">
                     <span>Issue Date:</span>
-                    <span>{new Date(quote.issueDate).toLocaleDateString()}</span>
+                    <span>{new Date(quote.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                   {quote.dueDate && (
                     <div className="flex justify-between">
                       <span>Valid Until:</span>
-                      <span>{new Date(quote.dueDate).toLocaleDateString()}</span>
+                      <span>{new Date(quote.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span>Currency:</span>
-                    <span>{quote.currency}</span>
+                    <span>GBP (£)</span>
                   </div>
                 </div>
               </div>
@@ -187,10 +202,10 @@ export default function QuoteViewPage() {
                           {item.quantity}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                          {quote.currency} {item.unitPrice.toFixed(2)}
+                          £{item.unitPrice.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                          {quote.currency} {item.total.toFixed(2)}
+                          £{item.total.toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -205,16 +220,16 @@ export default function QuoteViewPage() {
                 <div className="bg-green-50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal:</span>
-                    <span className="text-gray-900">{quote.currency} {quote.subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">£{quote.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax ({quote.taxRate}%):</span>
-                    <span className="text-gray-900">{quote.currency} {quote.tax.toFixed(2)}</span>
+                    <span className="text-gray-600">VAT ({quote.taxRate}%):</span>
+                    <span className="text-gray-900">£{quote.tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-2">
                     <div className="flex justify-between text-lg font-semibold">
                       <span className="text-gray-900">Total Quote:</span>
-                      <span className="text-green-600">{quote.currency} {quote.total.toFixed(2)}</span>
+                      <span className="text-green-600">£{quote.total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -243,12 +258,20 @@ export default function QuoteViewPage() {
 
             {/* Footer */}
             <div className="border-t border-gray-200 pt-8 mt-8">
-              <div className="bg-green-50 p-4 rounded-lg">
+              <div className="bg-green-50 p-4 rounded-lg mb-4">
                 <p className="text-center text-green-800 text-sm font-medium">
-                  This quote is valid until {quote.dueDate ? new Date(quote.dueDate).toLocaleDateString() : 'further notice'}
+                  This quote is valid until {quote.dueDate ? new Date(quote.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'further notice'}
                 </p>
                 <p className="text-center text-gray-600 text-sm mt-2">
                   Thank you for considering our services!
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-400 text-xs">
+                  TsvWeb Ltd • United Kingdom • Registered in England and Wales
+                </p>
+                <p className="text-gray-400 text-xs mt-1">
+                  For any queries, please contact us at hello@tsvweb.com
                 </p>
               </div>
             </div>

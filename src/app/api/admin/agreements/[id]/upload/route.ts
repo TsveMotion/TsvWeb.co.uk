@@ -11,7 +11,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (!session?.authenticated || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     await connectToDatabase();
 
     const agreement = await Agreement.findById(params.id);
@@ -56,5 +55,43 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   } catch (error) {
     console.error('Agreement PDF upload error:', error);
     return NextResponse.json({ error: 'Failed to upload PDF' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const session = await verifySession(request as any);
+    if (!session?.authenticated || session.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectToDatabase();
+    const agreement = await Agreement.findById(params.id);
+    if (!agreement) {
+      return NextResponse.json({ error: 'Agreement not found' }, { status: 404 });
+    }
+
+    if (!agreement.pdfPath) {
+      return NextResponse.json({ error: 'No PDF to remove' }, { status: 400 });
+    }
+
+    try {
+      const publicPath = agreement.pdfPath.startsWith('/') ? agreement.pdfPath.slice(1) : agreement.pdfPath;
+      const fullPath = path.join(process.cwd(), 'public', publicPath.replace(/^uploads\//, 'uploads/'));
+      const { unlink } = await import('fs/promises');
+      await unlink(fullPath).catch(() => {});
+    } catch {}
+
+    agreement.pdfPath = undefined;
+    agreement.pdfOriginalName = undefined as any;
+    agreement.pdfSize = undefined as any;
+    agreement.pdfMimeType = undefined as any;
+    agreement.updatedBy = session.email || 'admin';
+    await agreement.save();
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Agreement PDF delete error:', error);
+    return NextResponse.json({ error: 'Failed to remove PDF' }, { status: 500 });
   }
 }

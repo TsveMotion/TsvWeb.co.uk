@@ -19,6 +19,15 @@ interface Contract {
   contractType: string;
   status: string;
   createdAt?: string;
+  sentAt?: string;
+  signedAt?: string;
+  signedBy?: string;
+  signatureDetails?: {
+    signerName?: string;
+    signedAt?: string;
+    ip?: string;
+    userAgent?: string;
+  };
   files?: {
     filename: string;
     originalName: string;
@@ -87,6 +96,7 @@ export default function ContractsAdmin() {
   const [agreementUploading, setAgreementUploading] = useState(false);
   const [bindOpenFor, setBindOpenFor] = useState<Agreement | null>(null);
   const [bindUserId, setBindUserId] = useState<string>('');
+  const [viewDetailsContract, setViewDetailsContract] = useState<Contract | null>(null);
 
   // Load data
   useEffect(() => {
@@ -106,6 +116,40 @@ export default function ContractsAdmin() {
       console.error('Error loading contracts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const removeAgreementPdf = async (agreement: Agreement) => {
+    if (!agreement?._id) return;
+    if (!confirm('Remove the PDF from this agreement?')) return;
+    try {
+      const res = await fetch(`/api/admin/agreements/${agreement._id}/upload`, { method: 'DELETE' });
+      if (res.ok) {
+        await loadAgreements();
+        alert('PDF removed');
+      } else {
+        const err = await res.json().catch(() => ({} as any));
+        alert('Remove failed: ' + (err.error || res.statusText));
+      }
+    } catch (e) {
+      alert('Remove failed');
+    }
+  };
+
+  const deleteAgreement = async (agreement: Agreement) => {
+    if (!agreement?._id) return;
+    if (!confirm('Delete this agreement? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/admin/agreements/${agreement._id}`, { method: 'DELETE' });
+      if (res.ok) {
+        await loadAgreements();
+        alert('Agreement deleted');
+      } else {
+        const err = await res.json().catch(() => ({} as any));
+        alert('Delete failed: ' + (err.error || res.statusText));
+      }
+    } catch (e) {
+      alert('Delete failed');
     }
   };
 
@@ -171,7 +215,7 @@ export default function ContractsAdmin() {
       clientName: '',
       clientEmail: '',
       amount: 0,
-      currency: 'USD',
+      currency: 'GBP',
       contractType: 'web_development'
     });
     setIsEditMode(false);
@@ -293,47 +337,68 @@ export default function ContractsAdmin() {
     }
   };
 
-  const generatePDFContract = async (contract: Contract) => {
-    if (!contract) return;
-
-    try {
-      const response = await fetch(`/api/admin/contracts/${contract._id}/generate-pdf`, {
-        method: 'POST',
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Refresh the contract data to show the new file
-        loadContracts();
-        alert('PDF contract generated successfully!');
-      } else {
-        alert('Error generating PDF contract');
-      }
-    } catch (error) {
-      console.error('Error generating PDF contract:', error);
-      alert('Error generating PDF contract');
-    }
-  };
+  // Removed Generate PDF feature per request
 
   const sendForSignature = async (contract: Contract) => {
     if (!contract) return;
 
     try {
-      const response = await fetch(`/api/admin/contracts/${contract._id}/send-signature`, {
+      // Derive latest uploaded file as the agreement PDF, if available
+      const latestFile = (contract.files || []).slice().sort((a: any, b: any) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0];
+      const pdfPath = latestFile ? latestFile.path : undefined;
+
+      if (!pdfPath) {
+        alert('Please upload a contract file before sending for signature.');
+        return;
+      }
+
+      // 1) Create agreement from contract details
+      const createRes = await fetch('/api/admin/agreements', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: contract.title,
+          description: `Contract for ${contract.contractType.replace('_', ' ')}`,
+          userId: contract.userId,
+          clientName: contract.clientName,
+          clientEmail: contract.clientEmail,
+          clientCompany: '',
+          companyName: 'TsvWeb',
+          createdBy: 'admin',
+          pdfPath,
+        }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        // Refresh the contract data to show updated status
-        loadContracts();
-        alert(`Contract sent for signature successfully!\nSignature URL: ${data.signatureUrl}`);
-      } else {
-        alert('Error sending contract for signature');
+      if (!createRes.ok) {
+        const err = await createRes.json().catch(() => ({} as any));
+        alert('Failed to create agreement: ' + (err.error || createRes.statusText));
+        return;
       }
+      const { agreement } = await createRes.json();
+
+      // 2) Send agreement email with signing link
+      const sendRes = await fetch(`/api/admin/agreements/${agreement._id}/send`, { method: 'POST' });
+      if (!sendRes.ok) {
+        const err = await sendRes.json().catch(() => ({} as any));
+        alert('Failed to send agreement: ' + (err.error || sendRes.statusText));
+        return;
+      }
+      const sendData = await sendRes.json();
+      
+      // 3) Update contract status to 'sent'
+      await fetch(`/api/admin/contracts/${contract._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'sent', sentAt: new Date().toISOString() }),
+      });
+      
+      await loadContracts();
+      const successMsg = `✓ Agreement sent successfully!\n\nSigning link: ${sendData.signUrl}\n\nThe link has been copied to your clipboard and emailed to ${contract.clientEmail}.`;
+      alert(successMsg);
+      try { navigator.clipboard?.writeText(sendData.signUrl); } catch {}
     } catch (error) {
-      console.error('Error sending contract for signature:', error);
-      alert('Error sending contract for signature');
+      console.error('Error sending via agreement:', error);
+      alert('Error sending via agreement');
     }
   };
 
@@ -375,7 +440,7 @@ export default function ContractsAdmin() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, currency: 'GBP' }),
       });
 
       if (response.ok) {
@@ -402,159 +467,159 @@ export default function ContractsAdmin() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Contracts & Legal</h1>
-        <button
-          onClick={openModal}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Create New Contract
-        </button>
-      </div>
-
-      {/* Contracts Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contract
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Client
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {contracts.map((contract) => (
-              <tr key={contract._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{contract.title}</div>
-                  <div className="text-sm text-gray-500">{contract.contractType}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{contract.clientName}</div>
-                  <div className="text-sm text-gray-500">{contract.clientEmail}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {(contract.currency === 'GBP' ? '£' : contract.currency === 'USD' ? '$' : '')}{contract.amount} {contract.currency}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {contract.status || 'Draft'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <button
-                    onClick={() => editContract(contract)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => manageFiles(contract)}
-                    className="text-green-600 hover:text-green-900"
-                  >
-                    Files
-                  </button>
-                  <button
-                    onClick={() => deleteContract(contract._id!)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {contracts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-500">No contracts found.</div>
-            <button
-              onClick={openModal}
-              className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Create your first contract
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">Contracts & Legal</h1>
+            <p className="text-sm text-gray-600">Manage contracts, send for e-signature, and track status</p>
           </div>
-        )}
-
-      {/* Agreements Section */}
-      <div className="mt-10">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Agreements</h2>
           <button
-            onClick={openAgreementModal}
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            onClick={openModal}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
           >
-            New Agreement
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Create New Contract
           </button>
         </div>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+
+      {/* Contracts Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Contract
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Client
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Timeline</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {agreements.map((ag) => (
-                <tr key={ag._id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{ag.title}</div>
-                    <div className="text-xs text-gray-500">{ag.token}</div>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {contracts.map((contract) => (
+                <tr key={contract._id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-semibold text-gray-900">{contract.title}</div>
+                    <div className="text-xs text-gray-500 mt-0.5 capitalize">{contract.contractType.replace('_', ' ')}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{ag.clientName}</div>
-                    <div className="text-sm text-gray-500">{ag.clientEmail}</div>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">{contract.clientName}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{contract.clientEmail}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ag.status === 'signed' ? 'bg-green-100 text-green-800' : ag.status === 'sent' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {ag.status}
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-bold text-gray-900">
+                      {contract.currency === 'GBP' ? '£' : contract.currency === 'USD' ? '$' : ''}{contract.amount.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-500">{contract.currency}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                      contract.status === 'signed' ? 'bg-green-100 text-green-800 ring-1 ring-green-600/20' :
+                      contract.status === 'sent' ? 'bg-blue-100 text-blue-800 ring-1 ring-blue-600/20' :
+                      contract.status === 'draft' ? 'bg-gray-100 text-gray-700 ring-1 ring-gray-600/20' :
+                      contract.status === 'cancelled' ? 'bg-red-100 text-red-800 ring-1 ring-red-600/20' : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {contract.status === 'signed' && '✓ '}
+                      {contract.status || 'draft'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ag.views ?? 0}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    {ag.pdfPath ? (
-                      <>
-                        <button onClick={() => sendAgreement(ag)} className="text-purple-600 hover:text-purple-800">Send</button>
-                        <button onClick={() => window.open(`/agreements/${ag.token}`, '_blank')} className="text-blue-600 hover:text-blue-800">View</button>
-                        {!ag.clientSignedAt && !ag.userId && (
-                          <button onClick={() => { setBindOpenFor(ag); setBindUserId(''); }} className="text-gray-700 hover:text-gray-900">Bind</button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <input id={`ag-upload-${ag._id}`} type="file" accept="application/pdf" className="hidden" onChange={(e) => handleAgreementFileUpload(e, ag)} />
-                        <label htmlFor={`ag-upload-${ag._id}`} className="text-green-600 hover:text-green-800 cursor-pointer">Upload PDF</label>
-                      </>
+                    {contract.status === 'signed' && contract.signedBy && contract.signedAt && (
+                      <div className="text-xs text-gray-600 mt-1.5 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/></svg>
+                        {contract.signedBy}
+                      </div>
                     )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                        {contract.sentAt ? (
+                          <span className="font-medium">{new Date(contract.sentAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        ) : (
+                          <span className="text-gray-400">Not sent</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        {contract.status === 'signed' && contract.signedAt ? (
+                          <span className="font-medium text-green-700">{new Date(contract.signedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        ) : contract.status === 'sent' ? (
+                          <span className="text-blue-600">Awaiting signature</span>
+                        ) : (
+                          <span className="text-gray-400">Not sent</span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      {contract.status === 'signed' && (
+                        <button
+                          onClick={() => setViewDetailsContract(contract)}
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 rounded-md hover:bg-purple-100 transition-colors"
+                          title="View signature details"
+                        >
+                          View
+                        </button>
+                      )}
+                      <button
+                        onClick={() => editContract(contract)}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                        title="Edit contract"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => manageFiles(contract)}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
+                        title="Manage files"
+                      >
+                        Files
+                      </button>
+                      <button
+                        onClick={() => deleteContract(contract._id!)}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                        title="Delete contract"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {!agreementsLoading && agreements.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No agreements yet.</div>
-          )}
         </div>
+
+        {contracts.length === 0 && (
+          <div className="text-center py-16 bg-white rounded-lg shadow-md">
+            <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No contracts yet</h3>
+            <p className="text-gray-500 mb-6">Get started by creating your first contract</p>
+            <button
+              onClick={openModal}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Create First Contract
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Agreements section intentionally hidden per request */}
 
       {/* Agreement Create Modal */}
       {isAgreementModalOpen && (
@@ -897,16 +962,10 @@ export default function ContractsAdmin() {
               )}
             </div>
 
-            {/* PDF Contract Generation Section */}
+            {/* E-Signature Section */}
             <div className="mt-6 pt-6 border-t">
-              <h3 className="text-lg font-semibold mb-3">Contract Document</h3>
+              <h3 className="text-lg font-semibold mb-3">Contract Actions</h3>
               <div className="flex space-x-3">
-                <button
-                  onClick={() => generatePDFContract(selectedContract)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Generate PDF Contract
-                </button>
                 <button
                   onClick={() => sendForSignature(selectedContract)}
                   className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
@@ -924,6 +983,251 @@ export default function ContractsAdmin() {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Signature Details Modal */}
+      {viewDetailsContract && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5 rounded-t-xl">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Signature Details</h2>
+                      <p className="text-purple-100 text-sm mt-0.5">{viewDetailsContract.title}</p>
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => setViewDetailsContract(null)} className="text-white/80 hover:text-white transition-colors">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Contract Info */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border border-blue-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Contract Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Client</p>
+                    <p className="text-sm font-semibold text-gray-900">{viewDetailsContract.clientName}</p>
+                    <p className="text-xs text-gray-600">{viewDetailsContract.clientEmail}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {viewDetailsContract.currency === 'GBP' ? '£' : '$'}{viewDetailsContract.amount.toLocaleString()} {viewDetailsContract.currency}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Type</p>
+                    <p className="text-sm font-semibold text-gray-900 capitalize">{viewDetailsContract.contractType.replace('_', ' ')}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Status</p>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 ring-1 ring-green-600/20">
+                      ✓ Signed
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Signature Details */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5 border border-green-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Electronic Signature
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-200">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <svg className="w-5 h-5 text-green-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Signed By</p>
+                      <p className="text-base font-bold text-gray-900">{viewDetailsContract.signedBy || 'Unknown'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-200">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Date & Time</p>
+                      <p className="text-base font-bold text-gray-900">
+                        {viewDetailsContract.signedAt 
+                          ? new Date(viewDetailsContract.signedAt).toLocaleString('en-GB', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric', 
+                              hour: '2-digit', 
+                              minute: '2-digit',
+                              timeZoneName: 'short'
+                            })
+                          : 'Not available'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {viewDetailsContract.signatureDetails?.ip && (
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-200">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">IP Address</p>
+                        <p className="text-base font-mono font-semibold text-gray-900">{viewDetailsContract.signatureDetails.ip}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {viewDetailsContract.signatureDetails?.userAgent && (
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-200">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Device / Browser</p>
+                        <p className="text-sm text-gray-700 break-all">{viewDetailsContract.signatureDetails.userAgent}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Timeline
+                </h3>
+                <div className="space-y-3">
+                  {viewDetailsContract.createdAt && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Created:</span> {new Date(viewDetailsContract.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+                  {viewDetailsContract.sentAt && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Sent for signature:</span> {new Date(viewDetailsContract.sentAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+                  {viewDetailsContract.signedAt && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Signed:</span> {new Date(viewDetailsContract.signedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl border-t border-gray-200 flex items-center justify-between">
+              <p className="text-xs text-gray-500">This signature is legally binding and has been recorded for verification purposes.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    const content = `
+SIGNATURE VERIFICATION REPORT
+============================
+
+Contract: ${viewDetailsContract.title}
+Type: ${viewDetailsContract.contractType.replace('_', ' ')}
+Amount: ${viewDetailsContract.currency === 'GBP' ? '£' : '$'}${viewDetailsContract.amount} ${viewDetailsContract.currency}
+
+CLIENT INFORMATION
+------------------
+Name: ${viewDetailsContract.clientName}
+Email: ${viewDetailsContract.clientEmail}
+
+SIGNATURE DETAILS
+-----------------
+Signed By: ${viewDetailsContract.signedBy || 'Unknown'}
+Date & Time: ${viewDetailsContract.signedAt ? new Date(viewDetailsContract.signedAt).toLocaleString('en-GB', { 
+  day: 'numeric', 
+  month: 'long', 
+  year: 'numeric', 
+  hour: '2-digit', 
+  minute: '2-digit',
+  timeZoneName: 'short'
+}) : 'Not available'}
+IP Address: ${viewDetailsContract.signatureDetails?.ip || 'Not recorded'}
+Device/Browser: ${viewDetailsContract.signatureDetails?.userAgent || 'Not recorded'}
+
+TIMELINE
+--------
+Created: ${viewDetailsContract.createdAt ? new Date(viewDetailsContract.createdAt).toLocaleDateString('en-GB') : 'Unknown'}
+Sent: ${viewDetailsContract.sentAt ? new Date(viewDetailsContract.sentAt).toLocaleDateString('en-GB') : 'Not sent'}
+Signed: ${viewDetailsContract.signedAt ? new Date(viewDetailsContract.signedAt).toLocaleDateString('en-GB') : 'Not signed'}
+
+This is an electronically generated verification report.
+Generated on: ${new Date().toLocaleString('en-GB')}
+                    `;
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `signature-verification-${viewDetailsContract._id}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download Report
+                </button>
+                <button
+                  onClick={() => setViewDetailsContract(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

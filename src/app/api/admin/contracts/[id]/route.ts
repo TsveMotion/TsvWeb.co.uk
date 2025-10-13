@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import Contract from '@/models/Contract';
-import { User } from '@/models/User';
 import { connectToDatabase } from '@/lib/db';
+import { verifySession } from '@/lib/auth';
 
 // GET - Fetch specific contract
 export async function GET(
@@ -10,8 +9,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const session = await verifySession(request as any);
+    if (!session?.authenticated || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,23 +41,17 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const session = await verifySession(request as any);
+    if (!session?.authenticated || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectToDatabase();
-    
-    // Get current user
-    const currentUser = await User.findOne({ email: session.user.email });
-    if (!currentUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
 
     const body = await request.json();
     const updateData = {
       ...body,
-      updatedBy: currentUser._id.toString()
+      updatedBy: session.email || 'admin'
     };
 
     // Handle date fields
@@ -67,6 +60,11 @@ export async function PUT(
     }
     if (updateData.endDate) {
       updateData.endDate = new Date(updateData.endDate);
+    }
+
+    // Force currency to GBP if not explicitly set
+    if (!('currency' in updateData) || !updateData.currency) {
+      (updateData as any).currency = 'GBP';
     }
 
     const contract = await Contract.findByIdAndUpdate(
@@ -100,8 +98,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const session = await verifySession(request as any);
+    if (!session?.authenticated || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

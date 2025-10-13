@@ -26,6 +26,7 @@ export default function AdminPortfolio() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [projectTypeFilter, setProjectTypeFilter] = useState<string>('all')
+  const [featuredFilter, setFeaturedFilter] = useState<string>('all')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function AdminPortfolio() {
     })
   }
 
-  // Filter portfolio items based on search term and project type filter
+  // Filter portfolio items based on search term, project type, and featured status
   const filteredItems = portfolioItems.filter(item => {
     const matchesSearch = 
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,7 +86,11 @@ export default function AdminPortfolio() {
     
     const matchesProjectType = projectTypeFilter === 'all' || item.projectType.toLowerCase() === projectTypeFilter.toLowerCase()
     
-    return matchesSearch && matchesProjectType
+    const matchesFeatured = featuredFilter === 'all' || 
+      (featuredFilter === 'featured' && item.featured) ||
+      (featuredFilter === 'not-featured' && !item.featured)
+    
+    return matchesSearch && matchesProjectType && matchesFeatured
   })
 
   const handleToggleFeatured = async (id: string, featured: boolean) => {
@@ -148,17 +153,117 @@ export default function AdminPortfolio() {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* Header */}
+      <div className="md:flex md:items-center md:justify-between mb-6">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+            Portfolio Management
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Manage your portfolio projects and showcase your work
+          </p>
+        </div>
+        <div className="mt-4 flex md:mt-0 md:ml-4">
+          <Link
+            href="/admin/portfolio/new"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+          >
+            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            New Portfolio Item
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Projects</dt>
+                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{portfolioItems.length}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Featured</dt>
+                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {portfolioItems.filter(item => item.featured).length}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Categories</dt>
+                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{projectTypes.length}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Filtered Results</dt>
+                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{filteredItems.length}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow px-4 py-5 sm:rounded-lg sm:p-6">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg px-4 py-5 sm:p-6 mb-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Search
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Search Projects
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -166,30 +271,48 @@ export default function AdminPortfolio() {
                 type="text"
                 name="search"
                 id="search"
-                className="focus:ring-royal-blue focus:border-royal-blue block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                placeholder="Search portfolio items..."
+                className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                placeholder="Search by title, client, tech..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
+
           <div>
-            <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Project Type
             </label>
             <select
               id="projectType"
               name="projectType"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm rounded-md"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               value={projectTypeFilter}
               onChange={(e) => setProjectTypeFilter(e.target.value)}
             >
-              <option value="all">All Project Types</option>
+              <option value="all">All Types</option>
               {projectTypes.map((type: string, index: number) => (
                 <option key={index} value={type}>
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="featured" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Featured Status
+            </label>
+            <select
+              id="featured"
+              name="featured"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              value={featuredFilter}
+              onChange={(e) => setFeaturedFilter(e.target.value)}
+            >
+              <option value="all">All Projects</option>
+              <option value="featured">Featured Only</option>
+              <option value="not-featured">Not Featured</option>
             </select>
           </div>
         </div>
@@ -374,33 +497,6 @@ export default function AdminPortfolio() {
           </div>
         )}
       </div>
-
-      {/* Pagination */}
-      <nav
-        className="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-lg shadow"
-        aria-label="Pagination"
-      >
-        <div className="hidden sm:block">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredItems.length}</span> of{' '}
-            <span className="font-medium">{filteredItems.length}</span> results
-          </p>
-        </div>
-        <div className="flex-1 flex justify-between sm:justify-end">
-          <button
-            className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-            disabled
-          >
-            Previous
-          </button>
-          <button
-            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-            disabled
-          >
-            Next
-          </button>
-        </div>
-      </nav>
-    </div>
+    </>
   )
 }

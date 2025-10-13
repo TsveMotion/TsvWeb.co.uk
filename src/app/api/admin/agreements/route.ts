@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
       clientCompany,
       companyName = 'TsvWeb',
       companySignerName,
-      createdBy
+      createdBy,
+      pdfPath
     } = body || {};
 
     if (!title || !clientName || !clientEmail || !createdBy) {
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       clientCompany,
       companyName,
       companySignerName,
+      ...(pdfPath ? { pdfPath } : {}),
       views: 0,
       createdBy,
     });

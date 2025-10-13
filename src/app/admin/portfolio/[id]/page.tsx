@@ -146,55 +146,42 @@ export default function EditPortfolioPage() {
 
   if (isLoading) {
     return (
-      <div className="py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Edit Portfolio Item</h1>
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div className="py-4">
-              <div className="flex justify-center items-center h-64"></div>
-            </div>
-          </div>
+      <>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Edit Portfolio Item</h1>
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div className="py-4">
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error</h3>
-                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
-                <div className="mt-6">
-                  <button
-                    onClick={() => router.push('/admin/portfolio')}
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
-                  >
-                    Back to Portfolio
-                  </button>
-                </div>
-              </div>
-            </div>
+      <>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
+        <div className="text-center py-12">
+          <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error</h3>
+          <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
+          <div className="mt-6">
+            <button
+              onClick={() => router.push('/admin/portfolio')}
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Back to Portfolio
+            </button>
           </div>
         </div>
+      </>
     );
   }
 
   return (
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Edit Portfolio Item</h1>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="py-4">
+    <>
+      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
+      <div>
             <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
               {/* Title */}
               <div>
@@ -466,8 +453,7 @@ export default function EditPortfolioPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
       </div>
+    </>
   );
 }

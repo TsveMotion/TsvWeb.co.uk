@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import PaymentForm from '@/components/PaymentForm'
+import Image from 'next/image'
 
 interface InvoiceItem {
   description: string;
@@ -114,6 +115,14 @@ export default function InvoiceViewPage() {
             {/* Header */}
             <div className="flex justify-between items-start mb-8">
               <div>
+                <Image 
+                  src="/TsvWeb_Logo.png" 
+                  alt="TsvWeb Logo" 
+                  width={180} 
+                  height={60}
+                  className="mb-4"
+                  priority
+                />
                 <h1 className="text-3xl font-bold text-gray-900">INVOICE</h1>
                 <p className="text-gray-600 mt-1">#{invoice.invoiceNumber}</p>
               </div>
@@ -121,6 +130,12 @@ export default function InvoiceViewPage() {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)}`}>
                   {invoice.status.toUpperCase()}
                 </span>
+                <div className="mt-4 text-sm text-gray-600">
+                  <p className="font-semibold text-gray-900">TsvWeb Ltd</p>
+                  <p>United Kingdom</p>
+                  <p>hello@tsvweb.com</p>
+                  <p>www.tsvweb.com</p>
+                </div>
               </div>
             </div>
 
@@ -142,17 +157,17 @@ export default function InvoiceViewPage() {
                 <div className="text-gray-600 space-y-1">
                   <div className="flex justify-between">
                     <span>Issue Date:</span>
-                    <span>{new Date(invoice.issueDate).toLocaleDateString()}</span>
+                    <span>{new Date(invoice.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                   {invoice.dueDate && (
                     <div className="flex justify-between">
                       <span>Due Date:</span>
-                      <span>{new Date(invoice.dueDate).toLocaleDateString()}</span>
+                      <span>{new Date(invoice.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span>Currency:</span>
-                    <span>{invoice.currency}</span>
+                    <span>GBP (£)</span>
                   </div>
                 </div>
               </div>
@@ -189,10 +204,10 @@ export default function InvoiceViewPage() {
                           {item.quantity}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                          {invoice.currency} {item.unitPrice.toFixed(2)}
+                          £{item.unitPrice.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                          {invoice.currency} {item.total.toFixed(2)}
+                          £{item.total.toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -207,16 +222,16 @@ export default function InvoiceViewPage() {
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal:</span>
-                    <span className="text-gray-900">{invoice.currency} {invoice.subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">£{invoice.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax ({invoice.taxRate}%):</span>
-                    <span className="text-gray-900">{invoice.currency} {invoice.tax.toFixed(2)}</span>
+                    <span className="text-gray-600">VAT ({invoice.taxRate}%):</span>
+                    <span className="text-gray-900">£{invoice.tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-2">
                     <div className="flex justify-between text-lg font-semibold">
                       <span className="text-gray-900">Total:</span>
-                      <span className="text-gray-900">{invoice.currency} {invoice.total.toFixed(2)}</span>
+                      <span className="text-gray-900">£{invoice.total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -258,9 +273,17 @@ export default function InvoiceViewPage() {
 
             {/* Footer */}
             <div className="border-t border-gray-200 pt-8 mt-8">
-              <p className="text-center text-gray-500 text-sm">
-                Thank you for your business!
-              </p>
+              <div className="text-center">
+                <p className="text-gray-500 text-sm mb-2">
+                  Thank you for your business!
+                </p>
+                <p className="text-gray-400 text-xs">
+                  TsvWeb Ltd • United Kingdom • Registered in England and Wales
+                </p>
+                <p className="text-gray-400 text-xs mt-1">
+                  For any queries, please contact us at hello@tsvweb.com
+                </p>
+              </div>
             </div>
           </div>
         </div>

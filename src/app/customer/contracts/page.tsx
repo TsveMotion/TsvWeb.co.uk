@@ -26,7 +26,14 @@ interface Contract {
     uploadedAt: string
   }>
   signedAt?: string
+  signedBy?: string
   sentAt?: string
+  signatureDetails?: {
+    signerName?: string
+    signedAt?: string
+    ip?: string
+    userAgent?: string
+  }
   emailsSent: Array<{
     sentAt: string
     subject: string
@@ -153,23 +160,34 @@ export default function CustomerContracts() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Contracts & Documents</h1>
-            <p className="text-gray-600 mt-2">View and download your contracts, signed documents, and invoices</p>
+        <div className="mb-8">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">My Contracts & Documents</h1>
+                  <p className="text-gray-600 mt-1">View and download your contracts, signed documents, and invoices</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push('/customer/dashboard')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium transition-colors shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Dashboard
+            </button>
           </div>
-          <button
-            onClick={() => router.push('/customer/dashboard')}
-            className="text-blue-600 hover:text-blue-800 inline-flex items-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Dashboard
-          </button>
         </div>
 
         {/* Error Alert */}
@@ -180,35 +198,40 @@ export default function CustomerContracts() {
         )}
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
-          <div className="flex items-center space-x-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value)
-                  setCurrentPage(1)
-                }}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Contracts</option>
-                <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="signed">Signed</option>
-                <option value="expired">Expired</option>
-              </select>
+        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200/50 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm min-w-[180px]"
+                >
+                  <option value="">All Contracts</option>
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                  <option value="signed">Signed</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </div>
+              {statusFilter && (
+                <button
+                  onClick={() => {
+                    setStatusFilter('')
+                    setCurrentPage(1)
+                  }}
+                  className="mt-7 px-4 py-2.5 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Clear Filter
+                </button>
+              )}
             </div>
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setStatusFilter('')
-                  setCurrentPage(1)
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Clear Filter
-              </button>
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">{contracts.length}</span> contract{contracts.length !== 1 ? 's' : ''} found
             </div>
           </div>
         </div>
@@ -382,7 +405,13 @@ export default function CustomerContracts() {
                       {selectedContract.signedAt && (
                         <div>
                           <span className="text-sm font-medium text-gray-500">Signed:</span>
-                          <p className="text-gray-900">{new Date(selectedContract.signedAt).toLocaleDateString()}</p>
+                          <p className="text-gray-900">{new Date(selectedContract.signedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        </div>
+                      )}
+                      {selectedContract.signedBy && (
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Signed By:</span>
+                          <p className="text-gray-900">{selectedContract.signedBy}</p>
                         </div>
                       )}
                     </div>
@@ -429,6 +458,86 @@ export default function CustomerContracts() {
                     )}
                   </div>
                 </div>
+
+                {/* Signature Authentication Details */}
+                {selectedContract.status === 'signed' && selectedContract.signatureDetails && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      Signature Authentication
+                    </h3>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="text-xs font-medium text-gray-500 uppercase">Signer Name</span>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">{selectedContract.signatureDetails.signerName || selectedContract.signedBy || 'Unknown'}</p>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-xs font-medium text-gray-500 uppercase">Date & Time</span>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {selectedContract.signatureDetails.signedAt 
+                              ? new Date(selectedContract.signatureDetails.signedAt).toLocaleString('en-GB', { 
+                                  day: 'numeric', 
+                                  month: 'long', 
+                                  year: 'numeric', 
+                                  hour: '2-digit', 
+                                  minute: '2-digit'
+                                })
+                              : new Date(selectedContract.signedAt!).toLocaleString('en-GB', { 
+                                  day: 'numeric', 
+                                  month: 'long', 
+                                  year: 'numeric', 
+                                  hour: '2-digit', 
+                                  minute: '2-digit'
+                                })}
+                          </p>
+                        </div>
+                        {selectedContract.signatureDetails.ip && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                              </svg>
+                              <span className="text-xs font-medium text-gray-500 uppercase">IP Address</span>
+                            </div>
+                            <p className="text-sm font-mono font-semibold text-gray-900">{selectedContract.signatureDetails.ip}</p>
+                          </div>
+                        )}
+                        {selectedContract.signatureDetails.userAgent && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              <span className="text-xs font-medium text-gray-500 uppercase">Device / Browser</span>
+                            </div>
+                            <p className="text-xs text-gray-700 break-all">{selectedContract.signatureDetails.userAgent}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-green-200">
+                        <p className="text-xs text-green-800 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          This signature is legally binding and has been recorded for verification purposes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Public Notes */}
                 {selectedContract.notes && selectedContract.notes.length > 0 && (
