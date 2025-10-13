@@ -84,12 +84,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Ensure URLs have proper scheme for Stripe
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const formatUrl = (url: string) => {
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url
+      }
+      // In production, default to https, in development use http
+      const protocol = process.env.NODE_ENV === 'production' ? 'https://' : 'http://'
+      return `${protocol}${url}`
+    }
+    
+    const formattedBaseUrl = formatUrl(baseUrl)
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/invoice/${invoiceId}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/invoice/${invoiceId}?payment=cancelled`,
+      success_url: `${formattedBaseUrl}/invoice/${invoiceId}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${formattedBaseUrl}/invoice/${invoiceId}?payment=cancelled`,
       metadata: {
         invoiceId: invoiceId,
         invoiceNumber: invoice.invoiceNumber,

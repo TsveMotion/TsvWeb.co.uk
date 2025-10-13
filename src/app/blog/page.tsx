@@ -71,8 +71,8 @@ export default function BlogPage() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="Blog - Web Design & Development Insights | TsvWeb"
-        description="Explore our blog for the latest insights on web design, development, SEO, and digital marketing strategies to help your business succeed online."
+        title="WordPress Web Design Birmingham Blog | WordPress Developer Tips & Small Business Web Design"
+        description="WordPress web design Birmingham blog by our expert WordPress developer. Learn about affordable WordPress websites, custom WordPress development, small business web design, and SEO-friendly WordPress design tips for Birmingham businesses."
         canonical="https://tsvweb.com/blog"
         structuredData={{
           type: 'WebSite',
@@ -98,11 +98,11 @@ export default function BlogPage() {
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-              <span className="text-royal-blue">TsvWeb</span> Blog
+              WordPress Web Design <span className="text-royal-blue">Birmingham Blog</span>
             </h1>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              Insights, tips, and strategies to help your business succeed online.
-              Stay updated with the latest trends in web design, development, and digital marketing.
+              WordPress developer insights, tips, and strategies to help Birmingham businesses succeed online with affordable WordPress web design.
+              Stay updated with the latest trends in WordPress development, custom WordPress websites, and small business web design.
             </p>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function BlogPage() {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Main content */}
             <div className="md:w-2/3">
-              <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Blog</h1>
+              <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Latest WordPress Web Design Birmingham Articles</h2>
               
               {/* Category filter */}
               <div className="mb-8 overflow-x-auto">

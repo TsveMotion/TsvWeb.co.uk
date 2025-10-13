@@ -224,11 +224,11 @@ export default function ContactForm() {
           {...register('budget')}
         >
           <option value="">Select budget range</option>
-          <option value="less-than-1000">Less than $1,000</option>
-          <option value="1000-5000">$1,000 - $5,000</option>
-          <option value="5000-10000">$5,000 - $10,000</option>
-          <option value="10000-20000">$10,000 - $20,000</option>
-          <option value="more-than-20000">More than $20,000</option>
+          <option value="30-month">£30/month</option>
+          <option value="50-month">£50/month</option>
+          <option value="75-month">£75/month</option>
+          <option value="100-month">£100/month</option>
+          <option value="custom">Custom Quote</option>
           <option value="not-sure">Not sure yet</option>
         </select>
       </div>

@@ -30,6 +30,25 @@ interface Contract {
   }[];
 }
 
+interface Agreement {
+  _id?: string;
+  title: string;
+  description?: string;
+  token: string;
+  status: 'draft' | 'sent' | 'signed' | 'cancelled' | 'expired';
+  userId?: string;
+  clientName: string;
+  clientEmail: string;
+  clientCompany?: string;
+  companyName?: string;
+  companySignerName?: string;
+  pdfPath?: string;
+  sentAt?: string;
+  clientSignedAt?: string;
+  companySignedAt?: string;
+  views?: number;
+}
+
 export default function ContractsAdmin() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -46,14 +65,34 @@ export default function ContractsAdmin() {
     clientName: '',
     clientEmail: '',
     amount: 0,
-    currency: 'USD',
+    currency: 'GBP',
     contractType: 'web_development'
   });
+
+  // Agreements state
+  const [agreements, setAgreements] = useState<Agreement[]>([]);
+  const [agreementsLoading, setAgreementsLoading] = useState(true);
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
+  const [agreementForm, setAgreementForm] = useState({
+    title: '',
+    description: '',
+    userId: '',
+    clientName: '',
+    clientEmail: '',
+    clientCompany: '',
+    companyName: 'TsvWeb',
+    companySignerName: '',
+  });
+  const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null);
+  const [agreementUploading, setAgreementUploading] = useState(false);
+  const [bindOpenFor, setBindOpenFor] = useState<Agreement | null>(null);
+  const [bindUserId, setBindUserId] = useState<string>('');
 
   // Load data
   useEffect(() => {
     loadContracts();
     loadUsers();
+    loadAgreements();
   }, []);
 
   const loadContracts = async () => {
@@ -67,6 +106,33 @@ export default function ContractsAdmin() {
       console.error('Error loading contracts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createAgreement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/agreements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...agreementForm,
+          createdBy: users?.[0]?.email || 'admin',
+        }),
+      });
+      if (res.ok) {
+        setIsAgreementModalOpen(false);
+        setAgreementForm({
+          title: '', description: '', userId: '', clientName: '', clientEmail: '', clientCompany: '', companyName: 'TsvWeb', companySignerName: ''
+        });
+        await loadAgreements();
+      } else {
+        const err = await res.json().catch(() => ({} as any));
+        alert('Failed to create agreement: ' + (err.error || res.statusText));
+      }
+    } catch (e) {
+      console.error('Create agreement error', e);
+      alert('Failed to create agreement');
     }
   };
 
@@ -84,6 +150,20 @@ export default function ContractsAdmin() {
     }
   };
 
+  const loadAgreements = async () => {
+    try {
+      const res = await fetch('/api/admin/agreements');
+      if (res.ok) {
+        const data = await res.json();
+        setAgreements(data.items || []);
+      }
+    } catch (e) {
+      console.error('Error loading agreements:', e);
+    } finally {
+      setAgreementsLoading(false);
+    }
+  };
+
   const openModal = () => {
     setFormData({
       title: '',
@@ -97,6 +177,20 @@ export default function ContractsAdmin() {
     setIsEditMode(false);
     setEditingContract(null);
     setIsModalOpen(true);
+  };
+
+  const openAgreementModal = () => {
+    setAgreementForm({
+      title: '',
+      description: '',
+      userId: '',
+      clientName: '',
+      clientEmail: '',
+      clientCompany: '',
+      companyName: 'TsvWeb',
+      companySignerName: '',
+    });
+    setIsAgreementModalOpen(true);
   };
 
   const editContract = (contract: Contract) => {
@@ -117,6 +211,10 @@ export default function ContractsAdmin() {
   const manageFiles = (contract: Contract) => {
     setSelectedContract(contract);
     setIsFileModalOpen(true);
+  };
+
+  const manageAgreement = (agreement: Agreement) => {
+    setSelectedAgreement(agreement);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,6 +247,49 @@ export default function ContractsAdmin() {
       if (event.target) {
         event.target.value = '';
       }
+    }
+  };
+
+  const handleAgreementFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, agreement: Agreement) => {
+    const file = event.target.files?.[0];
+    if (!file || !agreement) return;
+
+    setAgreementUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch(`/api/admin/agreements/${agreement._id}/upload`, { method: 'POST', body: fd });
+      if (res.ok) {
+        await loadAgreements();
+        alert('Agreement PDF uploaded');
+      } else {
+        const err = await res.json().catch(() => ({} as any));
+        alert('Upload failed: ' + (err.error || res.statusText));
+      }
+    } catch (e) {
+      console.error('Agreement upload error', e);
+      alert('Upload failed');
+    } finally {
+      setAgreementUploading(false);
+      if (event.target) event.target.value = '';
+    }
+  };
+
+  const sendAgreement = async (agreement: Agreement) => {
+    try {
+      const res = await fetch(`/api/admin/agreements/${agreement._id}/send`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        await loadAgreements();
+        navigator.clipboard?.writeText(data.signUrl).catch(() => {});
+        alert(`Agreement sent. Link copied to clipboard.\n${data.signUrl}`);
+      } else {
+        const err = await res.json().catch(() => ({} as any));
+        alert('Send failed: ' + (err.error || res.statusText));
+      }
+    } catch (e) {
+      console.error('Send agreement error', e);
+      alert('Failed to send');
     }
   };
 
@@ -306,7 +447,7 @@ export default function ContractsAdmin() {
                   <div className="text-sm text-gray-500">{contract.clientEmail}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ${contract.amount} {contract.currency}
+                  {(contract.currency === 'GBP' ? '£' : contract.currency === 'USD' ? '$' : '')}{contract.amount} {contract.currency}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -349,6 +490,194 @@ export default function ContractsAdmin() {
             </button>
           </div>
         )}
+
+      {/* Agreements Section */}
+      <div className="mt-10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Agreements</h2>
+          <button
+            onClick={openAgreementModal}
+            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+          >
+            New Agreement
+          </button>
+        </div>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {agreements.map((ag) => (
+                <tr key={ag._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{ag.title}</div>
+                    <div className="text-xs text-gray-500">{ag.token}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{ag.clientName}</div>
+                    <div className="text-sm text-gray-500">{ag.clientEmail}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ag.status === 'signed' ? 'bg-green-100 text-green-800' : ag.status === 'sent' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {ag.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ag.views ?? 0}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    {ag.pdfPath ? (
+                      <>
+                        <button onClick={() => sendAgreement(ag)} className="text-purple-600 hover:text-purple-800">Send</button>
+                        <button onClick={() => window.open(`/agreements/${ag.token}`, '_blank')} className="text-blue-600 hover:text-blue-800">View</button>
+                        {!ag.clientSignedAt && !ag.userId && (
+                          <button onClick={() => { setBindOpenFor(ag); setBindUserId(''); }} className="text-gray-700 hover:text-gray-900">Bind</button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <input id={`ag-upload-${ag._id}`} type="file" accept="application/pdf" className="hidden" onChange={(e) => handleAgreementFileUpload(e, ag)} />
+                        <label htmlFor={`ag-upload-${ag._id}`} className="text-green-600 hover:text-green-800 cursor-pointer">Upload PDF</label>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!agreementsLoading && agreements.length === 0 && (
+            <div className="text-center py-8 text-gray-500">No agreements yet.</div>
+          )}
+        </div>
+      </div>
+
+      {/* Agreement Create Modal */}
+      {isAgreementModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Create New Agreement</h2>
+              <button onClick={() => setIsAgreementModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <form onSubmit={createAgreement} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Select User (optional)</label>
+                <select
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={agreementForm.userId}
+                  onChange={(e) => {
+                    const uid = e.target.value;
+                    const u = users.find(us => us.id === uid);
+                    setAgreementForm({
+                      ...agreementForm,
+                      userId: uid,
+                      clientName: u ? u.name : agreementForm.clientName,
+                      clientEmail: u ? u.email : agreementForm.clientEmail,
+                    });
+                  }}
+                >
+                  <option value="">Choose a user...</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Title *</label>
+                <input className="w-full px-3 py-2 border rounded-md" value={agreementForm.title} onChange={(e) => setAgreementForm({ ...agreementForm, title: e.target.value })} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea className="w-full px-3 py-2 border rounded-md" value={agreementForm.description} onChange={(e) => setAgreementForm({ ...agreementForm, description: e.target.value })} rows={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Client Name *</label>
+                  <input className="w-full px-3 py-2 border rounded-md" value={agreementForm.clientName} onChange={(e) => setAgreementForm({ ...agreementForm, clientName: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Client Email *</label>
+                  <input type="email" className="w-full px-3 py-2 border rounded-md" value={agreementForm.clientEmail} onChange={(e) => setAgreementForm({ ...agreementForm, clientEmail: e.target.value })} required />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Client Company</label>
+                <input className="w-full px-3 py-2 border rounded-md" value={agreementForm.clientCompany} onChange={(e) => setAgreementForm({ ...agreementForm, clientCompany: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Company Name</label>
+                  <input className="w-full px-3 py-2 border rounded-md" value={agreementForm.companyName} onChange={(e) => setAgreementForm({ ...agreementForm, companyName: e.target.value })} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Company Signer Name</label>
+                  <input className="w-full px-3 py-2 border rounded-md" value={agreementForm.companySignerName} onChange={(e) => setAgreementForm({ ...agreementForm, companySignerName: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <button type="button" onClick={() => setIsAgreementModalOpen(false)} className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">Create</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bind Agreement Modal */}
+      {bindOpenFor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Bind Agreement to User</h2>
+              <button onClick={() => setBindOpenFor(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Choose a user</label>
+                <select className="w-full px-3 py-2 border rounded-md" value={bindUserId} onChange={(e) => setBindUserId(e.target.value)}>
+                  <option value="">Select user...</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button onClick={() => setBindOpenFor(null)} className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
+                <button
+                  disabled={!bindUserId}
+                  onClick={async () => {
+                    if (!bindOpenFor) return;
+                    try {
+                      const res = await fetch(`/api/admin/agreements/${bindOpenFor._id}/bind`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: bindUserId }),
+                      });
+                      if (res.ok) {
+                        setBindOpenFor(null);
+                        setBindUserId('');
+                        await loadAgreements();
+                        alert('Agreement bound to user');
+                      } else {
+                        const err = await res.json().catch(() => ({} as any));
+                        alert('Bind failed: ' + (err.error || res.statusText));
+                      }
+                    } catch (e) {
+                      alert('Bind failed');
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >Bind</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
 
       {/* SUPER SIMPLE MODAL */}
@@ -445,7 +774,7 @@ export default function ContractsAdmin() {
               {/* 4. Amount */}
               {formData.userId && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Amount (USD) *</label>
+                  <label className="block text-sm font-medium mb-2">Amount (GBP) *</label>
                   <input
                     type="number"
                     required

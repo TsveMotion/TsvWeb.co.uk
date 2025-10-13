@@ -41,10 +41,10 @@ const PROJECT_TYPES = [
 ]
 
 const BUDGET_RANGES = [
-  { id: 'under-5k', label: 'Under $5,000', description: 'Small projects and basic websites' },
-  { id: '5k-15k', label: '$5,000 - $15,000', description: 'Professional websites with custom features' },
-  { id: '15k-30k', label: '$15,000 - $30,000', description: 'Complex websites and e-commerce stores' },
-  { id: '30k-plus', label: '$30,000+', description: 'Enterprise solutions and comprehensive campaigns' },
+  { id: '30-month', label: '£30/month', description: 'Basic WordPress websites and maintenance' },
+  { id: '50-month', label: '£50/month', description: 'Professional WordPress websites with custom features' },
+  { id: '75-month', label: '£75/month', description: 'Complex WordPress websites and e-commerce stores' },
+  { id: '100-month', label: '£100/month', description: 'Enterprise WordPress solutions and comprehensive services' },
   { id: 'discuss', label: 'Let\'s Discuss', description: 'I\'d prefer to talk about budget during our call' }
 ]
 

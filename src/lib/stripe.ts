@@ -39,7 +39,7 @@ export const getStripe = () => {
 
 // Stripe configuration
 export const STRIPE_CONFIG = {
-  currency: 'usd',
+  currency: 'gbp',
   payment_method_types: ['card'],
   mode: 'payment' as const,
   billing_address_collection: 'required' as const,
@@ -52,7 +52,7 @@ export const STRIPE_CONFIG = {
 }
 
 // Helper function to format amount for Stripe (convert to cents)
-export const formatAmountForStripe = (amount: number, currency: string = 'usd'): number => {
+export const formatAmountForStripe = (amount: number, currency: string = 'gbp'): number => {
   // Stripe expects amounts in the smallest currency unit (cents for USD)
   const zeroDecimalCurrencies = ['bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf']
   
@@ -64,7 +64,7 @@ export const formatAmountForStripe = (amount: number, currency: string = 'usd'):
 }
 
 // Helper function to format amount from Stripe (convert from cents)
-export const formatAmountFromStripe = (amount: number, currency: string = 'usd'): number => {
+export const formatAmountFromStripe = (amount: number, currency: string = 'gbp'): number => {
   const zeroDecimalCurrencies = ['bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf']
   
   if (zeroDecimalCurrencies.includes(currency.toLowerCase())) {

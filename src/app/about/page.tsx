@@ -9,8 +9,8 @@ export default function AboutPage() {
   const team = [
     {
       name: 'Alex Johnson',
-      role: 'Founder & CEO',
-      bio: 'With over 15 years of experience in web development and digital marketing, Alex founded TsvWeb with a vision to help businesses succeed online through innovative web solutions.',
+      role: 'Founder & WordPress Developer Birmingham',
+      bio: 'With over 15 years of experience in WordPress development and digital marketing, Alex founded TsvWeb with a vision to help Birmingham businesses succeed online through affordable WordPress web design and innovative solutions.',
       image: '/images/team/alex.jpg',
     },
     {
@@ -75,20 +75,20 @@ export default function AboutPage() {
 
   // SEO metadata
   const seoData = {
-    title: 'About TsvWeb | Professional Web Design & Development',
-    description: 'Learn about TsvWeb, our team of web experts, our mission, values, and approach to creating exceptional web experiences for businesses.',
+    title: 'About Our WordPress Developer Birmingham Team | Affordable WordPress Web Design',
+    description: 'Meet our Birmingham WordPress developer team. Learn about TsvWeb, our WordPress web design expertise, Birmingham local knowledge, and our mission to provide affordable custom WordPress websites for local businesses.',
     canonical: 'https://tsvweb.com/about',
     openGraph: {
-      title: 'About TsvWeb | Professional Web Design & Development',
-      description: 'Learn about TsvWeb, our team of web experts, our mission, values, and approach to creating exceptional web experiences.',
+      title: 'About Our WordPress Developer Birmingham Team | TsvWeb',
+      description: 'Meet our Birmingham WordPress developer team specializing in affordable WordPress web design and custom WordPress websites for local Birmingham businesses.',
       url: 'https://tsvweb.com/about',
       type: 'website',
       images: [
         {
-          url: 'https://tsvweb.com/images/og-about.jpg',
+          url: 'https://tsvweb.com/images/og-about-wordpress-birmingham.jpg',
           width: 1200,
           height: 630,
-          alt: 'About TsvWeb',
+          alt: 'About TsvWeb WordPress Developer Birmingham Team',
         },
       ],
     },
@@ -105,10 +105,10 @@ export default function AboutPage() {
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                About TsvWeb
+                About Our WordPress Developer <span className="text-royal-blue dark:text-blue-400">Birmingham</span> Team
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                We're a team of passionate web professionals dedicated to creating exceptional online experiences.
+                We're a team of passionate WordPress developers and web professionals dedicated to creating exceptional WordPress websites for Birmingham businesses through affordable web design solutions.
               </p>
             </div>
           </div>

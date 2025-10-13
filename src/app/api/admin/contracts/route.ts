@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import Contract from '@/models/Contract';
-import { User } from '@/models/User';
 import { connectToDatabase } from '@/lib/db';
+import clientPromise from '@/lib/mongodb';
 
 // GET - Fetch all contracts with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       clientEmail,
       clientCompany,
       amount,
-      currency = 'USD',
+      currency = 'GBP',
       startDate,
       endDate,
       duration
@@ -99,8 +99,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the client user exists
-    const clientUser = await User.findById(userId);
+    // Verify the client user exists in the same collection used by admin users API
+    const client = await clientPromise;
+    const db = client.db();
+    const clientUser = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     if (!clientUser) {
       return NextResponse.json({ error: 'Client user not found' }, { status: 404 });
     }

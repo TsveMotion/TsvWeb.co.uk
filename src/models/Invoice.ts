@@ -62,7 +62,7 @@ const InvoiceSchema = new Schema({
   tax: { type: Number, required: true, min: 0 },
   taxRate: { type: Number, required: true, min: 0, max: 100 },
   total: { type: Number, required: true, min: 0 },
-  currency: { type: String, default: 'USD' },
+  currency: { type: String, default: 'GBP' },
   status: { 
     type: String, 
     enum: ['draft', 'sent', 'viewed', 'paid', 'overdue', 'cancelled'], 
@@ -86,7 +86,7 @@ const InvoiceSchema = new Schema({
     stripeSessionId: { type: String },
     stripePaymentIntentId: { type: String },
     amount: { type: Number },
-    currency: { type: String },
+    currency: { type: String, default: 'GBP' },
     paidAt: { type: Date },
     failedAt: { type: Date },
     expiredAt: { type: Date },

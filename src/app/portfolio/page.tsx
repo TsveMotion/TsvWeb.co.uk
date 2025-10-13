@@ -79,8 +79,8 @@ export default function PortfolioPage() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="Portfolio - Web Design & Development Projects | TsvWeb"
-        description="Explore our portfolio of web design and development projects. See how we've helped businesses across various industries establish a strong online presence."
+        title="WordPress Portfolio Birmingham | Custom WordPress Websites & Small Business Web Design"
+        description="View our WordPress portfolio showcasing affordable WordPress web design projects in Birmingham. See how our WordPress developer creates custom WordPress websites and small business web design solutions for local Birmingham businesses."
         canonical="https://tsvweb.com/portfolio"
         structuredData={{
           type: 'WebSite',
@@ -118,11 +118,11 @@ export default function PortfolioPage() {
           <div className="text-center max-w-4xl mx-auto">
             <span className="inline-block px-3 py-1 bg-royal-blue/10 dark:bg-royal-blue/20 text-royal-blue dark:text-royal-blue-light rounded-full text-sm font-medium mb-6">Our Work</span>
             <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-              Our <span className="text-royal-blue">Portfolio</span>
+              WordPress <span className="text-royal-blue">Portfolio Birmingham</span>
             </h1>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              Explore our collection of successful web design and development projects. 
-              Each project showcases our commitment to creating beautiful, functional, and user-friendly websites that drive results.
+              Explore our collection of successful WordPress web design projects for Birmingham businesses. 
+              Each project showcases our WordPress developer expertise in creating affordable, beautiful, and functional custom WordPress websites that drive results for local businesses.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button 
@@ -146,7 +146,7 @@ export default function PortfolioPage() {
         <div className="container-custom">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="heading-2 text-gray-900 dark:text-white mb-4">Featured Projects</h2>
+            <h2 className="heading-2 text-gray-900 dark:text-white mb-4">Featured WordPress Web Design Birmingham Projects</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Browse through our diverse portfolio of web projects, from stunning business websites to complex e-commerce platforms.
             </p>

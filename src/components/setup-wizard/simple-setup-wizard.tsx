@@ -38,10 +38,10 @@ const PROJECT_TYPES = [
 ]
 
 const BUDGET_RANGES = [
-  { id: 'under-1k', label: 'Under £1,000' },
-  { id: '1k-2k', label: '£1,000 - £2,000' },
-  { id: '2k-3k', label: '£2,000 - £3,000' },
-  { id: '3k-5k', label: '£3,000 - £5,000' },
+  { id: '30-month', label: '£30/month' },
+  { id: '50-month', label: '£50/month' },
+  { id: '75-month', label: '£75/month' },
+  { id: '100-month', label: '£100/month' },
   { id: 'discuss', label: 'Let\'s Discuss' }
 ]
 

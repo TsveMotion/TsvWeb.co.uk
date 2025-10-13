@@ -18,7 +18,14 @@ export async function POST(request: NextRequest) {
     }
     
     // Connect to database
-    await connectToDatabase()
+    try {
+      await connectToDatabase()
+    } catch (err) {
+      return NextResponse.json(
+        { success: false, message: 'Service temporarily unavailable. Please try again shortly.' },
+        { status: 503 }
+      )
+    }
     
     // Authenticate user
     const userData = await authenticateUser(email, password)
@@ -56,3 +63,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

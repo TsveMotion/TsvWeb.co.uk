@@ -84,7 +84,7 @@ const ContractSchema = new Schema<IContract>(
     
     // Contract details
     amount: { type: Number, required: true },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'GBP' },
     startDate: { type: Date },
     endDate: { type: Date },
     duration: { type: Number }, // in months

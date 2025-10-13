@@ -104,11 +104,20 @@ class UptimeKumaService {
    */
   async getMonitorsFromAPI(): Promise<any[]> {
     try {
+      // Check if service is configured first
+      if (!this.isConfigured()) {
+        // Silently return mock data if not configured (no error logging)
+        return this.getMockMonitors()
+      }
+      
       // Try the API endpoint for monitors
       const response = await this.makeRequest('/api/monitor')
       return response.monitors || response || []
     } catch (error) {
-      console.error('Failed to fetch monitors from API:', error)
+      // Only log detailed errors in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch monitors from API:', error)
+      }
       // Return mock data as fallback
       return this.getMockMonitors()
     }

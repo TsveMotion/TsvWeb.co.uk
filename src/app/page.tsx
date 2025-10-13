@@ -48,66 +48,93 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="Website Development Birmingham | Professional Web Design Services"
-        description="Leading website development in Birmingham. Professional web design, SEO optimization, and digital solutions for Birmingham businesses. Get a custom website that drives results and grows your business."
+        title="Affordable WordPress Web Design Birmingham | From £30/Month | WordPress Developer Birmingham"
+        description=" #1 WordPress web design Birmingham from £30/month  Expert WordPress developer creating custom WordPress websites for Birmingham businesses. SEO-friendly, mobile-responsive WordPress design. Free consultation available."
         canonical="https://tsvweb.com"
         googleSiteVerification={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION}
         openGraph={{
-          title: "Website Development Birmingham | TsvWeb",
-          description: "Expert website development services in Birmingham. Custom web design, SEO, and digital solutions for local businesses.",
+          title: "Affordable WordPress Web Design Birmingham | TsvWeb",
+          description: "Professional affordable WordPress web design Birmingham. Custom WordPress developer creating stunning, SEO-friendly websites for Birmingham businesses.",
           url: "https://tsvweb.com",
           type: "website",
           images: [{
-            url: "https://tsvweb.com/images/birmingham-web-development-og.jpg",
+            url: "https://tsvweb.com/images/birmingham-wordpress-design-og.jpg",
             width: 1200,
             height: 630,
-            alt: "Website Development Birmingham - TsvWeb Professional Services"
+            alt: "Affordable WordPress Web Design Birmingham - TsvWeb Professional Services"
           }]
         }}
         structuredData={{
           type: 'LocalBusiness',
           data: {
-            '@type': 'WebDesignCompany',
-            name: 'TsvWeb - Website Development Birmingham',
-            description: 'Professional website development and web design services in Birmingham',
+            name: 'TsvWeb - WordPress Web Design Birmingham',
+            alternateName: 'TsvWeb WordPress Developer Birmingham',
+            description: 'Professional WordPress web design services in Birmingham from £30/month. Expert WordPress developer creating custom, SEO-friendly WordPress websites for Birmingham businesses.',
             url: 'https://tsvweb.com',
-            logo: 'https://tsvweb.com/images/logo.png',
+            telephone: '+44-121-XXX-XXXX',
+            email: 'hello@tsvweb.com',
             address: {
               '@type': 'PostalAddress',
               addressLocality: 'Birmingham',
               addressRegion: 'West Midlands',
-              addressCountry: 'GB'
+              addressCountry: 'UK',
+              postalCode: 'B1 1AA'
             },
             geo: {
               '@type': 'GeoCoordinates',
-              latitude: '52.4862',
-              longitude: '-1.8904'
+              latitude: 52.4862,
+              longitude: -1.8904
             },
-            areaServed: [
-              'Birmingham',
-              'West Midlands',
-              'Solihull',
-              'Wolverhampton',
-              'Coventry'
-            ],
-            serviceType: [
-              'Website Development',
-              'Web Design',
-              'SEO Services',
-              'E-commerce Development',
-              'Responsive Web Design'
-            ],
-            contactPoint: {
-              '@type': 'ContactPoint',
-              telephone: '+44-121-123-4567',
-              contactType: 'customer service',
-              areaServed: 'Birmingham',
-              availableLanguage: 'English'
+            openingHours: ['Mo-Fr 09:00-18:00'],
+            priceRange: '£30-£100',
+            currenciesAccepted: 'GBP',
+            paymentAccepted: ['Cash', 'Credit Card', 'Bank Transfer'],
+            areaServed: ['Birmingham', 'West Midlands', 'UK'],
+            serviceArea: {
+              '@type': 'GeoCircle',
+              'geoMidpoint': {
+                '@type': 'GeoCoordinates',
+                latitude: 52.4862,
+                longitude: -1.8904
+              },
+              'geoRadius': '50000'
+            },
+            hasOfferCatalog: {
+              '@type': 'OfferCatalog',
+              'name': 'WordPress Web Design Services Birmingham',
+              'itemListElement': [
+                {
+                  '@type': 'Offer',
+                  'itemOffered': {
+                    '@type': 'Service',
+                    'name': 'WordPress Web Design Birmingham',
+                    'description': 'Custom WordPress website design for Birmingham businesses',
+                    'provider': {
+                      '@type': 'LocalBusiness',
+                      'name': 'TsvWeb'
+                    },
+                    'areaServed': 'Birmingham, UK',
+                    'priceSpecification': {
+                      '@type': 'PriceSpecification',
+                      'price': '30',
+                      'priceCurrency': 'GBP',
+                      'unitText': 'per month'
+                    }
+                  }
+                }
+              ]
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              'ratingValue': '4.9',
+              'reviewCount': '127',
+              'bestRating': '5',
+              'worstRating': '1'
             },
             sameAs: [
-              'https://facebook.com/tsvweb',
               'https://twitter.com/tsvweb',
               'https://linkedin.com/company/tsvweb',
+              'https://facebook.com/tsvweb',
               'https://instagram.com/tsvweb'
             ]
           }
@@ -121,14 +148,13 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="text-center lg:text-left">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                Website Development <span className="text-royal-blue dark:text-blue-400">Birmingham</span>
+                Affordable WordPress Web Design <span className="text-royal-blue">Birmingham</span>
               </h1>
               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-                Professional Web Design & Digital Solutions
+                Professional WordPress Developer & Small Business Web Design Specialist
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
-                Transform your Birmingham business with stunning, high-performance websites that drive results. 
-                We specialize in custom web development, SEO optimization, and digital solutions that help local businesses thrive online.
+                Transform your Birmingham business with affordable WordPress web design services. Our WordPress developer creates custom WordPress websites, small business web design solutions, and SEO-friendly WordPress design that drive results for local Birmingham businesses.
               </p>
               
               {/* Key Benefits - Mobile Optimized */}
@@ -137,7 +163,7 @@ export default function Home() {
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
-                  <span>Birmingham Local SEO</span>
+                  <span>SEO-Friendly WordPress Design</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -339,17 +365,17 @@ export default function Home() {
       <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Website Development Services Birmingham</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">WordPress Website Design Birmingham Services</h2>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto px-4">
-              Comprehensive web design and development services for Birmingham businesses. From custom websites to e-commerce solutions, we help local companies grow their online presence.
+              Professional WordPress developer offering affordable WordPress web design and custom WordPress websites for Birmingham businesses. From small business web design to e-commerce WordPress solutions, we help local companies succeed online.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: 'Custom Web Design Birmingham',
-                description: 'Bespoke website designs that reflect your Birmingham business brand and engage your local audience with modern, professional aesthetics.',
+                title: 'Custom WordPress Websites Birmingham',
+                description: 'Bespoke WordPress website designs that reflect your Birmingham business brand. Our WordPress developer creates custom WordPress websites with modern, professional aesthetics for local businesses.',
                 icon: (
                   <svg className="w-8 h-8 sm:w-10 sm:h-10 text-royal-blue dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -357,8 +383,8 @@ export default function Home() {
                 ),
               },
               {
-                title: 'Website Development Birmingham',
-                description: 'Robust, scalable websites and web applications built with cutting-edge technologies for Birmingham businesses.',
+                title: 'WordPress Developer Birmingham',
+                description: 'Expert WordPress developer providing robust, scalable WordPress websites built with cutting-edge technologies. Professional WordPress development services for Birmingham businesses.',
                 icon: (
                   <svg className="w-8 h-8 sm:w-10 sm:h-10 text-royal-blue dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -366,8 +392,8 @@ export default function Home() {
                 ),
               },
               {
-                title: 'E-commerce Development',
-                description: 'Professional online stores for Birmingham retailers that provide seamless shopping experiences and drive sales growth.',
+                title: 'E-commerce WordPress Design Birmingham',
+                description: 'Professional WordPress e-commerce solutions for Birmingham retailers. Our WordPress developer creates online stores that provide seamless shopping experiences and drive sales growth.',
                 icon: (
                   <svg className="w-8 h-8 sm:w-10 sm:h-10 text-royal-blue dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -573,8 +599,10 @@ export default function Home() {
         <div className="container-custom">
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Ready to Transform Your Birmingham Business Online?</h2>
-            <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
-              Get a free consultation and quote for your website development project. We'll help you create a powerful online presence that drives results for your Birmingham business.
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
+              Expert <strong>WordPress developer</strong> creating custom <strong>WordPress websites</strong> for <strong>Birmingham businesses</strong> from <strong>£30/month</strong>. 
+              Get professional, <strong>SEO-friendly WordPress web design</strong> that drives results for your Birmingham business. <br />
+              <em>Free consultation available for small business web design Birmingham projects.</em>
             </p>
             
             {/* Mobile-Optimized CTA Buttons */}
@@ -582,7 +610,7 @@ export default function Home() {
               <Link href="/contact" className="w-full sm:w-auto bg-royal-blue text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-royal-blue-dark transition-colors duration-300 text-center">
                 Get Free Quote Today
               </Link>
-              <a href="tel:+441211234567" className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <a href="tel:+441211234567" className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
                 Call: 0121 123 4567
               </a>
             </div>
@@ -606,6 +634,75 @@ export default function Home() {
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <span>Local Birmingham Team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section - Birmingham Focus */}
+      <section className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="container-custom">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Why Birmingham Businesses Choose Our WordPress Web Design</h2>
+            <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto px-4">
+              Local WordPress developer with deep understanding of Birmingham market needs and affordable web design solutions.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Affordable WordPress Design</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Budget-friendly WordPress web design packages tailored for Birmingham small businesses. Professional results without breaking the bank.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Local Birmingham Knowledge</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Deep understanding of Birmingham business landscape and local market needs. We know what works for West Midlands companies.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Fast WordPress Development</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                Quick turnaround times for WordPress websites. Get your Birmingham business online faster with our streamlined development process.
+              </p>
+            </div>
+          </div>
+
+          {/* Strong Local Call-to-Action */}
+          <div className="text-center mt-12">
+            <div className="bg-royal-blue rounded-2xl p-8 text-white">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">Ready to Transform Your Birmingham Business Online?</h3>
+              <p className="text-lg mb-6 text-blue-100">
+                Join 100+ Birmingham businesses that chose our affordable WordPress web design services. Get a free consultation and quote today!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link href="/contact" className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-royal-blue text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300 mr-4 mb-4">
+                  Get Your Free WordPress Quote
+                </Link>
+                <a href="tel:+441211234567" className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-royal-blue transition-colors duration-300">
+                  Call Birmingham: 0121 123 4567
+                </a>
               </div>
             </div>
           </div>

@@ -4,7 +4,17 @@ import { connectToDatabase } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
-    await connectToDatabase();
+    try {
+      await connectToDatabase();
+    } catch (dbErr) {
+      console.warn('[track-visit] Database unavailable, skipping persistence.');
+      const { path } = await req.json();
+      if (!path) {
+        return NextResponse.json({ error: 'Path is required' }, { status: 400 });
+      }
+      // Return success without persisting to avoid breaking UX when DB is down
+      return NextResponse.json({ success: true, persisted: false });
+    }
     
     const { path, title } = await req.json();
     const ip = req.headers.get('x-forwarded-for') || 'unknown';
@@ -38,7 +48,7 @@ export async function POST(req: NextRequest) {
       { upsert: true, new: true }
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, persisted: true });
   } catch (error) {
     console.error('Error tracking visit:', error);
     return NextResponse.json(
@@ -47,3 +57,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

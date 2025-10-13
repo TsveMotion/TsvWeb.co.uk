@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 // MongoDB connection string - replace with your actual connection string
 // For production, this should be stored in an environment variable
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tsvweb';
+const MONGODB_DB = process.env.MONGODB_DB || 'tsvweb';
 
 // Cached connection
 let cached = (global as any).mongoose;
@@ -24,14 +25,15 @@ export async function connectToDatabase() {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
       socketTimeoutMS: 45000,
+      dbName: MONGODB_DB,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ Connected to MongoDB successfully');
+      console.log(`✅ Connected to MongoDB successfully (db: ${MONGODB_DB})`);
       return mongoose;
     }).catch((error) => {
       console.error('❌ MongoDB connection error:', error.message);
-      console.error('💡 Make sure MongoDB is running on port 27017 or update MONGODB_URI in .env.local');
+      console.error('💡 If using Atlas, ensure your IP is whitelisted and the cluster is reachable.');
       
       // Reset the promise so we can try again
       cached.promise = null;
@@ -52,3 +54,4 @@ export async function connectToDatabase() {
 
 // Export mongoose for model creation
 export { mongoose };
+

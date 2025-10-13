@@ -10,8 +10,8 @@ export default function Contact() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="Contact Us | TsvWeb - Professional Web Design Services"
-        description="Get in touch with TsvWeb for professional web design and development services. Contact us today to discuss your project."
+        title="Contact WordPress Developer Birmingham | Affordable WordPress Web Design Quote"
+        description="Contact our Birmingham WordPress developer for affordable WordPress web design services. Get a free quote for custom WordPress websites and small business web design in Birmingham."
         canonical="https://tsvweb.com/contact"
       />
       <Navbar />
@@ -33,10 +33,10 @@ export default function Contact() {
           <div className="text-center max-w-3xl mx-auto">
             <span className="inline-block px-3 py-1 bg-royal-blue/10 dark:bg-royal-blue/20 text-royal-blue dark:text-royal-blue-light rounded-full text-sm font-medium mb-6">Let's Connect</span>
             <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-              <span className="text-royal-blue">Contact</span> Us
+              Contact Our <span className="text-royal-blue">WordPress Developer Birmingham</span>
             </h1>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              Have a project in mind or want to learn more about our services? Get in touch with our team today and let's discuss how we can help your business succeed online.
+              Ready for affordable WordPress web design in Birmingham? Contact our WordPress developer today for a free quote on custom WordPress websites, small business web design, and SEO-friendly WordPress development services.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button 
