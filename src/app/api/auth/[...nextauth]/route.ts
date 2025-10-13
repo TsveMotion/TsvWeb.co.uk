@@ -89,11 +89,47 @@ const authOptions: NextAuthOptions = {
       
       return true;
     },
-    async jwt({ token, user, account }) {
-      if (user) {
+    async jwt({ token, user, account, profile }) {
+      // On first sign in
+      if (account?.provider === 'google' && profile) {
+        try {
+          await connectToDatabase();
+          
+          // Find user by Google ID or email
+          let dbUser = await User.findOne({
+            $or: [
+              { googleId: account.providerAccountId },
+              { email: profile.email?.toLowerCase() }
+            ]
+          });
+          
+          if (dbUser) {
+            // Update Google ID if not set
+            if (!dbUser.googleId) {
+              dbUser.googleId = account.providerAccountId;
+              dbUser.googleEmail = profile.email;
+              await dbUser.save();
+            }
+            
+            token.role = dbUser.role;
+            token.id = dbUser._id.toString();
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+          } else {
+            // Set default admin role for authorized emails
+            token.role = 'admin';
+            token.email = profile.email;
+            token.name = profile.name;
+          }
+        } catch (error) {
+          console.error('Error in JWT callback:', error);
+        }
+      } else if (user) {
+        // For credentials login
         token.role = (user as any).role || 'admin';
         token.id = user.id;
       }
+      
       return token;
     },
     async session({ session, token }) {

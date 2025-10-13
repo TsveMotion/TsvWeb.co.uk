@@ -20,15 +20,26 @@ export function getClientAuthData() {
 
 // Check if user is authenticated (client-side)
 export function isClientAuthenticated() {
+  // Check for custom auth cookie
   const authData = getClientAuthData();
-  if (!authData) return false;
-  
-  // Check if session is expired
-  if (authData.expires && authData.expires < Date.now()) {
-    return false;
+  if (authData) {
+    // Check if session is expired
+    if (authData.expires && authData.expires < Date.now()) {
+      return false;
+    }
+    
+    if (authData.authenticated === true) {
+      return true;
+    }
   }
   
-  return authData.authenticated === true;
+  // Also check for NextAuth session cookie
+  const nextAuthSession = Cookies.get('next-auth.session-token') || Cookies.get('__Secure-next-auth.session-token');
+  if (nextAuthSession) {
+    return true;
+  }
+  
+  return false;
 }
 
 // Clear session cookies (client-side)

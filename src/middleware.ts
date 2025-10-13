@@ -9,11 +9,12 @@ export function middleware(request: NextRequest) {
   
   // Check if the request is for an admin route (but not login)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    // Check if the user is authenticated (cookie exists)
+    // Check if the user is authenticated (custom cookie or NextAuth session)
     const authCookie = request.cookies.get(ADMIN_AUTH_COOKIE)
+    const nextAuthSession = request.cookies.get('next-auth.session-token') || request.cookies.get('__Secure-next-auth.session-token')
     
-    // If no auth cookie, redirect to login
-    if (!authCookie) {
+    // If no auth cookie and no NextAuth session, redirect to login
+    if (!authCookie && !nextAuthSession) {
       // Create url to redirect to
       const loginUrl = new URL('/admin/login', request.url)
       
