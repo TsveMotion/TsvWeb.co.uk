@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Contract from '@/models/Contract';
 import { connectToDatabase } from '@/lib/db';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 import { verifySession } from '@/lib/auth';
 
 // POST - Upload files to contract
@@ -34,14 +33,6 @@ export async function POST(
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'contracts');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      // Directory already exists or other error
-    }
-
     const uploadedFiles = [];
     
     for (const file of files) {
@@ -58,21 +49,22 @@ export async function POST(
         }, { status: 400 });
       }
 
-      // Generate unique filename
+      // Generate unique filename for blob storage
       const timestamp = Date.now();
-      const filename = `${params.id}_${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filepath = path.join(uploadDir, filename);
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const blobPath = `contracts/${params.id}/${timestamp}_${safeName}`;
 
-      // Convert file to buffer and save
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      await writeFile(filepath, buffer);
+      // Upload to Vercel Blob
+      const blob = await put(blobPath, file, {
+        access: 'public',
+        addRandomSuffix: false
+      });
 
       // Add file info to array
       const fileInfo = {
-        filename,
+        filename: blob.pathname,
         originalName: file.name,
-        path: `/uploads/contracts/${filename}`,
+        path: blob.url,
         size: file.size,
         mimeType: file.type,
         uploadedAt: new Date(),
@@ -123,19 +115,28 @@ export async function DELETE(
       return NextResponse.json({ error: 'Filename required' }, { status: 400 });
     }
 
-    // Update contract to remove file
-    const contract = await Contract.findByIdAndUpdate(
-      params.id,
-      {
-        $pull: { files: { filename } },
-        updatedBy: session.email || 'admin'
-      },
-      { new: true }
-    );
-
+    // Find the contract and file
+    const contract = await Contract.findById(params.id);
     if (!contract) {
       return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
     }
+
+    // Find the file to get its blob URL
+    const fileToDelete = contract.files.find((f: any) => f.filename === filename);
+    
+    // Delete from Vercel Blob if it's a blob URL
+    if (fileToDelete?.path && fileToDelete.path.includes('vercel-storage.com')) {
+      try {
+        await del(fileToDelete.path);
+      } catch (error) {
+        console.error('Error deleting from blob:', error);
+      }
+    }
+
+    // Update contract to remove file
+    contract.files = contract.files.filter((f: any) => f.filename !== filename);
+    contract.updatedBy = session.email || 'admin';
+    await contract.save();
 
     return NextResponse.json({
       success: true,

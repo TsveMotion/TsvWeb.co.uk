@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
@@ -27,21 +26,16 @@ export async function POST(request: NextRequest) {
     // Create unique filename
     const fileExtension = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExtension}`;
+    const blobPath = `portfolio/${fileName}`;
     
-    // Ensure directory exists
-    const publicDir = path.join(process.cwd(), 'public');
-    const uploadDir = path.join(publicDir, 'uploads', 'portfolio');
+    // Upload to Vercel Blob
+    const blob = await put(blobPath, file, {
+      access: 'public',
+      addRandomSuffix: false
+    });
     
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
-    // Write file to disk
-    const filePath = path.join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
-    
-    // Return the path to the file (relative to public directory)
-    const fileUrl = `/uploads/portfolio/${fileName}`;
+    // Return the blob URL
+    const fileUrl = blob.url;
     
     return NextResponse.json({ 
       success: true, 

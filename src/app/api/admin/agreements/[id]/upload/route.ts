@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Agreement from '@/models/Agreement';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 import { verifySession } from '@/lib/auth';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -30,21 +29,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'agreements');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch {}
-
     const timestamp = Date.now();
     const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${params.id}_${timestamp}_${safeName}`;
-    const filepath = path.join(uploadDir, filename);
+    const blobPath = `agreements/${params.id}/${timestamp}_${safeName}`;
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    // Upload to Vercel Blob
+    const blob = await put(blobPath, file, {
+      access: 'public',
+      addRandomSuffix: false
+    });
 
-    agreement.pdfPath = `/uploads/agreements/${filename}`;
+    agreement.pdfPath = blob.url;
     agreement.pdfOriginalName = file.name;
     agreement.pdfSize = file.size;
     agreement.pdfMimeType = file.type;
@@ -75,12 +70,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'No PDF to remove' }, { status: 400 });
     }
 
-    try {
-      const publicPath = agreement.pdfPath.startsWith('/') ? agreement.pdfPath.slice(1) : agreement.pdfPath;
-      const fullPath = path.join(process.cwd(), 'public', publicPath.replace(/^uploads\//, 'uploads/'));
-      const { unlink } = await import('fs/promises');
-      await unlink(fullPath).catch(() => {});
-    } catch {}
+    // Delete from Vercel Blob if it's a blob URL
+    if (agreement.pdfPath.includes('vercel-storage.com')) {
+      try {
+        await del(agreement.pdfPath);
+      } catch (error) {
+        console.error('Error deleting from blob:', error);
+      }
+    }
 
     agreement.pdfPath = undefined;
     agreement.pdfOriginalName = undefined as any;
