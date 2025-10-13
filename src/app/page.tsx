@@ -195,9 +195,9 @@ export default function Home() {
                   </svg>
                   <span>Get Free Quote</span>
                 </button>
-                <Link href="/contact" className="btn-secondary text-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                  Call Birmingham: 0121 123 4567
-                </Link>
+                <a href="tel:+4407444358808" className="btn-secondary text-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+                  Call: 07444 358808
+                </a>
               </div>
             </div>
             <div className="relative h-48 sm:h-64 md:h-96 lg:h-[500px] mt-8 lg:mt-0">
@@ -610,8 +610,8 @@ export default function Home() {
               <Link href="/contact" className="w-full sm:w-auto bg-royal-blue text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-royal-blue-dark transition-colors duration-300 text-center">
                 Get Free Quote Today
               </Link>
-              <a href="tel:+441211234567" className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
-                Call: 0121 123 4567
+              <a href="tel:+4407444358808" className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
+                Call: 07444 358808
               </a>
             </div>
             
@@ -700,8 +700,8 @@ export default function Home() {
                 <Link href="/contact" className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-royal-blue text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300 mr-4 mb-4">
                   Get Your Free WordPress Quote
                 </Link>
-                <a href="tel:+441211234567" className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-royal-blue transition-colors duration-300">
-                  Call Birmingham: 0121 123 4567
+                <a href="tel:+4407444358808" className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-royal-blue transition-colors duration-300">
+                  Call: 07444 358808
                 </a>
               </div>
             </div>
