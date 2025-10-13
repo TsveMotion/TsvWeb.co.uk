@@ -8,7 +8,7 @@ import Footer from '@/components/navigation/footer'
 import PageSEO from '@/components/seo/page-seo'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
-export default function TradesPage() {
+export default function RestaurantsPage() {
   const [isWizardOpen, setIsWizardOpen] = useState(false)
 
   const fadeInUp = {
@@ -80,26 +80,26 @@ export default function TradesPage() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="Website Design for Tradespeople Birmingham | Builders, Plumbers, Electricians | TsvWeb"
-        description="Professional website design for Birmingham tradespeople. Get more calls, quotes & customers with mobile-friendly websites. Affordable plans from £30/month. Builders, plumbers, electricians, roofers & more. Free consultation."
-        canonical="https://tsvweb.com/trades"
-        keywords="website design Birmingham tradespeople, tradesman website builder, builder website Birmingham, plumber website design, electrician website Birmingham, roofer website, tradesperson web design, affordable trade websites, mobile website tradesmen, Birmingham trade business websites"
+        title="Restaurant Website Design Birmingham | Online Ordering & Table Booking | TsvWeb"
+        description="Professional restaurant website design in Birmingham. Online ordering systems, table booking & mobile-friendly menus. Perfect for restaurants, cafés, takeaways & pubs. From £40/month with free consultation."
+        canonical="https://tsvweb.com/restaurants"
+        keywords="restaurant website design Birmingham, online ordering system, table booking website, takeaway website Birmingham, café website design, pub website, restaurant menu online, food ordering website, Birmingham restaurant web design, hospitality website design"
         openGraph={{
-          title: "Professional Website Design for Birmingham Tradespeople | Get More Calls & Quotes",
-          description: "Fast, affordable, mobile-friendly websites for Birmingham builders, electricians, plumbers & roofers. Built to bring you more calls and quotes. From £30/month.",
-          url: "https://tsvweb.com/trades",
+          title: "Restaurant Website Design Birmingham | Online Ordering & Table Bookings",
+          description: "Beautiful, mobile-friendly restaurant websites with online ordering and table booking. Perfect for Birmingham restaurants, cafés, takeaways & pubs. From £40/month.",
+          url: "https://tsvweb.com/restaurants",
           type: "website",
           images: [{
-            url: "https://tsvweb.com/trades.png",
+            url: "https://tsvweb.com/restaurant.png",
             width: 1200,
             height: 630,
-            alt: "Birmingham Tradespeople Website Design Services"
+            alt: "Birmingham Restaurant Website Design Services"
           }]
         }}
         schema={{
           "@context": "https://schema.org",
           "@type": "Service",
-          "serviceType": "Website Design for Tradespeople",
+          "serviceType": "Restaurant Website Design & Development",
           "provider": {
             "@type": "Organization",
             "name": "TsvWeb",
@@ -117,7 +117,7 @@ export default function TradesPage() {
           },
           "audience": {
             "@type": "Audience",
-            "audienceType": "Tradespeople, Builders, Plumbers, Electricians, Roofers"
+            "audienceType": "Restaurants, Cafés, Takeaways, Pubs, Food & Beverage Businesses"
           },
           "offers": {
             "@type": "Offer",
@@ -125,12 +125,12 @@ export default function TradesPage() {
             "priceCurrency": "GBP",
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
-              "price": "30",
+              "price": "40",
               "priceCurrency": "GBP",
               "unitText": "MONTH"
             }
           },
-          "description": "Professional website design services specifically for Birmingham tradespeople including builders, plumbers, electricians, and roofers. Mobile-friendly, SEO-optimized websites that generate more calls and quotes."
+          "description": "Professional website design for Birmingham restaurants, cafés, takeaways and pubs. Features include online ordering systems, table booking, mobile-friendly menus, and SEO optimization to attract more customers."
         }}
       />
       <Navbar />
@@ -141,10 +141,10 @@ export default function TradesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div className="text-center lg:text-left" {...fadeInUp}>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                Professional Website Design for <span className="text-royal-blue">Birmingham Tradespeople</span>
+                Restaurant Website Design in <span className="text-orange-600">Birmingham</span>
               </h1>
               <p className="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
-                Get more calls, quotes & customers with a fast, mobile-friendly website. Builders, plumbers, electricians, roofers & more.
+                Get more bookings & online orders with a beautiful, mobile-friendly website. Perfect for restaurants, cafés, takeaways & pubs.
               </p>
               
               {/* Key Benefits */}

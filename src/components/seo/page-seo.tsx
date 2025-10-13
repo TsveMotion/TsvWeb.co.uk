@@ -32,6 +32,7 @@ interface PageSEOProps {
   title?: string
   description?: string
   canonical?: string
+  keywords?: string
   googleSiteVerification?: string
   openGraph?: {
     title?: string
@@ -49,15 +50,18 @@ interface PageSEOProps {
     type: 'Organization' | 'LocalBusiness' | 'WebSite' | 'BlogPosting' | 'Product' | 'Service' | 'FAQPage'
     data: Record<string, any>
   }
+  schema?: Record<string, any>
 }
 
 export default function PageSEO({
   title,
   description,
   canonical,
+  keywords,
   googleSiteVerification,
   openGraph,
-  structuredData
+  structuredData,
+  schema
 }: PageSEOProps) {
   const pageTitle = title ? `${title} | TsvWeb` : DEFAULT_SEO_CONFIG.defaultTitle;
   const pageDescription = description || DEFAULT_SEO_CONFIG.description;
@@ -72,6 +76,7 @@ export default function PageSEO({
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        {keywords && <meta name="keywords" content={keywords} />}
         <link rel="canonical" href={pageCanonical} />
         
         {/* Open Graph */}
@@ -105,6 +110,12 @@ export default function PageSEO({
         <StructuredData
           type={structuredData.type}
           data={structuredData.data}
+        />
+      )}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       )}
     </>
