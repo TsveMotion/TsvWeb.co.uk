@@ -1,385 +1,448 @@
 'use client'
 
-import { useState } from 'react'
+import { motion } from 'framer-motion'
 import PageSEO from '@/components/seo/page-seo'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import Link from 'next/link'
-import { 
-  MagnifyingGlassIcon as Search, 
-  WrenchScrewdriverIcon as Wrench, 
-  SwatchIcon as Palette, 
-  CodeBracketIcon as Code, 
-  UsersIcon as Users, 
-  BoltIcon as Zap, 
-  TrophyIcon as Award, 
-  CheckCircleIcon as CheckCircle 
-} from '@heroicons/react/24/outline'
+import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
+import { useState } from 'react'
 
 export default function ServicesPage() {
-  const [activeService, setActiveService] = useState(0)
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
 
-  // Enhanced Services data with pricing and detailed features
-  const services = [
+  // Monthly Website Plans
+  const monthlyPlans = [
     {
-      id: 'wordpress-web-design',
-      title: 'WordPress Web Design Birmingham',
-      shortDesc: 'Affordable WordPress websites for Birmingham businesses',
-      description: 'Transform your Birmingham business with affordable WordPress web design services. Our WordPress developer creates custom WordPress websites that captivate your local audience and drive conversions, focusing on your brand identity and Birmingham market needs.',
-      price: 'From £30/month',
-      duration: '2-4 weeks',
+      title: 'Website Design & Hosting',
+      description: 'Modern responsive business website, hosting included, zero upfront.',
+      price: '£30',
+      period: '/month',
+      timeframe: '3–5 days',
       icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
-      features: [
-        'Custom UI/UX Design',
-        'Mobile-First Responsive Design',
-        'Brand Identity Integration',
-        'User Journey Optimization',
-        'Conversion Rate Optimization',
-        'Interactive Prototypes',
-        'Design System Creation',
-        'Accessibility Compliance'
-      ],
-      technologies: ['Figma', 'Adobe XD', 'Sketch', 'InVision'],
-      deliverables: ['Design Mockups', 'Interactive Prototypes', 'Style Guide', 'Asset Library'],
-      cta: 'Start Your Design',
+      features: ['Responsive Design', 'Mobile-Friendly', 'SEO Optimized', 'Fast Loading']
     },
     {
-      id: 'wordpress-developer',
-      title: 'WordPress Developer Birmingham',
-      shortDesc: 'Professional WordPress development services',
-      description: 'Expert WordPress developer providing powerful, fast, and secure WordPress websites for Birmingham businesses. From simple WordPress sites to complex custom WordPress applications, we deliver professional solutions.',
-      price: 'From £50/month',
-      duration: '4-8 weeks',
+      title: 'E-commerce Website',
+      description: 'Sell your products online with full shop setup, payment gateway, and SSL.',
+      price: '£50',
+      period: '/month',
+      timeframe: '3–5 days',
       icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      features: [
-        'Custom WordPress Development',
-        'WordPress Theme Customization',
-        'WordPress Plugin Development',
-        'WooCommerce Integration',
-        'WordPress Performance Optimization',
-        'WordPress Security Implementation',
-        'SEO-Friendly WordPress Design',
-        'WordPress Maintenance & Support'
-      ],
-      technologies: ['React', 'Next.js', 'Node.js', 'TypeScript', 'MongoDB', 'PostgreSQL'],
-      deliverables: ['Source Code', 'Documentation', 'Deployment', 'Training'],
-      cta: 'Build Your Website',
+      features: ['Payment Gateway', 'Product Management', 'Secure Checkout', 'Inventory System']
     },
     {
-      id: 'ecommerce',
-      title: 'E-commerce Solutions',
-      shortDesc: 'Complete online store solutions',
-      description: 'Launch your online store with our comprehensive e-commerce solutions. From product catalogs to payment processing, we handle everything to get you selling online quickly and securely.',
-      price: 'From £75/month',
-      duration: '6-10 weeks',
+      title: 'Booking Website',
+      description: 'Perfect for barbers, salons, or service businesses. Includes booking system and notifications.',
+      price: '£45',
+      period: '/month',
+      timeframe: '3–5 days',
       icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      features: [
-        'Custom E-commerce Platform',
-        'Product Catalog Management',
-        'Secure Payment Processing',
-        'Inventory Management',
-        'Order Management System',
-        'Customer Account Portal',
-        'Multi-currency Support',
-        'Analytics & Reporting'
-      ],
-      technologies: ['Shopify', 'WooCommerce', 'Stripe', 'PayPal', 'Mailchimp'],
-      deliverables: ['Online Store', 'Admin Dashboard', 'Payment Setup', 'Training'],
-      cta: 'Launch Your Store',
+      features: ['Online Booking', 'Email Notifications', 'Calendar Integration', 'Customer Management']
     },
     {
-      id: 'seo-marketing',
-      title: 'SEO & Digital Marketing',
-      shortDesc: 'Drive traffic and increase visibility',
-      description: 'Boost your online presence with our comprehensive SEO and digital marketing services. We help you rank higher, drive more traffic, and convert visitors into customers.',
-      price: 'From £80/month',
-      duration: 'Ongoing',
+      title: 'Portfolio / Artist Website',
+      description: 'Showcase your work beautifully with image/video galleries and SEO setup.',
+      price: '£35',
+      period: '/month',
+      timeframe: '3–5 days',
       icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      features: [
-        'Technical SEO Audit',
-        'Keyword Research & Strategy',
-        'On-page Optimization',
-        'Content Marketing',
-        'Local Birmingham SEO optimization',
-        'Google My Business setup',
-        'Keyword research and targeting',
-        'Technical SEO implementation',
-        'Content optimization',
-        'Performance monitoring',
-      ],
-      cta: 'Boost Your Rankings'
-    },
-    {
-      id: 'maintenance',
-      title: 'WordPress Maintenance Birmingham',
-      description: 'Ongoing WordPress maintenance and support services for Birmingham businesses to keep websites secure and updated.',
-      price: 'From £30/month',
-      duration: 'Ongoing',
-      cta: 'Secure Your Site',
-      icon: <Wrench className="w-12 h-12 text-royal-blue" />,
-      features: [
-        'Regular WordPress updates',
-        'Security monitoring and patches',
-        'Daily automated backups',
-        'Performance optimization',
-        'Birmingham-based support team',
-        '24/7 uptime monitoring',
-      ]
-    },
-    {
-      id: 'branding',
-      title: 'Web Design & Branding Birmingham',
-      description: 'Complete brand identity and WordPress website packages for new Birmingham businesses.',
-      price: 'From £60/month',
-      duration: '3-5 weeks',
-      cta: 'Build Your Brand',
-      icon: <Palette className="w-12 h-12 text-royal-blue" />,
-      features: [
-        'Logo design and brand identity',
-        'Custom WordPress website',
-        'Brand guidelines development',
-        'Marketing material design',
-        'Birmingham market research',
-        'Social media branding',
-      ]
-    },
-    {
-      id: 'development',
-      title: 'Custom WordPress Development Birmingham',
-      description: 'Advanced WordPress development services including custom plugins and complex functionality for Birmingham businesses.',
-      price: 'From £90/month',
-      duration: '4-8 weeks',
-      cta: 'Get Custom Solution',
-      icon: <Code className="w-12 h-12 text-royal-blue" />,
-      features: [
-        'Custom plugin development',
-        'API integrations',
-        'Database optimization',
-        'Complex functionality implementation',
-        'Birmingham business logic',
-        'Third-party integrations',
-      ]
+      features: ['Image Galleries', 'Video Support', 'Portfolio Showcase', 'Contact Forms']
     }
   ]
 
-  const processSteps = [
+  // One-Time Packages
+  const oneTimePackages = [
     {
-      step: '01',
-      title: 'Discovery & Planning',
-      description: 'We start by understanding your Birmingham business goals, target audience, and project requirements.',
-      icon: <Users className="w-8 h-8" />
+      title: 'WordPress Website',
+      subtitle: '(No E-commerce)',
+      description: 'Professional 5-page design with mobile optimization.',
+      price: 'From £295',
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      )
     },
     {
-      step: '02',
-      title: 'Design & Development',
-      description: 'Our team creates custom WordPress solutions tailored to your brand and Birmingham market needs.',
-      icon: <Code className="w-8 h-8" />
+      title: 'E-commerce Website',
+      subtitle: '',
+      description: 'Fully functional online store with payment integration.',
+      price: 'From £395',
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+      )
     },
     {
-      step: '03',
-      title: 'Testing & Launch',
-      description: 'Comprehensive testing ensures your website performs perfectly before going live to Birmingham customers.',
-      icon: <Zap className="w-8 h-8" />
+      title: 'Landing Page / Sales Funnel',
+      subtitle: '',
+      description: 'Designed to convert leads with SEO and analytics tracking.',
+      price: 'From £199',
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      )
+    }
+  ]
+
+  // Design & Branding
+  const brandingServices = [
+    {
+      title: 'Logo Design',
+      description: 'Professional logo with 3 concept options and revisions.',
+      price: 'From £50'
     },
     {
-      step: '04',
-      title: 'Support & Growth',
-      description: 'Ongoing support and optimization to help your Birmingham business grow and succeed online.',
-      icon: <Award className="w-8 h-8" />
+      title: 'Business Cards & Branding Pack',
+      description: 'Matching business card, letterhead, and social media kit.',
+      price: 'From £75'
+    },
+    {
+      title: 'Website Rebranding',
+      description: 'Refresh outdated websites with new visuals and layout.',
+      price: 'From £150'
+    }
+  ]
+
+  // Marketing & Growth
+  const marketingServices = [
+    {
+      title: 'SEO Optimisation',
+      description: 'Full on-page optimisation, speed, tags, and ranking improvements.',
+      price: 'From £100'
+    },
+    {
+      title: 'Google & Meta Ads Management',
+      description: 'Monthly ad campaign setup and management.',
+      price: 'From £150/month'
+    },
+    {
+      title: 'Social Media Setup',
+      description: 'Branded setup for Facebook, Instagram, TikTok, LinkedIn.',
+      price: 'From £60'
+    },
+    {
+      title: 'Email Marketing Setup',
+      description: 'Mailchimp or Brevo setup with newsletter template.',
+      price: 'From £75'
+    }
+  ]
+
+  // Add-Ons
+  const addOns = [
+    {
+      title: 'Domain Registration & DNS Setup',
+      description: 'Secure domain name and DNS configuration.',
+      price: '£20–£30'
+    },
+    {
+      title: 'Maintenance & Updates',
+      description: 'Monthly plugin updates and security checks.',
+      price: '£20/month'
+    },
+    {
+      title: 'Content Writing (SEO-Friendly)',
+      description: 'Website text written for ranking and conversions.',
+      price: 'From £50/page'
+    },
+    {
+      title: 'Analytics & Reporting',
+      description: 'Monthly traffic report and performance insights.',
+      price: '£30/month'
     }
   ]
 
   return (
-    <main>
+    <main className="min-h-screen">
       <PageSEO
-        title="WordPress Web Design Services Birmingham | From £30/Month"
-        description="Professional WordPress web design and development services for Birmingham businesses. Custom websites, e-commerce, SEO, and maintenance from £30/month."
-        structuredData={{
-          type: 'Service',
-          data: {
-            '@type': 'Service',
-            name: 'WordPress Web Design Services Birmingham',
-            provider: {
-              '@type': 'LocalBusiness',
-              name: 'TsvWeb',
-              address: {
-                '@type': 'PostalAddress',
-                addressLocality: 'Birmingham',
-                addressCountry: 'UK'
-              }
-            },
-            serviceType: 'WordPress Web Design',
-            areaServed: 'Birmingham, UK',
-            hasOfferCatalog: {
-              '@type': 'OfferCatalog',
-              name: 'WordPress Services',
-              itemListElement: services.map(service => ({
-                '@type': 'Offer',
-                itemOffered: {
-                  '@type': 'Service',
-                  name: service.title,
-                  description: service.description
-                }
-              }))
-            }
-          }
-        }}
+        title="Professional Web Design & Digital Services | TsvWeb Birmingham"
+        description="Affordable web design, e-commerce, SEO, and digital marketing services. Monthly plans from £30/month. No upfront costs. Fast delivery in 3-5 days."
+        canonical="https://tsvweb.com/services"
+        keywords="web design Birmingham, website design services, e-commerce website, SEO services, digital marketing, logo design, monthly website plans"
       />
       <Navbar />
-      
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-white to-blue-50 py-24">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-white via-blue-50 to-white">
         <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              <span className="text-royal-blue">WordPress Web Design Birmingham</span> Services
+          <motion.div 
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+              Professional <span className="text-[#007BFF]">Web Design</span> & Digital Services
             </h1>
-            <p className="text-lg text-gray-700 mb-8">
-              Professional WordPress developer services for Birmingham businesses from £30/month. 
-              Custom websites, e-commerce solutions, SEO optimization, and ongoing maintenance.
+            <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+              Affordable, high-quality websites and digital solutions for businesses of all sizes. 
+              From monthly plans to one-time packages, we've got you covered.
             </p>
-            <Link href="/contact" className="btn-primary">
-              Get Free Quote
-            </Link>
-          </div>
+            <button
+              onClick={() => setIsWizardOpen(true)}
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-semibold rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
+              Get Started Today
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* Monthly Website Plans */}
       <section className="py-20 bg-white">
         <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Our <span className="text-royal-blue">WordPress Services</span>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🌐 <span className="text-[#007BFF]">Monthly Website Plans</span>
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Comprehensive WordPress solutions designed specifically for Birmingham businesses, 
-              from startups to established enterprises.
+              Pay monthly with no upfront costs. All plans include hosting, SSL, and ongoing support.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <div key={service.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100">
-                <div className="mb-6">{service.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                <p className="text-gray-600 mb-6">{service.description}</p>
-                
-                <div className="mb-6">
-                  <div className="text-2xl font-bold text-royal-blue mb-2">{service.price}</div>
-                  <div className="text-sm text-gray-500">Timeline: {service.duration}</div>
-                </div>
-                
-                <div className="mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
-                  <ul className="space-y-2">
-                    {service.features.slice(0, 3).map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-1 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <Link 
-                  href={`/contact?service=${service.id}`} 
-                  className="btn-primary w-full text-center"
-                >
-                  {service.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Process Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Our <span className="text-royal-blue">Process</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We follow a proven methodology to deliver exceptional WordPress websites 
-              that drive results for Birmingham businesses.
-            </p>
-          </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {processSteps.map((step, index) => (
-              <div key={index} className="relative">
-                {index < processSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-royal-blue to-transparent transform translate-x-4"></div>
-                )}
-                
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:border-royal-blue/20 transition-all duration-300">
-                  <div className="w-16 h-16 bg-gradient-to-br from-royal-blue to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl mb-4">
-                    {step.step}
-                  </div>
-                  <div className="text-royal-blue mb-4">
-                    {step.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {step.description}
-                  </p>
+            {monthlyPlans.map((plan, index) => (
+              <motion.div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-[#EAF2FF] hover:border-[#007BFF] group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="text-[#007BFF] mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {plan.icon}
                 </div>
-              </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.title}</h3>
+                <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-[#007BFF]">
+                    {plan.price}<span className="text-lg text-gray-500">{plan.period}</span>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">⚡ {plan.timeframe}</div>
+                </div>
+
+                <ul className="space-y-2 mb-6">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start text-sm text-gray-600">
+                      <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="w-full py-3 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300"
+                >
+                  Get Started
+                </button>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-royal-blue">
+      {/* One-Time Packages */}
+      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white">
         <div className="container-custom">
-          <div className="text-center text-white max-w-4xl mx-auto">
-            <h2 className="text-4xl font-bold mb-6">
-              Ready to Transform Your Birmingham Business Online?
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              💻 <span className="text-[#007BFF]">One-Time Website Packages</span>
             </h2>
-            <p className="text-xl mb-8 text-blue-100">
-              Join hundreds of satisfied Birmingham businesses who trust TsvWeb for their WordPress needs. 
-              Get started today with our affordable monthly plans.
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Complete website solutions with one-time payment. Perfect for businesses ready to launch.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {oneTimePackages.map((pkg, index) => (
+              <motion.div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 text-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="text-[#007BFF] mb-4 flex justify-center">
+                  {pkg.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.title}</h3>
+                {pkg.subtitle && <p className="text-sm text-gray-500 mb-3">{pkg.subtitle}</p>}
+                <p className="text-gray-600 text-sm mb-4">{pkg.description}</p>
+                <div className="text-2xl font-bold text-[#007BFF] mb-4">{pkg.price}</div>
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="w-full py-3 bg-white border-2 border-[#007BFF] text-[#007BFF] font-semibold rounded-lg hover:bg-[#007BFF] hover:text-white transition-all duration-300"
+                >
+                  Learn More
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Design & Branding */}
+      <section className="py-20 bg-white">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🎨 <span className="text-[#007BFF]">Design & Branding</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Professional branding services to make your business stand out.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {brandingServices.map((service, index) => (
+              <motion.div
+                key={index}
+                className="bg-gradient-to-br from-white to-[#EAF2FF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                <div className="text-xl font-bold text-[#007BFF]">{service.price}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Marketing & Growth */}
+      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🚀 <span className="text-[#007BFF]">Marketing & Growth</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Drive traffic, increase visibility, and grow your online presence.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {marketingServices.map((service, index) => (
+              <motion.div
+                key={index}
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                <div className="text-lg font-bold text-[#007BFF]">{service.price}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Add-Ons & Extras */}
+      <section className="py-20 bg-white">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🧩 <span className="text-[#007BFF]">Add-On Services</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Enhance your website with additional features and ongoing support.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {addOns.map((addon, index) => (
+              <motion.div
+                key={index}
+                className="bg-gradient-to-br from-white to-[#EAF2FF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <h3 className="text-base font-bold text-gray-900 mb-2">{addon.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">{addon.description}</p>
+                <div className="text-lg font-bold text-[#007BFF]">{addon.price}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call-to-Action */}
+      <section className="py-20 bg-gradient-to-r from-[#007BFF] to-[#0056D2]">
+        <div className="container-custom">
+          <motion.div 
+            className="text-center text-white max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Let's Build Your Website Today
+            </h2>
+            <p className="text-lg md:text-xl mb-8 text-blue-100">
+              Get started with affordable monthly plans or one-time packages. 
+              Fast delivery, professional results, and ongoing support.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/contact"
-                className="btn-secondary bg-white text-royal-blue hover:bg-gray-100"
+              <button
+                onClick={() => setIsWizardOpen(true)}
+                className="px-8 py-4 bg-white text-[#007BFF] font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
               >
-                Start Your Project
-              </Link>
-              <Link
-                href="/portfolio"
-                className="btn-outline border-white text-white hover:bg-white hover:text-royal-blue"
+                Get Free Quote
+              </button>
+              <a
+                href="tel:+4407444358808"
+                className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-[#007BFF] transition-all duration-300"
               >
-                View Our Work
-              </Link>
+                Call: 07444 358808
+              </a>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <Footer />
+
+      {/* Setup Wizard Modal */}
+      <SimpleSetupWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
+      />
     </main>
   )
 }
