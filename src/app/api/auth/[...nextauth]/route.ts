@@ -138,6 +138,18 @@ const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // If the url is relative, prepend baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // If the url is on the same origin, allow it
+      else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      // Otherwise, redirect to dashboard
+      return `${baseUrl}/admin/dashboard`;
     }
   },
   pages: {
