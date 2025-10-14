@@ -1,14 +1,5 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
-
-// Extend Window interface to include google
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
 interface GoogleMapProps {
   center?: {
     lat: number
@@ -31,165 +22,53 @@ export default function GoogleMap({
   height = '400px',
   className = ''
 }: GoogleMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [map, setMap] = useState<any>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Check if API key is set
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    
-    if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
-      setError('Google Maps API key not configured')
-      return
-    }
-
-    // Check if Google Maps script is already loaded
-    if (window.google && window.google.maps) {
-      setIsLoaded(true)
-      return
-    }
-
-    // Load Google Maps script
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
-    script.async = true
-    script.defer = true
-    
-    script.onload = () => {
-      setIsLoaded(true)
-    }
-    
-    script.onerror = () => {
-      setError('Failed to load Google Maps')
-    }
-
-    document.head.appendChild(script)
-
-    return () => {
-      // Cleanup script on unmount
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isLoaded || !mapRef.current || map) return
-
-    // Initialize map
-    const newMap = new google.maps.Map(mapRef.current, {
-      center,
-      zoom,
-      styles: [
-        {
-          featureType: 'all',
-          elementType: 'geometry',
-          stylers: [{ color: '#f5f5f5' }]
-        },
-        {
-          featureType: 'water',
-          elementType: 'geometry',
-          stylers: [{ color: '#e9e9e9' }]
-        },
-        {
-          featureType: 'water',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#9e9e9e' }]
-        },
-        {
-          featureType: 'poi',
-          elementType: 'labels',
-          stylers: [{ visibility: 'off' }]
-        }
-      ],
-      mapTypeControl: true,
-      streetViewControl: true,
-      fullscreenControl: true,
-      zoomControl: true,
-    })
-
-    setMap(newMap)
-  }, [isLoaded, center, zoom, map])
-
-  useEffect(() => {
-    if (!map || !isLoaded) return
-
-    // Clear existing markers
-    // Add new markers
-    markers.forEach((marker) => {
-      const mapMarker = new google.maps.Marker({
-        position: marker.position,
-        map: map,
-        title: marker.title,
-        animation: google.maps.Animation.DROP,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: '#007BFF',
-          fillOpacity: 1,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-        }
-      })
-
-      // Add info window if info is provided
-      if (marker.info) {
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div style="padding: 10px; max-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #007BFF;">${marker.title}</h3>
-              <p style="margin: 0; color: #666;">${marker.info}</p>
-            </div>
-          `
-        })
-
-        mapMarker.addListener('click', () => {
-          infoWindow.open(map, mapMarker)
-        })
-      }
-    })
-  }, [map, markers, isLoaded])
-
-  if (error) {
-    return (
-      <div 
-        className={`flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}
-        style={{ height }}
-      >
-        <div className="text-center p-6">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-          </svg>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">{error}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-            Please add your Google Maps API key to .env.local
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isLoaded) {
-    return (
-      <div 
-        className={`flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}
-        style={{ height }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#007BFF] mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading map...</p>
-        </div>
-      </div>
-    )
-  }
-
+  // Simple fallback component - no Google Maps
   return (
     <div 
-      ref={mapRef} 
-      className={`rounded-lg shadow-lg ${className}`}
+      className={`flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-lg ${className}`}
       style={{ height }}
-    />
+    >
+      <div className="text-center p-8">
+        <div className="mb-6">
+          <svg className="w-20 h-20 mx-auto text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+          📍 Birmingham, UK
+        </h3>
+        <p className="text-gray-700 dark:text-gray-300 mb-4 max-w-md">
+          We're based in Birmingham and serve businesses across the West Midlands.
+        </p>
+        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+            </svg>
+            <span className="font-medium">07444 358808</span>
+          </p>
+          <p className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+            <span>info@tsvweb.com</span>
+          </p>
+        </div>
+        {markers.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-300 dark:border-gray-600">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Locations:</p>
+            <div className="space-y-1">
+              {markers.map((marker, index) => (
+                <p key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                  📍 {marker.title}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
