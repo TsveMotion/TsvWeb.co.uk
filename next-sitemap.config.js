@@ -6,14 +6,59 @@ module.exports = {
   sitemapSize: 7000,
   changefreq: 'weekly',
   priority: 0.7,
+  additionalPaths: async (config) => {
+    const result = [];
+
+    // Fetch blog posts from API
+    try {
+      const blogResponse = await fetch('https://tsvweb.com/api/blog?status=published');
+      if (blogResponse.ok) {
+        const blogData = await blogResponse.json();
+        if (blogData.success && blogData.data) {
+          blogData.data.forEach((post) => {
+            result.push({
+              loc: `/blog/${post.slug}`,
+              changefreq: 'monthly',
+              priority: 0.8,
+              lastmod: post.updatedAt || post.createdAt,
+            });
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch blog posts for sitemap');
+    }
+
+    // Fetch portfolio items from API
+    try {
+      const portfolioResponse = await fetch('https://tsvweb.com/api/portfolio');
+      if (portfolioResponse.ok) {
+        const portfolioData = await portfolioResponse.json();
+        if (portfolioData.success && portfolioData.data) {
+          portfolioData.data.forEach((item) => {
+            result.push({
+              loc: `/portfolio/${item.slug}`,
+              changefreq: 'monthly',
+              priority: 0.7,
+              lastmod: item.updatedAt || item.createdAt,
+            });
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch portfolio items for sitemap');
+    }
+
+    return result;
+  },
   exclude: [
-    '/admin/*',
-    '/customer/*',
-    '/api/*',
-    '/sign-contract/*',
+    '/admin*',
+    '/customer*',
+    '/api*',
+    '/sign-contract*',
     '/invoice/*/payment-success',
-    '/agreements/*',
-    '/quote/*',
+    '/agreements*',
+    '/quote*',
   ],
   robotsTxtOptions: {
     policies: [
@@ -59,8 +104,8 @@ module.exports = {
       priority = 1.0;
       changefreq = 'daily';
     }
-    // High priority pages
-    else if (highPriorityPages.includes(path)) {
+    // High priority pages (including /about)
+    else if (highPriorityPages.includes(path) || path === '/about') {
       priority = 0.9;
       changefreq = 'weekly';
     }
