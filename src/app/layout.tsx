@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import NextAuthSessionProvider from '@/components/session-provider'
 import React from 'react'
 import TsvAIWrapper from '@/components/TsvAIWrapper'
-import { GoogleAnalytics } from 'nextjs-google-analytics'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <GoogleAnalytics trackPageViews />
+        <GoogleAnalytics />
         <NextAuthSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
