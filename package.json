@@ -7,7 +7,9 @@
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "indexnow:generate-key": "node scripts/generate-indexnow-key.js",
+    "indexnow:test": "node scripts/test-indexnow.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

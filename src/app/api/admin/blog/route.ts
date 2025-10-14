@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { BlogPost, IBlogPost } from '@/models/BlogPost';
+import { indexNowService } from '@/services/indexnow-service';
 
 // Get all blog posts (with optional filtering)
 export async function GET(request: NextRequest) {
@@ -61,6 +62,14 @@ export async function POST(request: NextRequest) {
     });
     
     await newPost.save();
+    
+    // Submit to IndexNow (Bing, Yandex, etc.) if published
+    if (newPost.status === 'published' && newPost.slug) {
+      indexNowService.submitBlogPost(newPost.slug).catch(err => {
+        console.error('IndexNow submission failed:', err);
+        // Don't fail the request if IndexNow fails
+      });
+    }
     
     return NextResponse.json({ 
       success: true, 

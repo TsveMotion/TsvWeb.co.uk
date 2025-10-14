@@ -5,3 +5,6 @@ node_modules/
 .env
 .env.production
 .env.local
+
+# IndexNow temporary files
+indexnow-key.txt

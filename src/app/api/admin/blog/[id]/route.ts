@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { BlogPost } from '@/models/BlogPost';
+import { indexNowService } from '@/services/indexnow-service';
 
 interface Params {
   params: {
@@ -62,6 +63,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
       { new: true, runValidators: true }
     );
     
+    // Submit to IndexNow (Bing, Yandex, etc.) if published
+    if (updatedPost && updatedPost.status === 'published' && updatedPost.slug) {
+      indexNowService.submitBlogPost(updatedPost.slug).catch(err => {
+        console.error('IndexNow submission failed:', err);
+        // Don't fail the request if IndexNow fails
+      });
+    }
+    
     return NextResponse.json({ success: true, data: updatedPost });
   } catch (error) {
     console.error(`Error updating blog post ${params.id}:`, error);
@@ -86,6 +95,14 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         { success: false, message: 'Blog post not found' },
         { status: 404 }
       );
+    }
+    
+    // Submit to IndexNow before deletion (to notify search engines of removal)
+    if (post.status === 'published' && post.slug) {
+      indexNowService.submitBlogPost(post.slug).catch(err => {
+        console.error('IndexNow submission failed:', err);
+        // Don't fail the request if IndexNow fails
+      });
     }
     
     // Delete post
