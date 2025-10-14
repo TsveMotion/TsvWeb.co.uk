@@ -176,12 +176,12 @@ export default function RestaurantsPage() {
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div className="text-center lg:text-left" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 leading-tight">
                 Websites That Bring <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#007BFF] to-[#0056D2]">More Customers</span> <br />
                 to Your Tables
               </h1>
-              <p className="text-xl md:text-2xl text-gray-700 mb-8 leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
                 Online ordering. Table bookings. Menu visibility. <br className="hidden md:block" />
                 Get a website that actually brings in more orders and fills your tables.
               </p>
@@ -322,7 +322,7 @@ export default function RestaurantsPage() {
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-700 dark:text-gray-300">{feature.description}</p>
+                <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -361,7 +361,7 @@ export default function RestaurantsPage() {
                   <div className="flex items-center justify-center mb-4">
                     {item.icon}
                   </div>
-                  <h3 className="text-2xl font-bold text-center">{item.type}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-2">{item.type}</h3>
                 </div>
                 <div className="p-6">
                   <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.business}</h4>
@@ -369,7 +369,7 @@ export default function RestaurantsPage() {
                     <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <p className="font-medium">{item.result}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{item.result}</p>
                   </div>
                 </div>
               </motion.div>
@@ -412,7 +412,7 @@ export default function RestaurantsPage() {
                   </div>
                   <div className="ml-4">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.type}</p>
+                    <p className="text-gray-900 dark:text-white font-semibold">{testimonial.name}</p>
                     <p className="text-xs text-royal-blue dark:text-blue-400 font-medium">{testimonial.location}</p>
                   </div>
                 </div>
@@ -450,7 +450,7 @@ export default function RestaurantsPage() {
 
             <motion.form 
               onSubmit={handleSubmit}
-              className="bg-white p-10 md:p-12 space-y-6 shadow-2xl rounded-lg"
+              className="bg-white dark:bg-gray-800 p-10 md:p-12 space-y-6 shadow-2xl rounded-lg"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -463,7 +463,7 @@ export default function RestaurantsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 focus:border-[#007BFF] text-gray-900 dark:text-white text-lg focus:outline-none rounded-lg"
                     placeholder="John Smith"
                   />
                 </div>
@@ -474,7 +474,7 @@ export default function RestaurantsPage() {
                     required
                     value={formData.businessName}
                     onChange={(e) => setFormData({...formData, businessName: e.target.value})}
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 focus:border-[#007BFF] text-gray-900 dark:text-white text-lg focus:outline-none rounded-lg"
                     placeholder="Your Restaurant"
                   />
                 </div>
@@ -550,7 +550,7 @@ export default function RestaurantsPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-4">
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-4">
               Common <span className="text-[#007BFF]">Questions</span>
             </h2>
           </motion.div>
@@ -572,14 +572,14 @@ export default function RestaurantsPage() {
             ].map((faq, index) => (
               <motion.div
                 key={index}
-                className="bg-blue-50 p-8 border-l-4 border-[#007BFF]"
+                className="bg-blue-50 dark:bg-gray-800 p-8 border-l-4 border-[#007BFF]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <h3 className="text-2xl font-black text-[#007BFF] mb-4">{faq.question}</h3>
-                <p className="text-gray-700 text-xl leading-relaxed">{faq.answer}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-xl leading-relaxed">{faq.answer}</p>
               </motion.div>
             ))}
           </div>
@@ -597,7 +597,7 @@ export default function RestaurantsPage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Grow Your Restaurant Online?</h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto opacity-90">
               Get your professional restaurant website with online ordering and table booking. 
               Start attracting more Birmingham customers today.
             </p>
