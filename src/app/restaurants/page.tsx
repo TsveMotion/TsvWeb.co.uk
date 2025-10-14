@@ -1,20 +1,56 @@
 "use client"
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import PageSEO from '@/components/seo/page-seo'
-import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 export default function RestaurantsPage() {
-  const [isWizardOpen, setIsWizardOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [formData, setFormData] = useState({
+    name: '',
+    businessName: '',
+    email: '',
+    phone: '',
+    message: ''
+  })
 
-  const fadeInUp = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
+    try {
+      const response = await fetch('/api/wizard-submission', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.businessName,
+          projectType: 'restaurant-website',
+          budget: 'discuss',
+          timeline: 'asap',
+          goals: ['online-ordering', 'table-booking', 'menu-display'],
+          additionalInfo: formData.message || `Restaurant inquiry from ${formData.businessName}`
+        })
+      })
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({ name: '', businessName: '', email: '', phone: '', message: '' })
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch (error) {
+      console.error('Submission error:', error)
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const portfolioItems = [
@@ -78,7 +114,7 @@ export default function RestaurantsPage() {
   ]
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <PageSEO 
         title="Restaurant Website Design in Birmingham | Professional Websites for Restaurants, Cafés & Takeaways"
         description="Expert restaurant website design in Birmingham. Beautiful, mobile-friendly websites with online ordering, table booking & digital menus. Serving Birmingham restaurants, cafés, takeaways & pubs. From £45/month. Free consultation available."
@@ -139,12 +175,15 @@ export default function RestaurantsPage() {
       <section className="pt-24 pb-12 sm:pt-32 sm:pb-16 md:pt-40 md:pb-24 bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <motion.div className="text-center lg:text-left" {...fadeInUp}>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                Restaurant Website Design in <span className="text-royal-blue">Birmingham</span>
+            <motion.div className="text-center lg:text-left" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+                Websites That Bring <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#007BFF] to-[#0056D2]">More Customers</span> <br />
+                to Your Tables
               </h1>
-              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
-                Get more bookings & online orders with a beautiful, mobile-friendly website. Perfect for restaurants, cafés, takeaways & pubs.
+              <p className="text-xl md:text-2xl text-gray-700 mb-8 leading-relaxed">
+                Online ordering. Table bookings. Menu visibility. <br className="hidden md:block" />
+                Get a website that actually brings in more orders and fills your tables.
               </p>
               
               {/* Key Benefits */}
@@ -176,15 +215,15 @@ export default function RestaurantsPage() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <button
-                  onClick={() => setIsWizardOpen(true)}
+                <a
+                  href="#quote-form"
                   className="btn-primary text-center flex items-center justify-center space-x-2 text-sm sm:text-base px-6 py-3"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <span>Get a Free Quote</span>
-                </button>
+                </a>
                 <a href="tel:+4407444358808" className="btn-secondary text-center text-sm sm:text-base px-6 py-3">
                   Call: 07444 358808
                 </a>
@@ -393,6 +432,160 @@ export default function RestaurantsPage() {
         </div>
       </section>
 
+      {/* Quote Form Section */}
+      <section id="quote-form" className="py-24 bg-gradient-to-br from-[#007BFF] to-[#0056D2]">
+        <div className="container-custom">
+          <div className="max-w-3xl mx-auto">
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
+                Let's Grow Your Restaurant Online
+              </h2>
+              <p className="text-2xl text-white font-bold">Get your free quote today.</p>
+            </motion.div>
+
+            <motion.form 
+              onSubmit={handleSubmit}
+              className="bg-white p-10 md:p-12 space-y-6 shadow-2xl rounded-lg"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[#007BFF] font-black mb-3 text-lg">YOUR NAME</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    placeholder="John Smith"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#007BFF] font-black mb-3 text-lg">BUSINESS NAME</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.businessName}
+                    onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    placeholder="Your Restaurant"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[#007BFF] font-black mb-3 text-lg">EMAIL</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                  placeholder="john@restaurant.com"
+                />
+              </div>
+              <div>
+                <label className="block text-[#007BFF] font-black mb-3 text-lg">PHONE</label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                  placeholder="07XXX XXXXXX"
+                />
+              </div>
+              <div>
+                <label className="block text-[#007BFF] font-black mb-3 text-lg">MESSAGE (OPTIONAL)</label>
+                <textarea
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  rows={4}
+                  className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                  placeholder="Tell us about your restaurant..."
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-black text-2xl py-6 rounded-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 uppercase tracking-wider ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isSubmitting ? 'Sending...' : "Let's Talk →"}
+              </button>
+              
+              {submitStatus === 'success' && (
+                <div className="bg-green-50 border-2 border-green-500 text-green-800 p-4 rounded-lg text-center">
+                  <p className="font-bold text-lg">✓ Message Sent!</p>
+                  <p className="text-sm">We'll call you within 24 hours. Check your email for confirmation.</p>
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="bg-red-50 border-2 border-red-500 text-red-800 p-4 rounded-lg text-center">
+                  <p className="font-bold text-lg">✗ Something went wrong</p>
+                  <p className="text-sm">Please try again or call us at 07444 358808</p>
+                </div>
+              )}
+              
+              <p className="text-center text-gray-600 text-sm">
+                No spam. No pushy sales. Just a genuine conversation about your restaurant.
+              </p>
+            </motion.form>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 bg-white dark:bg-gray-900">
+        <div className="container-custom max-w-5xl">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-4">
+              Common <span className="text-[#007BFF]">Questions</span>
+            </h2>
+          </motion.div>
+
+          <div className="space-y-8">
+            {[
+              {
+                question: "Can I update my menu easily?",
+                answer: "Yes! You can update your menu, prices, and specials anytime from your phone or computer. No technical skills needed. Or just message us and we'll update it for you — no extra charge."
+              },
+              {
+                question: "Can customers order online?",
+                answer: "Absolutely. We build in online ordering that connects to your kitchen. Customers order, you get notified, and orders come in automatically. Simple as that."
+              },
+              {
+                question: "Do you set up delivery links like Uber Eats?",
+                answer: "Yes. We can integrate your existing delivery platforms (Uber Eats, Deliveroo, Just Eat) or set up your own ordering system so you keep 100% of the profits."
+              }
+            ].map((faq, index) => (
+              <motion.div
+                key={index}
+                className="bg-blue-50 p-8 border-l-4 border-[#007BFF]"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <h3 className="text-2xl font-black text-[#007BFF] mb-4">{faq.question}</h3>
+                <p className="text-gray-700 text-xl leading-relaxed">{faq.answer}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-royal-blue to-royal-blue-dark">
         <div className="container-custom">
@@ -410,12 +603,12 @@ export default function RestaurantsPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <button
-                onClick={() => setIsWizardOpen(true)}
+              <a
+                href="#quote-form"
                 className="bg-white text-royal-blue font-semibold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-300 text-lg"
               >
                 Book a Free Consultation
-              </button>
+              </a>
               <a 
                 href="tel:+4407444358808" 
                 className="border-2 border-white text-white font-semibold py-4 px-8 rounded-lg hover:bg-white hover:text-royal-blue transition-colors duration-300 text-lg"
@@ -450,12 +643,6 @@ export default function RestaurantsPage() {
       </section>
 
       <Footer />
-      
-      {/* Setup Wizard Modal */}
-      <SimpleSetupWizard 
-        isOpen={isWizardOpen} 
-        onClose={() => setIsWizardOpen(false)} 
-      />
     </main>
   )
 }

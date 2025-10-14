@@ -19,6 +19,15 @@ interface WizardSubmission {
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Email sender addresses
+const EMAIL_SENDERS = {
+  outreach: 'outreach@tsvweb.com',
+  transactions: 'transactions@tsvweb.com',
+  marketing: 'marketing@tsvweb.com',
+  support: 'support@tsvweb.com',
+  hello: 'hello@tsvweb.com'
+}
+
 // Send notification email to admin
 async function sendAdminNotification(submission: WizardSubmission) {
   try {
@@ -46,9 +55,10 @@ async function sendAdminNotification(submission: WizardSubmission) {
     }
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'hello@mail.tsvweb.com',
+      from: EMAIL_SENDERS.outreach,
       to: 'Kristiyan@tsvweb.com',
       subject: `🚀 New Website Inquiry from ${submission.name}`,
+      replyTo: submission.email,
       html: `
         <!DOCTYPE html>
         <html>
@@ -115,9 +125,10 @@ async function sendAdminNotification(submission: WizardSubmission) {
 async function sendCustomerConfirmation(submission: WizardSubmission) {
   try {
     await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'hello@mail.tsvweb.com',
+      from: EMAIL_SENDERS.marketing,
       to: submission.email,
       subject: '🎉 Thank You for Your Inquiry - TsvWeb',
+      replyTo: EMAIL_SENDERS.hello,
       html: `
         <!DOCTYPE html>
         <html>

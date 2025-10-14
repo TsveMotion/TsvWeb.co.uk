@@ -150,8 +150,12 @@ export default function SimpleSetupWizard({ isOpen, onClose }: SimpleSetupWizard
           <div className="p-4 sm:p-6 overflow-y-auto flex-1">
             {STEPS[currentStep].id === 'welcome' && (
               <div className="text-center space-y-4 sm:space-y-6 py-4 sm:py-6">
-                <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-[#007BFF] to-[#0056D2] rounded-full flex items-center justify-center shadow-xl">
-                  <span className="text-2xl sm:text-3xl font-bold text-white">TSV</span>
+                <div className="mx-auto w-32 sm:w-40 h-auto">
+                  <img 
+                    src="/TsvWeb_Logo.png" 
+                    alt="TsvWeb Logo" 
+                    className="w-full h-auto object-contain"
+                  />
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white px-2">

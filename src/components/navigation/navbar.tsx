@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
+import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -15,13 +16,12 @@ const navigation = [
   { name: 'Contact', href: '/contact' },
 ]
 
-
-
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number>(0)
   const touchStartY = useRef<number>(0)
@@ -148,21 +148,32 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
+          {/* Get Quote Button */}
+          <button
+            onClick={() => setIsWizardOpen(true)}
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white text-sm font-bold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Get Free Quote
+          </button>
+          
           {/* Customer Login Button */}
           <Link
             href="/customer/login"
-            className="inline-flex items-center px-4 py-2 border border-royal-blue text-sm font-medium rounded-md text-royal-blue bg-white hover:bg-royal-blue hover:text-white dark:bg-gray-800 dark:text-royal-blue-light dark:border-royal-blue-light dark:hover:bg-royal-blue-light dark:hover:text-gray-900 transition-colors duration-200"
+            className="inline-flex items-center px-4 py-2 border-2 border-[#007BFF] text-sm font-medium rounded-lg text-[#007BFF] bg-white hover:bg-[#007BFF] hover:text-white dark:bg-gray-800 dark:text-[#007BFF] dark:border-[#007BFF] dark:hover:bg-[#007BFF] dark:hover:text-white transition-colors duration-200"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            Customer Login
+            Login
           </Link>
           
           {/* Theme Toggle Button */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-royal-blue"
+            className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#007BFF]"
             aria-label="Toggle dark mode"
           >
             {mounted && theme === 'dark' ? (
@@ -178,11 +189,11 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Actions */}
-        <div className="flex md:hidden items-center space-x-2">
+        <div className="flex md:hidden items-center gap-2">
           {/* Mobile Theme Toggle */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-royal-blue transition-colors duration-200"
+            className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#007BFF] transition-colors duration-200"
             aria-label="Toggle dark mode"
           >
             {mounted && theme === 'dark' ? (
@@ -199,7 +210,7 @@ export default function Navbar() {
           {/* Enhanced Mobile menu button */}
           <button
             type="button"
-            className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-royal-blue hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-royal-blue transition-all duration-200 active:scale-95"
+            className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-[#007BFF] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#007BFF] transition-all duration-200 active:scale-95"
             onClick={toggleMobileMenu}
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Close main menu' : 'Open main menu'}
@@ -299,17 +310,19 @@ export default function Navbar() {
                 Customer Login
               </Link>
               
-              {/* Contact CTA */}
-              <Link
-                href="/contact"
-                className="flex items-center justify-center w-full px-4 py-3 mt-2 text-base font-medium text-royal-blue dark:text-royal-blue-light bg-transparent border-2 border-royal-blue dark:border-royal-blue-light hover:bg-royal-blue hover:text-white dark:hover:bg-royal-blue-light dark:hover:text-gray-900 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                onClick={closeMobileMenu}
+              {/* Get Quote Button (Mobile) */}
+              <button
+                onClick={() => {
+                  closeMobileMenu()
+                  setIsWizardOpen(true)
+                }}
+                className="flex items-center justify-center w-full px-4 py-3 mt-2 text-base font-bold text-white bg-gradient-to-r from-[#007BFF] to-[#0056D2] rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Get In Touch
-              </Link>
+                Get Free Quote
+              </button>
             </div>
             
             {/* Footer info */}
@@ -321,6 +334,12 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      
+      {/* Setup Wizard Modal */}
+      <SimpleSetupWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
+      />
     </header>
   )
 }

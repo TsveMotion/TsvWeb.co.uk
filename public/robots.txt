@@ -1,0 +1,32 @@
+# TsvWeb Robots.txt - SEO Optimized for Birmingham Web Design
+
+User-agent: *
+Allow: /
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Disallow admin and customer areas
+Disallow: /admin/
+Disallow: /customer/
+Disallow: /api/
+
+# Disallow private files
+Disallow: /uploads/contracts/
+Disallow: /uploads/agreements/
+
+# Allow public uploads
+Allow: /uploads/portfolio/
+
+# Sitemap location
+Sitemap: https://tsvweb.com/sitemap.xml
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1

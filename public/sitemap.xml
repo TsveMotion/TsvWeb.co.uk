@@ -112,7 +112,72 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Terms and Privacy -->
+  <!-- Industry-Specific Landing Pages - Birmingham -->
+  <url>
+    <loc>https://tsvweb.com/restaurants</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/barbers</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/ecommerce</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Trade Services Landing Pages - Birmingham -->
+  <url>
+    <loc>https://tsvweb.com/plumbers</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/electricians</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/builders</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/cleaning</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://tsvweb.com/removals</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Legal Pages -->
+  <url>
+    <loc>https://tsvweb.com/privacy-policy</loc>
+    <lastmod>2025-10-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
   <url>
     <loc>https://tsvweb.com/terms-of-service</loc>
     <lastmod>2025-08-10</lastmod>
