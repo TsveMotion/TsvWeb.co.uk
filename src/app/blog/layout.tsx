@@ -12,6 +12,32 @@ export const metadata: Metadata = {
     url: 'https://tsvweb.com/blog',
     siteName: 'TsvWeb',
     type: 'website',
+    images: [
+      {
+        url: 'https://tsvweb.com/TsvWeb_Logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'TsvWeb Blog',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TsvWeb Blog - Web Design & Development Insights',
+    description: 'Web design tips, WordPress insights, and digital marketing strategies for Birmingham businesses.',
+    images: ['https://tsvweb.com/TsvWeb_Logo.png'],
+  },
+  keywords: 'WordPress web design Birmingham, WordPress developer, small business web design, custom WordPress development, SEO Birmingham, web design tips, digital marketing',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 

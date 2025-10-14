@@ -35,11 +35,11 @@ module.exports = {
 
     // Fetch blog posts from API
     try {
-      const blogResponse = await fetch('https://tsvweb.com/api/blog?status=published');
+      const blogResponse = await fetch('https://tsvweb.com/api/blog?status=Published&limit=100');
       if (blogResponse.ok) {
         const blogData = await blogResponse.json();
-        if (blogData.success && blogData.data) {
-          blogData.data.forEach((post) => {
+        if (blogData.posts && Array.isArray(blogData.posts)) {
+          blogData.posts.forEach((post) => {
             result.push({
               loc: `/blog/${post.slug}`,
               changefreq: 'monthly',
@@ -50,7 +50,7 @@ module.exports = {
         }
       }
     } catch (error) {
-      console.log('Could not fetch blog posts for sitemap');
+      console.error('Could not fetch blog posts for sitemap:', error);
     }
 
     // Fetch portfolio items from API
