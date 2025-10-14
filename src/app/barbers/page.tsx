@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 export default function BarbersPage() {
@@ -56,40 +55,6 @@ export default function BarbersPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Barber Website Design UK | Websites That Bring More Clients"
-        description="Professional barber website design UK. Sleek, mobile-ready websites with online booking for barbershops, hair salons & beauty businesses. Stand out in your city. Get your free quote today!"
-        canonical="https://tsvweb.com/barbers"
-        keywords="barber website design UK, salon web design UK, barbershop website, booking websites for barbers, barber online booking UK, hair salon website UK, barbershop web design, barber website builder UK"
-        openGraph={{
-          title: "Barber Website Design UK | Websites That Bring More Clients to Your Chair",
-          description: "Sleek, fast, mobile-ready websites for UK barbers. Online booking built in. Show off your freshest cuts. Get more clients today!",
-          url: "https://tsvweb.com/barbers",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/barber.png",
-            width: 1200,
-            height: 630,
-            alt: "UK Barber Website Design Services"
-          }]
-        }}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "serviceType": "Barber & Salon Website Design",
-          "provider": {
-            "@type": "Organization",
-            "name": "TsvWeb",
-            "url": "https://tsvweb.com",
-            "telephone": "+44-07444-358808"
-          },
-          "areaServed": {
-            "@type": "Country",
-            "name": "United Kingdom"
-          },
-          "description": "Professional website design for UK barbers, hair salons, and beauty businesses. Features include online booking, photo galleries, and mobile-first design."
-        }}
-      />
       <Navbar />
 
       {/* Hero Section */}

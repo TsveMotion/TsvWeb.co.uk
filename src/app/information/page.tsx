@@ -3,31 +3,12 @@
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 import { informationPages } from '@/data/information-pages'
 
 export default function InformationHub() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Web Development Information Hub | TsvWeb Birmingham"
-        description="Comprehensive guides on web development, web design, SEO, and digital marketing for Birmingham businesses. Learn everything you need to succeed online."
-        canonical="https://tsvweb.com/information"
-        keywords="web development guide, web design information, SEO guide Birmingham, website development tips, web development Birmingham, digital marketing guide"
-        openGraph={{
-          title: "Web Development Information Hub | TsvWeb Birmingham",
-          description: "Comprehensive guides on web development, web design, SEO, and digital marketing for Birmingham businesses.",
-          url: "https://tsvweb.com/information",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/TsvWeb_Logo.png",
-            width: 1200,
-            height: 630,
-            alt: "TsvWeb Information Hub"
-          }]
-        }}
-      />
       <Navbar />
 
       {/* Hero Section */}

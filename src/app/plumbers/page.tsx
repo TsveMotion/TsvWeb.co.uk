@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function PlumbersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +53,6 @@ export default function PlumbersPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Plumber Website Design Birmingham | Websites That Keep Your Phone Ringing 24/7"
-        description="Professional plumber website design in Birmingham. Get more callouts with websites built for local SEO, Google Maps ranking, and 24/7 service pages. Trusted by Birmingham plumbers."
-        canonical="https://tsvweb.com/plumbers"
-        keywords="plumber website design Birmingham, websites for plumbers Birmingham, 24/7 plumbing service website Birmingham, local plumber SEO Birmingham, plumbing business website Birmingham, emergency plumber website Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

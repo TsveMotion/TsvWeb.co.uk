@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function BuildersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +53,6 @@ export default function BuildersPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Builder Website Design Birmingham | Construction Web Design"
-        description="Professional builder website design in Birmingham. Showcase your projects, earn trust online, and get more leads. Websites built for Birmingham builders and construction companies."
-        canonical="https://tsvweb.com/builders"
-        keywords="builder website design Birmingham, construction web design Birmingham, building company websites Birmingham, builder web design Birmingham, construction company website Birmingham, tradesman website Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

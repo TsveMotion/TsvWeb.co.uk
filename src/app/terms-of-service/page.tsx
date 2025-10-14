@@ -2,16 +2,10 @@
 
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function TermsOfService() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Terms of Service | TsvWeb"
-        description="TsvWeb's terms of service. Learn about our policies, AI assistant usage, and service terms."
-        canonical="https://tsvweb.com/terms-of-service"
-      />
       <Navbar />
       
       <div className="container-custom py-24">

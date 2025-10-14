@@ -1,4 +1,3 @@
-import PageSEO from '@/components/seo/page-seo'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import Link from 'next/link'
@@ -97,7 +96,6 @@ export default function AboutPage() {
 
   return (
     <>
-      <PageSEO {...seoData} />
       <Navbar />
       
       <main className="pt-16">

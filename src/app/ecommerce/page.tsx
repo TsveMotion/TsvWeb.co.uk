@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 export default function EcommercePage() {
@@ -24,45 +23,6 @@ export default function EcommercePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="E-Commerce Web Design Birmingham | Online Store Websites That Sell"
-        description="Professional e-commerce website design in Birmingham. Fast, secure online stores built to convert. Shopify alternatives, custom solutions. Get your free quote today!"
-        canonical="https://tsvweb.com/ecommerce"
-        keywords="ecommerce web design Birmingham, online store website design Birmingham, shopify alternatives Birmingham, sell online Birmingham, ecommerce website builder Birmingham, online shop design Birmingham, Birmingham ecommerce developers"
-        openGraph={{
-          title: "E-Commerce Websites That Actually Sell | Birmingham Web Design",
-          description: "Lightning-fast e-commerce websites built for Birmingham businesses. SEO-ready, secure checkout, mobile-first design. Start selling online today!",
-          url: "https://tsvweb.com/ecommerce",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/ecommerce.png",
-            width: 1200,
-            height: 630,
-            alt: "Birmingham E-Commerce Website Design"
-          }]
-        }}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "serviceType": "E-Commerce Website Design & Development",
-          "provider": {
-            "@type": "Organization",
-            "name": "TsvWeb",
-            "url": "https://tsvweb.com",
-            "telephone": "+44-07444-358808",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Birmingham",
-              "addressCountry": "GB"
-            }
-          },
-          "areaServed": {
-            "@type": "City",
-            "name": "Birmingham"
-          },
-          "description": "Professional e-commerce website design for Birmingham businesses. Fast, secure online stores with SEO optimization, mobile-first design, and conversion-focused features."
-        }}
-      />
       <Navbar />
 
       {/* Hero Section */}

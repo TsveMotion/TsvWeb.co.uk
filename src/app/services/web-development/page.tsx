@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function WebDevelopmentPage() {
@@ -186,12 +185,6 @@ export default function WebDevelopmentPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Web Development Birmingham | Custom Coded Websites Birmingham | Bespoke Development"
-        description="Birmingham web development experts. Custom coded websites from £2000. WordPress from £30/month. React, Next.js, Node.js. Fast, secure, scalable. Birmingham's top developers. Call 07444 358808."
-        canonical="https://tsvweb.com/services/web-development"
-        keywords="web development Birmingham, custom website development Birmingham, bespoke web development Birmingham, Birmingham web developers, web app development Birmingham, React development Birmingham, Next.js Birmingham, custom coded website Birmingham, Birmingham software development, web developer Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function PortfolioWebsitePage() {
@@ -123,12 +122,6 @@ export default function PortfolioWebsitePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Portfolio Website Birmingham | WordPress Portfolio | Photographer & Artist Websites"
-        description="Birmingham portfolio website specialists. WordPress portfolio for photographers, artists, designers. £35/month. Beautiful galleries, video support, SEO optimized. Ready in 3-5 days. Call 07444 358808."
-        canonical="https://tsvweb.com/services/portfolio"
-        keywords="portfolio website Birmingham, photographer website Birmingham, artist portfolio Birmingham, creative portfolio Birmingham, WordPress portfolio Birmingham, photography website Birmingham, designer portfolio Birmingham, Birmingham portfolio design, videographer website Birmingham, model portfolio Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

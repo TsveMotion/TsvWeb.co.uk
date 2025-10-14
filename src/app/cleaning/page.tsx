@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function CleaningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +53,6 @@ export default function CleaningPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Cleaning Business Website Birmingham | Web Design for Cleaning Services"
-        description="Professional cleaning business website design in Birmingham. Get more clients with websites built for domestic and commercial cleaning services. Mobile-ready and SEO-optimized."
-        canonical="https://tsvweb.com/cleaning"
-        keywords="cleaning business website Birmingham, domestic cleaning web design Birmingham, cleaning service SEO Birmingham, cleaning company website Birmingham, cleaner website design Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

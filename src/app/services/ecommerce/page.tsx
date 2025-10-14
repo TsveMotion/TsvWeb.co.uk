@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function EcommercePage() {
@@ -172,12 +171,6 @@ export default function EcommercePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="E-commerce Website Birmingham | WordPress WooCommerce Birmingham | Online Store"
-        description="Birmingham e-commerce website design. WordPress WooCommerce experts. From £50/month or £395 one-time. Secure payments, mobile-optimized. Start selling in Birmingham today. Call 07444 358808."
-        canonical="https://tsvweb.com/services/ecommerce"
-        keywords="ecommerce website Birmingham, WooCommerce Birmingham, online store Birmingham, e-commerce development Birmingham, Birmingham online shop, WordPress ecommerce Birmingham, ecommerce web design Birmingham, Birmingham web shop, online shopping website Birmingham, ecommerce developer Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

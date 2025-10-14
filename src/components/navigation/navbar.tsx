@@ -124,7 +124,7 @@ export default function Navbar() {
               height={50} 
               className="h-10 w-auto object-contain" 
               priority
-              style={{ maxWidth: '150px', height: '40px' }}
+              style={{ width: 'auto', height: '40px' }}
             />
           </Link>
         </div>
@@ -254,6 +254,7 @@ export default function Navbar() {
                   height={40} 
                   className="h-8 w-auto object-contain" 
                   priority
+                  style={{ width: 'auto', height: '32px' }}
                 />
               </div>
               <button

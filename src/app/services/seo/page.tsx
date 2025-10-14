@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function SEOServicePage() {
@@ -163,12 +162,6 @@ export default function SEOServicePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="SEO Services Birmingham | #1 SEO Company Birmingham | Local SEO Experts"
-        description="Birmingham's leading SEO company. Rank #1 on Google Birmingham searches. 300% more traffic guaranteed. Local SEO experts. From £100. Free SEO audit. Call 07444 358808."
-        canonical="https://tsvweb.com/services/seo"
-        keywords="SEO Birmingham, SEO services Birmingham, Birmingham SEO company, local SEO Birmingham, search engine optimization Birmingham, SEO agency Birmingham, Birmingham SEO experts, Google ranking Birmingham, SEO consultant Birmingham, affordable SEO Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

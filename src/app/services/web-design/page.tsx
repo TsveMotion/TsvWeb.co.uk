@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function WebDesignPage() {
@@ -177,12 +176,6 @@ export default function WebDesignPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Web Design Birmingham | WordPress Website Design Birmingham | Professional Designers"
-        description="Birmingham web design experts. Beautiful WordPress websites from £30/month or £295 one-time. Mobile-first, conversion-focused design. Award-winning Birmingham designers. Call 07444 358808."
-        canonical="https://tsvweb.com/services/web-design"
-        keywords="web design Birmingham, website design Birmingham, WordPress design Birmingham, Birmingham web designers, professional web design Birmingham, modern website design Birmingham, web designer Birmingham, Birmingham website designer, responsive web design Birmingham, creative web design Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

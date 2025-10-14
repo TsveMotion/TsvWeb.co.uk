@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function RestaurantsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -115,60 +114,6 @@ export default function RestaurantsPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Restaurant Website Design in Birmingham | Professional Websites for Restaurants, Cafés & Takeaways"
-        description="Expert restaurant website design in Birmingham. Beautiful, mobile-friendly websites with online ordering, table booking & digital menus. Serving Birmingham restaurants, cafés, takeaways & pubs. From £45/month. Free consultation available."
-        canonical="https://tsvweb.com/restaurants"
-        keywords="restaurant website design Birmingham, Birmingham restaurant web design, restaurant website designer Birmingham, online ordering system Birmingham, table booking website, takeaway website Birmingham, café website design Birmingham, pub website Birmingham, restaurant menu online, food ordering website Birmingham, hospitality website design, Birmingham web design restaurants"
-        openGraph={{
-          title: "Restaurant Website Design in Birmingham | Professional Websites for Hospitality Businesses",
-          description: "Expert restaurant website design in Birmingham. Beautiful, mobile-friendly websites with online ordering, table booking & digital menus for restaurants, cafés, takeaways & pubs. From £45/month.",
-          url: "https://tsvweb.com/restaurants",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/restaurant.png",
-            width: 1200,
-            height: 630,
-            alt: "Birmingham Restaurant Website Design Services"
-          }]
-        }}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "serviceType": "Restaurant Website Design & Development",
-          "provider": {
-            "@type": "Organization",
-            "name": "TsvWeb",
-            "url": "https://tsvweb.com",
-            "telephone": "+44-07444-358808",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Birmingham",
-              "addressCountry": "GB"
-            }
-          },
-          "areaServed": {
-            "@type": "City",
-            "name": "Birmingham"
-          },
-          "audience": {
-            "@type": "Audience",
-            "audienceType": "Restaurants, Cafés, Takeaways, Pubs, Food & Beverage Businesses"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": "45",
-            "priceCurrency": "GBP",
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": "45",
-              "priceCurrency": "GBP",
-              "unitText": "MONTH"
-            }
-          },
-          "description": "Professional website design for Birmingham restaurants, cafés, takeaways and pubs. Features include online ordering systems, table booking, mobile-friendly menus, and SEO optimization to attract more customers."
-        }}
-      />
       <Navbar />
       
       {/* Hero Section */}

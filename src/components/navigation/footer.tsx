@@ -107,7 +107,8 @@ export default function Footer() {
                 src="/TsvWeb_Logo.png" 
                 alt="TsvWeb Logo" 
                 width={150} 
-                height={50} 
+                height={50}
+                style={{ width: 'auto', height: 'auto' }} 
                 className="h-8 w-auto" 
                 priority
               />

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function BookingWebsitePage() {
@@ -113,12 +112,6 @@ export default function BookingWebsitePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Booking Website Birmingham | WordPress Booking System | Salon & Barber Websites"
-        description="Birmingham booking website specialists. WordPress booking system for salons, barbers, spas. £45/month. 24/7 online booking, calendar sync. Ready in 3-5 days. Call 07444 358808."
-        canonical="https://tsvweb.com/services/booking"
-        keywords="booking website Birmingham, online booking system Birmingham, salon website Birmingham, barber booking Birmingham, WordPress booking Birmingham, appointment booking Birmingham, Birmingham booking software, spa booking website Birmingham, beauty salon website Birmingham, online appointment system Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

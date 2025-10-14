@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function AllPagesPage() {
   const pageCategories = [
@@ -65,11 +64,6 @@ export default function AllPagesPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="All Pages | TsvWeb Site Directory"
-        description="Complete directory of all TsvWeb pages including industry landing pages, trade services, and more."
-        canonical="https://tsvweb.com/pages"
-      />
       <Navbar />
       
       <div className="container-custom py-24">

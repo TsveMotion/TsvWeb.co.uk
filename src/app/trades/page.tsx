@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 
 export default function TradesPage() {
@@ -79,60 +78,6 @@ export default function TradesPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <PageSEO 
-        title="Website Design for Tradespeople Birmingham | Builders, Plumbers, Electricians | TsvWeb"
-        description="Professional website design for Birmingham tradespeople. Get more calls, quotes & customers with mobile-friendly websites. Affordable plans from £30/month. Builders, plumbers, electricians, roofers & more. Free consultation."
-        canonical="https://tsvweb.com/trades"
-        keywords="website design Birmingham tradespeople, tradesman website builder, builder website Birmingham, plumber website design, electrician website Birmingham, roofer website, tradesperson web design, affordable trade websites, mobile website tradesmen, Birmingham trade business websites"
-        openGraph={{
-          title: "Professional Website Design for Birmingham Tradespeople | Get More Calls & Quotes",
-          description: "Fast, affordable, mobile-friendly websites for Birmingham builders, electricians, plumbers & roofers. Built to bring you more calls and quotes. From £30/month.",
-          url: "https://tsvweb.com/trades",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/trades.png",
-            width: 1200,
-            height: 630,
-            alt: "Birmingham Tradespeople Website Design Services"
-          }]
-        }}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "serviceType": "Website Design for Tradespeople",
-          "provider": {
-            "@type": "Organization",
-            "name": "TsvWeb",
-            "url": "https://tsvweb.com",
-            "telephone": "+44-07444-358808",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Birmingham",
-              "addressCountry": "GB"
-            }
-          },
-          "areaServed": {
-            "@type": "City",
-            "name": "Birmingham"
-          },
-          "audience": {
-            "@type": "Audience",
-            "audienceType": "Tradespeople, Builders, Plumbers, Electricians, Roofers"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": "30",
-            "priceCurrency": "GBP",
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": "30",
-              "priceCurrency": "GBP",
-              "unitText": "MONTH"
-            }
-          },
-          "description": "Professional website design services specifically for Birmingham tradespeople including builders, plumbers, electricians, and roofers. Mobile-friendly, SEO-optimized websites that generate more calls and quotes."
-        }}
-      />
       <Navbar />
       
       {/* Hero Section */}

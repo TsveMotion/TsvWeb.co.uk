@@ -3,17 +3,11 @@
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import ContactForm from '@/components/forms/contact-form'
-import PageSEO from '@/components/seo/page-seo'
 import Link from 'next/link'
 
 export default function Contact() {
   return (
     <main className="min-h-screen flex flex-col">
-      <PageSEO 
-        title="Contact WordPress Developer Birmingham | Affordable WordPress Web Design Quote"
-        description="Contact our Birmingham WordPress developer for affordable WordPress web design services. Get a free quote for custom WordPress websites and small business web design in Birmingham."
-        canonical="https://tsvweb.com/contact"
-      />
       <Navbar />
       
       {/* Hero Section */}

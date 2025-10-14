@@ -2,16 +2,10 @@
 
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Privacy Policy | TsvWeb"
-        description="TsvWeb's privacy policy. Learn how we collect, use, and protect your personal information."
-        canonical="https://tsvweb.com/privacy-policy"
-      />
       <Navbar />
       
       <div className="container-custom py-24">

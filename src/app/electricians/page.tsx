@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function ElectriciansPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +53,6 @@ export default function ElectriciansPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Electrician Website Design Birmingham | Professional Websites for Electricians"
-        description="Professional electrician website design in Birmingham. Showcase your certifications, get more local jobs, and build trust. NICEIC approved websites for Birmingham electricians."
-        canonical="https://tsvweb.com/electricians"
-        keywords="electrician website design Birmingham, websites for electricians Birmingham, NICEIC electrician site Birmingham, local electrician SEO Birmingham, electrical contractor website Birmingham, electrician web design Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}

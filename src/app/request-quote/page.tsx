@@ -52,11 +52,6 @@ export default function RequestQuotePage() {
 
   return (
     <>
-      <PageSEO
-        title="Get Your Free Quote in 60 Seconds - TsvWeb"
-        description="Get a custom quote for your web design and development project. Fast, affordable, and professional services in Birmingham. Free SEO audit included!"
-        canonical="/request-quote"
-      />
       <Navbar />
       
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 md:py-20">

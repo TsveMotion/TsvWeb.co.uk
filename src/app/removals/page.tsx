@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 export default function RemovalsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +53,6 @@ export default function RemovalsPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900">
-      <PageSEO 
-        title="Removals Website Design Birmingham | Websites for Moving Companies"
-        description="Professional removals website design in Birmingham. Get more bookings with instant quote calculators and coverage maps. Built for Birmingham removal and moving companies."
-        canonical="https://tsvweb.com/removals"
-        keywords="removals website design Birmingham, moving company websites Birmingham, man with van web design Birmingham, removal company website Birmingham, moving business website Birmingham"
-      />
       <Navbar />
 
       {/* Hero Section */}
