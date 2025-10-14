@@ -45,6 +45,7 @@ export default function NotFound() {
         title="Page Not Found - TsvWeb"
         description="The page you're looking for doesn't exist. Return to TsvWeb for professional web design services in Birmingham."
         canonical="https://tsvweb.com/404"
+        noindex={true}
       />
       <Navbar />
       

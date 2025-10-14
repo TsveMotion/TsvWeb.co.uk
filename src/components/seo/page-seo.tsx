@@ -34,6 +34,7 @@ interface PageSEOProps {
   canonical?: string
   keywords?: string
   googleSiteVerification?: string
+  noindex?: boolean  // Add noindex support for 404 pages
   openGraph?: {
     title?: string
     description?: string
@@ -59,6 +60,7 @@ export default function PageSEO({
   canonical,
   keywords,
   googleSiteVerification,
+  noindex = false,
   openGraph,
   structuredData,
   schema
@@ -103,8 +105,17 @@ export default function PageSEO({
         {/* Additional meta tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
-        <meta name="robots" content="index, follow" />
-        <meta name="googlebot" content="index, follow" />
+        {noindex ? (
+          <>
+            <meta name="robots" content="noindex, nofollow" />
+            <meta name="googlebot" content="noindex, nofollow" />
+          </>
+        ) : (
+          <>
+            <meta name="robots" content="index, follow" />
+            <meta name="googlebot" content="index, follow" />
+          </>
+        )}
       </Head>
       {structuredData && (
         <StructuredData

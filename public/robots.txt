@@ -1,4 +1,4 @@
-# *
+# TSVWeb Robots.txt
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -6,9 +6,10 @@ Disallow: /customer
 Disallow: /api
 Disallow: /sign-contract
 Disallow: /agreements
+Disallow: /_next/
+Disallow: /404
+Disallow: /500
+Disallow: /*?*  # prevents duplicate URL params from being indexed
 
-# Host
-Host: https://tsvweb.com
-
-# Sitemaps
+# Sitemap
 Sitemap: https://tsvweb.com/sitemap.xml

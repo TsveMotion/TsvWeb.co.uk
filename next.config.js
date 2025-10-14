@@ -16,6 +16,21 @@ const nextConfig = {
     locales: ['en', 'fr', 'es', 'de'],
     defaultLocale: 'en',
   },
+  async redirects() {
+    return [
+      // Redirect all known spam paths to home
+      {
+        source: '/:path(Mixer|Chevrolet|Brake|Plastic|Curtain|Feekoon|Fans|Snack|Handlebar|Drive|Adjustable|DB37|Chassis|Snap|Steel|New|Bits)*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/reviews/:path*',
+        destination: '/',
+        permanent: false,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {
