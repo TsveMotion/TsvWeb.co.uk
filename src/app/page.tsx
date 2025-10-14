@@ -68,25 +68,25 @@ export default function Home() {
     setSubmitStatus('idle')
 
     try {
-      const response = await fetch('/api/wizard-submission', {
+      const response = await fetch('/api/get-quote/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: emailFormData.name,
           email: emailFormData.email,
-          phone: '',
-          company: '',
-          projectType: 'website-quote',
-          budget: 'discuss',
-          timeline: 'asap',
-          goals: ['seo-checklist', 'free-quote'],
-          additionalInfo: `Lead from homepage ${location} - Requested SEO checklist`
         })
       })
 
-      if (response.ok) {
+      const data = await response.json()
+
+      if (data.success) {
         setSubmitStatus('success')
         setEmailFormData({ name: '', email: '' })
+        
+        // Redirect to quote page after 2 seconds
+        setTimeout(() => {
+          window.location.href = data.data.quoteUrl
+        }, 2000)
       } else {
         setSubmitStatus('error')
       }
@@ -240,7 +240,8 @@ export default function Home() {
                 
                 {submitStatus === 'success' && (
                   <div className="mt-4 bg-green-50 border-2 border-green-500 text-green-800 p-4 rounded-lg text-center">
-                    <p className="font-bold">✓ Success! Check your email for your SEO checklist.</p>
+                    <p className="font-bold">✓ Success! Check your email for your FREE SEO Audit!</p>
+                    <p className="text-sm mt-2">Redirecting to your personalized quote page...</p>
                   </div>
                 )}
                 

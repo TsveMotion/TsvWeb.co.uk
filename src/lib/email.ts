@@ -7,7 +7,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // From email address for all emails
-const fromEmail = process.env.EMAIL_FROM || 'contact@yourdomain.com';
+const fromEmail = process.env.EMAIL_FROM || 'TsvWeb <noreply@mail.tsvweb.com>';
 
 /**
  * Send a confirmation email to a user who submitted a contact inquiry
@@ -67,13 +67,16 @@ export async function sendInquiryReply(
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to,
+      replyTo: 'support@tsvweb.com',
       subject,
       html: `
-        <div>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <p>Hello ${name},</p>
-          <div>${message}</div>
-          <p style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-            Thank you for contacting us.
+          <div style="margin: 20px 0; white-space: pre-wrap;">${message}</div>
+          <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666;">
+            Best regards,<br>
+            <strong>TsvWeb Team</strong><br>
+            📞 07444 358808 | 📧 support@tsvweb.com
           </p>
         </div>
       `,

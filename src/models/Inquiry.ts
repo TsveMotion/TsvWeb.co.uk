@@ -9,6 +9,7 @@ export interface IInquiry {
   message: string;
   phone?: string;
   status: 'new' | 'read' | 'replied' | 'archived';
+  urgency?: 'critical' | 'high' | 'normal';
   createdAt: Date;
   updatedAt: Date;
   readAt?: Date;
@@ -27,6 +28,11 @@ const InquirySchema = new Schema<IInquiry>(
       enum: ['new', 'read', 'replied', 'archived'],
       default: 'new',
       required: true 
+    },
+    urgency: {
+      type: String,
+      enum: ['critical', 'high', 'normal'],
+      default: 'normal'
     },
     readAt: { type: Date },
     repliedAt: { type: Date },

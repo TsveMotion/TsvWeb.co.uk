@@ -8,6 +8,7 @@ interface User {
   name: string
   email: string
   username: string
+  phone?: string
   role: string
   createdAt: string
   lastLogin?: string
@@ -27,6 +28,7 @@ function UserAdmin() {
     name: '',
     email: '',
     username: '',
+    phone: '',
     role: 'customer',
     password: '',
     confirmPassword: '',
@@ -65,6 +67,7 @@ function UserAdmin() {
         name: user.name,
         email: user.email,
         username: user.username || '',
+        phone: user.phone || '',
         role: user.role,
         password: '',
         confirmPassword: '',
@@ -78,6 +81,7 @@ function UserAdmin() {
         name: '',
         email: '',
         username: '',
+        phone: '',
         role: 'customer',
         password: '',
         confirmPassword: '',
@@ -391,6 +395,21 @@ function UserAdmin() {
                                 autoComplete="username"
                                 className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
                                 placeholder="Enter username for login"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Phone Number
+                              </label>
+                              <input
+                                type="tel"
+                                name="phone"
+                                id="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-royal-blue focus:border-royal-blue sm:text-sm dark:bg-gray-700 dark:text-white"
+                                placeholder="+44 7444 358808"
                               />
                             </div>
                             

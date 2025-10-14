@@ -35,7 +35,7 @@ export async function GET(
   }
 }
 
-// PUT - Update contract
+// PUT - Update contract (full update)
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -70,6 +70,53 @@ export async function PUT(
     const contract = await Contract.findByIdAndUpdate(
       params.id,
       updateData,
+      { new: true }
+    );
+
+    if (!contract) {
+      return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      contract,
+      message: 'Contract updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error updating contract:', error);
+    return NextResponse.json(
+      { error: 'Failed to update contract' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Partial update (for status changes, etc.)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await verifySession(request as any);
+    if (!session?.authenticated || session.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectToDatabase();
+
+    const body = await request.json();
+    const updateData: any = {};
+
+    // Only update fields that are provided
+    if (body.status) updateData.status = body.status;
+    if (body.signedAt) updateData.signedAt = new Date(body.signedAt);
+    if (body.sentAt) updateData.sentAt = new Date(body.sentAt);
+    if (body.signedBy) updateData.signedBy = body.signedBy;
+
+    const contract = await Contract.findByIdAndUpdate(
+      params.id,
+      { $set: updateData },
       { new: true }
     );
 

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Inquiry } from '@/models/Inquiry';
 import clientPromise from '@/lib/mongodb';
+import { detectUrgency } from '@/lib/urgency-detector';
+import { sendAdminNotification } from '@/lib/admin-notification';
 
 // Get all inquiries (with pagination and filters)
 export async function GET(request: NextRequest) {
@@ -86,9 +88,32 @@ export async function POST(request: NextRequest) {
     
     const data = await request.json();
     
-    // Create new inquiry
-    const newInquiry = new Inquiry(data);
+    // Detect urgency level
+    const urgency = detectUrgency(data.subject || '', data.message || '');
+    
+    // Create new inquiry with urgency
+    const newInquiry = new Inquiry({
+      ...data,
+      urgency
+    });
     await newInquiry.save();
+    
+    // Send admin notification for ALL inquiries
+    try {
+      await sendAdminNotification({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        subject: data.subject,
+        message: data.message,
+        urgency,
+        createdAt: newInquiry.createdAt
+      });
+      console.log(`✅ Admin notification sent for inquiry from ${data.email}`);
+    } catch (alertError) {
+      console.error('❌ Failed to send admin notification:', alertError);
+      // Don't fail the inquiry creation if notification fails
+    }
     
     return NextResponse.json({ 
       success: true, 

@@ -1,267 +1,186 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
+import { Mail, Search, RefreshCw, Send, Trash2, X, CheckCircle, Archive, AlertTriangle, Eye } from 'lucide-react';
+import { getUrgencyColor } from '@/lib/urgency-detector';
 
 interface Inquiry {
-  _id: string
-  name: string
-  email: string
-  message: string
-  subject?: string
-  phone?: string
-  createdAt: string
-  status: 'new' | 'read' | 'replied' | 'archived'
-  type?: 'inquiry' | 'wizard' | 'support'
-  // Wizard-specific fields
-  company?: string
-  projectType?: string
-  budget?: string
-  timeline?: string
-  goals?: string[]
-  additionalInfo?: string
-  // Support ticket specific fields
-  customerId?: string
-  customerUsername?: string
-  priority?: 'low' | 'medium' | 'high' | 'urgent'
-  category?: string
-  originalMessage?: string
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  subject?: string;
+  phone?: string;
+  createdAt: string;
+  status: 'new' | 'read' | 'replied' | 'archived';
+  urgency?: 'critical' | 'high' | 'normal';
 }
 
-export default function AdminInquiries() {
-  const [inquiries, setInquiries] = useState<Inquiry[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'archived'>('all')
-  
-  // Reply modal state
-  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
-  const [replyInquiry, setReplyInquiry] = useState<Inquiry | null>(null)
-  const [replyMessage, setReplyMessage] = useState('')
-  const [isSendingReply, setIsSendingReply] = useState(false)
-  const [replyError, setReplyError] = useState('')
+export default function AdminInquiriesNew() {
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'archived'>('all');
+  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
 
   const fetchInquiries = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/inquiries')
-      const data = await response.json()
+      const response = await fetch('/api/admin/inquiries');
+      const data = await response.json();
       
       if (response.ok && data.success && data.data) {
-        setInquiries(data.data)
-      } else {
-        console.error('Error in API response:', data)
-        // Use mock data only if API fails completely
-        setInquiries([
-          {
-            _id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            message: 'I would like to discuss a potential project for my company website.',
-            subject: 'Project Inquiry',
-            createdAt: '2025-07-25T10:30:00Z',
-            status: 'new'
-          },
-          {
-            _id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            message: 'Do you offer website maintenance services?',
-            subject: 'Service Inquiry',
-            createdAt: '2025-07-24T14:15:00Z',
-            status: 'read'
-          },
-          {
-            _id: '3',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            message: 'I need help with my e-commerce site.',
-            subject: 'Support Request',
-            phone: '555-123-4567',
-            createdAt: '2025-07-23T09:45:00Z',
-            status: 'replied'
-          }
-        ])
+        setInquiries(data.data);
       }
     } catch (error) {
-      console.error('Error fetching inquiries:', error)
+      console.error('Error fetching inquiries:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-  
+  };
+
   useEffect(() => {
-    fetchInquiries()
-  }, [])
+    fetchInquiries();
+  }, []);
 
-  const formatDate = (dateString: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this inquiry?')) return;
+
     try {
-      const date = new Date(dateString)
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date)
-    } catch (e) {
-      return 'Invalid date'
-    }
-  }
+      const response = await fetch(`/api/admin/inquiries/${id}`, {
+        method: 'DELETE',
+      });
 
-  // Filter inquiries based on search term and status filter
-  const filteredInquiries = inquiries.filter((inquiry: Inquiry) => {
-    const searchLower = searchTerm.toLowerCase()
-    const matchesSearch = 
-      inquiry.name.toLowerCase().includes(searchLower) ||
-      inquiry.email.toLowerCase().includes(searchLower) ||
-      (inquiry.subject && inquiry.subject.toLowerCase().includes(searchLower)) ||
-      inquiry.message.toLowerCase().includes(searchLower)
-    
-    const matchesStatus = statusFilter === 'all' || inquiry.status === statusFilter
-    
-    return matchesSearch && matchesStatus
-  })
+      if (response.ok) {
+        setInquiries(inquiries.filter(inq => inq._id !== id));
+        if (selectedInquiry?._id === id) {
+          setSelectedInquiry(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting inquiry:', error);
+      alert('Failed to delete inquiry');
+    }
+  };
 
   const handleStatusChange = async (id: string, newStatus: 'new' | 'read' | 'replied' | 'archived') => {
     try {
       const response = await fetch(`/api/admin/inquiries/${id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
-      })
-      
-      const data = await response.json()
-      
-      if (response.ok && data.success) {
-        // Update local state
-        setInquiries(inquiries.map(inquiry => 
-          inquiry._id === id ? { ...inquiry, status: newStatus } : inquiry
-        ))
-      } else {
-        console.error('Failed to update status:', data.message)
+      });
+
+      if (response.ok) {
+        setInquiries(inquiries.map(inq => 
+          inq._id === id ? { ...inq, status: newStatus } : inq
+        ));
+        if (selectedInquiry?._id === id) {
+          setSelectedInquiry({ ...selectedInquiry, status: newStatus });
+        }
       }
     } catch (error) {
-      console.error('Error updating inquiry status:', error)
+      console.error('Error updating status:', error);
     }
-  }
-  
-  const handleDeleteInquiry = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this inquiry?')) {
-      return
-    }
-    
-    try {
-      const response = await fetch(`/api/admin/inquiries/${id}`, {
-        method: 'DELETE',
-      })
-      
-      const data = await response.json()
-      
-      if (response.ok && data.success) {
-        // Remove from local state
-        setInquiries(inquiries.filter(inquiry => inquiry._id !== id))
-      } else {
-        console.error('Failed to delete inquiry:', data.message)
-      }
-    } catch (error) {
-      console.error('Error deleting inquiry:', error)
-    }
-  }
-  
-  const handleReplyInquiry = (inquiry: Inquiry) => {
-    setReplyInquiry(inquiry)
-    setReplyMessage('')
-    setReplyError('')
-    setIsReplyModalOpen(true)
-  }
-  
+  };
+
   const handleSendReply = async () => {
-    if (!replyInquiry) return
-    
-    if (!replyMessage.trim()) {
-      setReplyError('Reply message cannot be empty')
-      return
-    }
-    
-    setIsSendingReply(true)
-    setReplyError('')
-    
+    if (!selectedInquiry || !replyMessage.trim()) return;
+
+    setIsSendingReply(true);
     try {
-      const response = await fetch(`/api/admin/inquiries/${replyInquiry._id}/reply`, {
+      const response = await fetch(`/api/admin/inquiries/${selectedInquiry._id}/reply`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: replyMessage,
-          recipientEmail: replyInquiry.email,
-          recipientName: replyInquiry.name
+          subject: `Re: ${selectedInquiry.subject || 'Your Inquiry'}`
         }),
-      })
-      
-      const data = await response.json()
-      
-      if (response.ok && data.success) {
-        // Update status in local state
-        setInquiries(inquiries.map(inquiry => 
-          inquiry._id === replyInquiry._id ? { ...inquiry, status: 'replied' } : inquiry
-        ))
-        
-        // Close modal
-        setIsReplyModalOpen(false)
-        setReplyInquiry(null)
-      } else {
-        setReplyError(data.message || 'Failed to send reply. Please try again.')
+      });
+
+      if (response.ok) {
+        await handleStatusChange(selectedInquiry._id, 'replied');
+        setIsReplyModalOpen(false);
+        setReplyMessage('');
+        alert('Reply sent successfully!');
       }
-    } catch (error: any) {
-      setReplyError(error.message || 'An error occurred while sending the reply')
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Failed to send reply');
     } finally {
-      setIsSendingReply(false)
+      setIsSendingReply(false);
     }
-  }
+  };
+
+  const filteredInquiries = inquiries.filter(inquiry => {
+    const matchesSearch = 
+      inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (inquiry.subject?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      inquiry.message.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || inquiry.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new': return 'bg-green-100 text-green-800';
+      case 'read': return 'bg-blue-100 text-blue-800';
+      case 'replied': return 'bg-purple-100 text-purple-800';
+      case 'archived': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow px-4 py-5 sm:rounded-lg sm:p-6">
-        <div className="md:flex md:items-center md:justify-between">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-              Inquiries
-            </h2>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Mail className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Inquiries</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{inquiries.length} total inquiries</p>
+              </div>
+            </div>
+            <button
+              onClick={fetchInquiries}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
           </div>
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Search
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
+
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                name="search"
-                id="search"
-                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
                 placeholder="Search inquiries..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
-          </div>
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Status
-            </label>
             <select
-              id="status"
-              name="status"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <option value="all">All</option>
+              <option value="all">All Status</option>
               <option value="new">New</option>
               <option value="read">Read</option>
               <option value="replied">Replied</option>
@@ -269,287 +188,222 @@ export default function AdminInquiries() {
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Inquiries List */}
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-        {isLoading ? (
-          <div className="px-4 py-5 sm:p-6 text-center">
-            <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="flex-1 space-y-6 py-1 max-w-2xl">
-                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded col-span-2"></div>
-                    <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded col-span-1"></div>
-                  </div>
-                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
+        {/* Inquiries Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* List */}
+          <div className="lg:col-span-1 space-y-3">
+            {isLoading ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center border border-gray-200 dark:border-gray-700">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                <p className="text-gray-600 dark:text-gray-400">Loading...</p>
               </div>
-            </div>
-          </div>
-        ) : filteredInquiries.length === 0 ? (
-          <div className="px-4 py-5 sm:p-6 text-center">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">No inquiries found</h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter' 
-                : 'There are no inquiries yet'}
-            </p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredInquiries.map((inquiry) => (
-              <li key={inquiry._id} className="px-4 py-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <span className="text-lg font-medium text-gray-500 dark:text-gray-400">
-                          {inquiry.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="text-lg font-medium text-gray-900 dark:text-white">{inquiry.name}</h4>
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          inquiry.type === 'wizard' 
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
-                            : inquiry.type === 'support'
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                        }`}>
-                          {inquiry.type === 'wizard' ? 'Setup Wizard' : inquiry.type === 'support' ? 'Support Ticket' : 'Contact Form'}
-                        </span>
-                        {inquiry.type === 'support' && inquiry.priority && (
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            inquiry.priority === 'urgent' ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' :
-                            inquiry.priority === 'high' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' :
-                            inquiry.priority === 'medium' ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' :
-                            'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                          }`}>
-                            {inquiry.priority.toUpperCase()}
+            ) : filteredInquiries.length === 0 ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center border border-gray-200 dark:border-gray-700">
+                <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                <p className="text-gray-600 dark:text-gray-400">No inquiries found</p>
+              </div>
+            ) : (
+              filteredInquiries.map((inquiry) => (
+                <div
+                  key={inquiry._id}
+                  onClick={() => setSelectedInquiry(inquiry)}
+                  className={`rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow border-2 ${
+                    inquiry.urgency === 'critical' ? getUrgencyColor('critical').bg + ' ' + getUrgencyColor('critical').border :
+                    inquiry.urgency === 'high' ? getUrgencyColor('high').bg + ' ' + getUrgencyColor('high').border :
+                    'bg-white dark:bg-gray-800'
+                  } ${
+                    selectedInquiry?._id === inquiry._id ? 'border-blue-500' : 
+                    inquiry.urgency === 'critical' ? '' :
+                    inquiry.urgency === 'high' ? '' :
+                    'border-gray-200 dark:border-gray-700'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{inquiry.name}</h3>
+                        {inquiry.urgency && inquiry.urgency !== 'normal' && (
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 ${getUrgencyColor(inquiry.urgency).badge}`}>
+                            <AlertTriangle className="w-3 h-3" />
+                            {inquiry.urgency === 'critical' ? 'URGENT' : 'HIGH'}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{inquiry.email}</p>
-                      {inquiry.type === 'support' && inquiry.customerUsername && (
-                        <p className="text-sm text-gray-600 dark:text-gray-300">👤 Customer: {inquiry.customerUsername}</p>
-                      )}
-                      {inquiry.type === 'support' && inquiry.category && (
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">Category:</span>
-                          <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                            inquiry.category === 'contracts' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300' :
-                            inquiry.category === 'billing' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300' :
-                            inquiry.category === 'technical' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' :
-                            inquiry.category === 'account' ? 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300' :
-                            'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
-                          }`}>
-                            {inquiry.category.charAt(0).toUpperCase() + inquiry.category.slice(1)}
-                          </span>
-                        </div>
-                      )}
-                      {inquiry.phone && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">📞 {inquiry.phone}</p>
-                      )}
-                      {inquiry.company && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">🏢 {inquiry.company}</p>
-                      )}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{inquiry.email}</p>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${inquiry.status === 'new' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 
-                        inquiry.status === 'read' ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' : 
-                        inquiry.status === 'replied' ? 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100' : 
-                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}
-                    >
-                      {inquiry.status.charAt(0).toUpperCase() + inquiry.status.slice(1)}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {formatDate(inquiry.createdAt)}
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(inquiry.status)}`}>
+                      {inquiry.status}
                     </span>
                   </div>
-                </div>
-                <div className="mt-2">
-                  {inquiry.subject && (
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {inquiry.subject}
-                    </p>
-                  )}
-                  
-                  {inquiry.type === 'wizard' && (
-                    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      {inquiry.projectType && (
-                        <div>
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Project Type:</span>
-                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.projectType}</p>
-                        </div>
-                      )}
-                      {inquiry.budget && (
-                        <div>
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Budget:</span>
-                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.budget}</p>
-                        </div>
-                      )}
-                      {inquiry.timeline && (
-                        <div>
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Timeline:</span>
-                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.timeline}</p>
-                        </div>
-                      )}
-                      {inquiry.goals && inquiry.goals.length > 0 && (
-                        <div className="md:col-span-2 lg:col-span-3">
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Goals:</span>
-                          <p className="text-sm text-gray-900 dark:text-white">{inquiry.goals.join(', ')}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {inquiry.type === 'support' && (
-                    <div className="mt-2 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 11-9.75 9.75A9.75 9.75 0 0112 2.25z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-2">
-                            Customer Support Request
-                          </h4>
-                          {inquiry.originalMessage && (
-                            <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Original Message:</span>
-                              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{inquiry.originalMessage}</p>
-                            </div>
-                          )}
-                          {inquiry.customerId && (
-                            <div className="mt-2 text-xs text-orange-700 dark:text-orange-300">
-                              <strong>Customer ID:</strong> {inquiry.customerId}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {inquiry.message}
+                  <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-1">{inquiry.subject}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{inquiry.message}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                    {new Date(inquiry.createdAt).toLocaleDateString()}
                   </p>
-                  
-                  {inquiry.type === 'wizard' && inquiry.additionalInfo && (
-                    <div className="mt-2">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Additional Information:</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{inquiry.additionalInfo}</p>
-                    </div>
-                  )}
                 </div>
-                <div className="mt-4 flex justify-end space-x-3">
-                  {inquiry.status !== 'read' && inquiry.status !== 'archived' && (
-                    <button
-                      type="button"
-                      onClick={() => handleStatusChange(inquiry._id, 'read')}
-                      className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Mark as Read
-                    </button>
-                  )}
-                  {inquiry.status !== 'archived' && (
-                    <button
-                      type="button"
-                      onClick={() => handleStatusChange(inquiry._id, 'archived')}
-                      className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Archive
-                    </button>
-                  )}
+              ))
+            )}
+          </div>
+
+          {/* Detail View */}
+          <div className="lg:col-span-2">
+            {selectedInquiry ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                        {selectedInquiry.subject || 'No Subject'}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        From: <strong>{selectedInquiry.name}</strong> ({selectedInquiry.email})
+                      </p>
+                      {selectedInquiry.phone && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-gray-600 dark:text-gray-400">Phone: {selectedInquiry.phone}</p>
+                          <a
+                            href={`tel:${selectedInquiry.phone}`}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            Quick Call
+                          </a>
+                        </div>
+                      )}
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {new Date(selectedInquiry.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedInquiry.status)}`}>
+                      {selectedInquiry.status}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Message:</h3>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                    {selectedInquiry.message}
+                  </div>
+                </div>
+
+                <div className="p-6 border-t border-gray-200 flex flex-wrap gap-3">
                   <button
-                    type="button"
-                    onClick={() => handleReplyInquiry(inquiry)}
-                    className="inline-flex items-center px-2.5 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => {
+                      setIsReplyModalOpen(true);
+                      handleStatusChange(selectedInquiry._id, 'read');
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
+                    <Send className="w-4 h-4" />
                     Reply
                   </button>
+                  
                   <button
-                    type="button"
-                    onClick={() => handleDeleteInquiry(inquiry._id)}
-                    className="inline-flex items-center px-2.5 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    onClick={() => handleStatusChange(selectedInquiry._id, 'read')}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                   >
+                    <Eye className="w-4 h-4" />
+                    Mark as Read
+                  </button>
+                  
+                  <button
+                    onClick={() => handleStatusChange(selectedInquiry._id, 'archived')}
+                    className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                  >
+                    <Archive className="w-4 h-4" />
+                    Archive
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDelete(selectedInquiry._id)}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
                     Delete
                   </button>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Reply Modal */}
-      {isReplyModalOpen && replyInquiry && (
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
-            </div>
-
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-              <div>
-                <div className="mt-3 text-center sm:mt-5">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-                    Reply to {replyInquiry.name}
-                  </h3>
-                  <div className="mt-2">
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-medium">Subject:</span> {replyInquiry.subject || 'No subject'}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        <span className="font-medium">Original message:</span> {replyInquiry.message}
-                      </p>
-                    </div>
-                    <textarea
-                      rows={5}
-                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                      placeholder="Type your reply here..."
-                      value={replyMessage}
-                      onChange={(e) => setReplyMessage(e.target.value)}
-                    ></textarea>
-                    {replyError && (
-                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">{replyError}</p>
-                    )}
-                  </div>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full flex items-center justify-center p-12 border border-gray-200 dark:border-gray-700">
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                  <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                  <p className="text-lg font-medium">Select an inquiry to view details</p>
                 </div>
               </div>
-              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+            )}
+          </div>
+        </div>
+
+        {/* Reply Modal */}
+        {isReplyModalOpen && selectedInquiry && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Reply to {selectedInquiry.name}</h3>
                 <button
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                  onClick={handleSendReply}
-                  disabled={isSendingReply}
+                  onClick={() => setIsReplyModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
                 >
-                  {isSendingReply ? 'Sending...' : 'Send Reply'}
+                  <X className="w-6 h-6" />
                 </button>
-                <button
-                  type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                  onClick={() => {
-                    setIsReplyModalOpen(false)
-                    setReplyInquiry(null)
-                  }}
-                >
-                  Cancel
-                </button>
+              </div>
+              
+              <div className="p-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    To: {selectedInquiry.email}
+                  </label>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Your Reply:
+                  </label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    rows={10}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Type your reply here..."
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSendReply}
+                    disabled={isSendingReply || !replyMessage.trim()}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSendingReply ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Send Reply
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setIsReplyModalOpen(false)}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+      </div>
     </div>
-  )
+  );
 }

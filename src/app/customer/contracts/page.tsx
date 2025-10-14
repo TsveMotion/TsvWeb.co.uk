@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import CustomerHeader from '@/components/customer/customer-header'
 
 interface Contract {
   _id: string
@@ -57,11 +58,25 @@ export default function CustomerContracts() {
   const [statusFilter, setStatusFilter] = useState('')
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [customer, setCustomer] = useState<{ name: string } | null>(null)
   const router = useRouter()
 
   useEffect(() => {
+    fetchCustomer()
     fetchContracts()
   }, [currentPage, statusFilter])
+  
+  const fetchCustomer = async () => {
+    try {
+      const response = await fetch('/api/customer/auth/me')
+      if (response.ok) {
+        const data = await response.json()
+        setCustomer(data.user)
+      }
+    } catch (error) {
+      console.error('Failed to fetch customer:', error)
+    }
+  }
 
   const fetchContracts = async () => {
     setLoading(true)
@@ -160,8 +175,10 @@ export default function CustomerContracts() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <CustomerHeader customerName={customer?.name} />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start mb-4">
@@ -173,14 +190,14 @@ export default function CustomerContracts() {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">My Contracts & Documents</h1>
-                  <p className="text-gray-600 mt-1">View and download your contracts, signed documents, and invoices</p>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Contracts & Documents</h1>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">View and download your contracts, signed documents, and invoices</p>
                 </div>
               </div>
             </div>
             <button
               onClick={() => router.push('/customer/dashboard')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg font-medium transition-colors shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -192,24 +209,24 @@ export default function CustomerContracts() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
 
         {/* Filters */}
-        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200/50 mb-8">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Filter by Status</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm min-w-[180px]"
+                  className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm min-w-[180px]"
                 >
                   <option value="">All Contracts</option>
                   <option value="draft">Draft</option>
@@ -224,13 +241,13 @@ export default function CustomerContracts() {
                     setStatusFilter('')
                     setCurrentPage(1)
                   }}
-                  className="mt-7 px-4 py-2.5 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="mt-7 px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
                 >
                   Clear Filter
                 </button>
               )}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               <span className="font-semibold">{contracts.length}</span> contract{contracts.length !== 1 ? 's' : ''} found
             </div>
           </div>
@@ -241,10 +258,10 @@ export default function CustomerContracts() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {contracts.map((contract) => (
-                <div key={contract._id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                <div key={contract._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">{contract.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{contract.title}</h3>
                       {getStatusBadge(contract.status)}
                     </div>
                     
@@ -254,23 +271,23 @@ export default function CustomerContracts() {
                     
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Type:</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Type:</span>
                         {getTypeBadge(contract.contractType)}
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Amount:</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {contract.currency} {contract.amount.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Files:</span>
-                        <span className="text-sm text-gray-900">{contract.files.length} documents</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Files:</span>
+                        <span className="text-sm text-gray-900 dark:text-white">{contract.files.length} documents</span>
                       </div>
                       {contract.signedAt && (
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Signed:</span>
-                          <span className="text-sm text-gray-900">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">Signed:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">
                             {new Date(contract.signedAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -333,24 +350,24 @@ export default function CustomerContracts() {
             )}
           </>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Contracts Found</h3>
-            <p className="text-gray-500">You don't have any contracts yet. When TsvWeb creates contracts for your projects, they'll appear here.</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Contracts Yet</h2>
+            <p className="text-gray-600 dark:text-gray-400">Your contracts and documents will appear here once they are available.</p>
           </div>
         )}
 
         {/* Contract Detail Modal */}
         {showDetailModal && selectedContract && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{selectedContract.title}</h2>
-                    <p className="text-gray-600 mt-1">{selectedContract.description}</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedContract.title}</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">{selectedContract.description}</p>
                   </div>
                   <div className="flex items-center space-x-3">
                     {getStatusBadge(selectedContract.status)}
@@ -368,50 +385,50 @@ export default function CustomerContracts() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Contract Information */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Contract Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contract Information</h3>
                     <div className="space-y-3">
                       <div>
-                        <span className="text-sm font-medium text-gray-500">Type:</span>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Type:</span>
                         <div className="mt-1">{getTypeBadge(selectedContract.contractType)}</div>
                       </div>
                       <div>
-                        <span className="text-sm font-medium text-gray-500">Amount:</span>
-                        <p className="text-lg font-semibold text-gray-900">
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Amount:</span>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
                           {selectedContract.currency} {selectedContract.amount.toLocaleString()}
                         </p>
                       </div>
                       {selectedContract.duration && (
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Duration:</span>
-                          <p className="text-gray-900">{selectedContract.duration} months</p>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration:</span>
+                          <p className="text-gray-900 dark:text-white">{selectedContract.duration} months</p>
                         </div>
                       )}
                       {selectedContract.startDate && (
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Start Date:</span>
-                          <p className="text-gray-900">{new Date(selectedContract.startDate).toLocaleDateString()}</p>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date:</span>
+                          <p className="text-gray-900 dark:text-white">{new Date(selectedContract.startDate).toLocaleDateString()}</p>
                         </div>
                       )}
                       {selectedContract.endDate && (
                         <div>
-                          <span className="text-sm font-medium text-gray-500">End Date:</span>
-                          <p className="text-gray-900">{new Date(selectedContract.endDate).toLocaleDateString()}</p>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">End Date:</span>
+                          <p className="text-gray-900 dark:text-white">{new Date(selectedContract.endDate).toLocaleDateString()}</p>
                         </div>
                       )}
                       <div>
-                        <span className="text-sm font-medium text-gray-500">Created:</span>
-                        <p className="text-gray-900">{new Date(selectedContract.createdAt).toLocaleDateString()}</p>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Created:</span>
+                        <p className="text-gray-900 dark:text-white">{new Date(selectedContract.createdAt).toLocaleDateString()}</p>
                       </div>
                       {selectedContract.signedAt && (
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Signed:</span>
-                          <p className="text-gray-900">{new Date(selectedContract.signedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Signed:</span>
+                          <p className="text-gray-900 dark:text-white">{new Date(selectedContract.signedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         </div>
                       )}
                       {selectedContract.signedBy && (
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Signed By:</span>
-                          <p className="text-gray-900">{selectedContract.signedBy}</p>
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Signed By:</span>
+                          <p className="text-gray-900 dark:text-white">{selectedContract.signedBy}</p>
                         </div>
                       )}
                     </div>
@@ -419,11 +436,11 @@ export default function CustomerContracts() {
 
                   {/* Documents */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Documents ({selectedContract.files.length})</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Documents ({selectedContract.files.length})</h3>
                     {selectedContract.files.length > 0 ? (
                       <div className="space-y-3">
                         {selectedContract.files.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center space-x-3">
                               <div className="flex-shrink-0">
                                 <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -431,8 +448,8 @@ export default function CustomerContracts() {
                                 </svg>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">{file.originalName}</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">{file.originalName}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
                                 </p>
                               </div>
@@ -441,7 +458,7 @@ export default function CustomerContracts() {
                               href={file.path}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
                             >
                               Download
                             </a>
@@ -449,7 +466,7 @@ export default function CustomerContracts() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                         <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -462,7 +479,7 @@ export default function CustomerContracts() {
                 {/* Signature Authentication Details */}
                 {selectedContract.status === 'signed' && selectedContract.signatureDetails && (
                   <div className="mt-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
@@ -560,7 +577,7 @@ export default function CustomerContracts() {
                 <div className="flex justify-end space-x-3 mt-8 pt-6 border-t">
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md"
                   >
                     Close
                   </button>
@@ -574,7 +591,8 @@ export default function CustomerContracts() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

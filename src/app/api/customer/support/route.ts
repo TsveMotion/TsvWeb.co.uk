@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Inquiry } from '@/models/Inquiry';
 import { verifyCustomerToken } from '@/lib/customer-auth';
+import { detectUrgency } from '@/lib/urgency-detector';
+import { sendAdminNotification } from '@/lib/admin-notification';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +33,9 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
+    // Detect urgency from subject and message
+    const urgency = detectUrgency(subject, message);
+    
     // Create new support ticket
     const supportTicket = new Inquiry({
       name: user.username || user.email,
@@ -39,6 +44,7 @@ export async function POST(request: NextRequest) {
       message: `Customer Support Request\n\nCategory: ${category}\nPriority: ${priority}\n\nMessage:\n${message}`,
       phone: '', // Customers might not have phone in their profile
       status: 'new',
+      urgency, // Add urgency detection
       type: 'support', // New type for support tickets
       
       // Additional fields for support tickets
@@ -54,6 +60,25 @@ export async function POST(request: NextRequest) {
     });
 
     await supportTicket.save();
+    
+    // Send admin notification for ALL inquiries
+    try {
+      await sendAdminNotification({
+        name: user.username || user.email,
+        email: user.email,
+        phone: '',
+        subject: `[SUPPORT] ${subject}`,
+        message: message,
+        urgency,
+        priority,
+        category,
+        createdAt: supportTicket.createdAt
+      });
+      console.log(`✅ Admin notification sent for support ticket from ${user.email}`);
+    } catch (alertError) {
+      console.error('❌ Failed to send admin notification:', alertError);
+      // Don't fail the ticket creation if notification fails
+    }
 
     return NextResponse.json({
       success: true,

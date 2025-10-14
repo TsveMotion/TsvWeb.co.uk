@@ -124,8 +124,8 @@ export default function ChatHistoryPage() {
   };
 
   return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Customer Chat History</h1>
+      <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
+        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Customer Chat History</h1>
         
         {/* Search */}
         <form onSubmit={handleSearch} className="mb-6 flex">
@@ -134,7 +134,7 @@ export default function ChatHistoryPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search by IP or message content..."
-            className="border border-gray-300 rounded-l px-4 py-2 w-full"
+            className="border border-gray-300 dark:border-gray-600 rounded-l px-4 py-2 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
           <button 
             type="submit"
@@ -149,26 +149,26 @@ export default function ChatHistoryPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : error ? (
-          <div className="text-red-500 text-center my-8">{error}</div>
+          <div className="text-red-500 dark:text-red-400 text-center my-8">{error}</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Chat History List */}
-            <div className="lg:col-span-1 border rounded-lg overflow-hidden">
+            <div className="lg:col-span-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
               <div className="bg-gray-100 p-4 border-b">
-                <h2 className="font-semibold">Customer Sessions</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-white">Customer Sessions</h2>
               </div>
               <div className="divide-y max-h-[600px] overflow-y-auto">
                 {chatHistories.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">No chat histories found</div>
+                  <div className="p-4 text-center text-gray-500 dark:text-gray-400">No chat histories found</div>
                 ) : (
                   chatHistories.map((chat) => (
                     <div 
                       key={chat._id} 
-                      className={`p-4 cursor-pointer hover:bg-gray-50 ${selectedChat?._id === chat._id ? 'bg-blue-50' : ''}`}
+                      className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 ${selectedChat?._id === chat._id ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
                       onClick={() => fetchChatDetails(chat._id)}
                     >
-                      <div className="font-medium">IP: {chat.ipAddress}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-gray-900 dark:text-white">IP: {chat.ipAddress}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         Last visit: {formatDate(chat.lastVisit)}
                       </div>
                       <div className="text-sm text-gray-500">
@@ -206,13 +206,13 @@ export default function ChatHistoryPage() {
             </div>
             
             {/* Chat Details */}
-            <div className="lg:col-span-2 border rounded-lg overflow-hidden">
+            <div className="lg:col-span-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
               {selectedChat ? (
                 <div>
                   {/* Header */}
-                  <div className="bg-gray-100 p-4 border-b">
-                    <h2 className="font-semibold">Chat Details</h2>
-                    <div className="text-sm text-gray-600">
+                  <div className="bg-gray-100 dark:bg-gray-700 p-4 border-b border-gray-200 dark:border-gray-600">
+                    <h2 className="font-semibold text-gray-900 dark:text-white">Chat Details</h2>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       IP: {selectedChat.ipAddress}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -243,26 +243,26 @@ export default function ChatHistoryPage() {
                   </div>
                   
                   {/* Messages Tab */}
-                  <div id="messages" className="p-4 max-h-[500px] overflow-y-auto">
-                    <h3 className="font-semibold mb-4">Chat Messages</h3>
+                  <div id="messages" className="p-4 max-h-[500px] overflow-y-auto bg-white dark:bg-gray-800">
+                    <h3 className="font-semibold mb-4 text-gray-900 dark:text-white">Chat Messages</h3>
                     <div className="space-y-4">
                       {selectedChat.messages.length === 0 ? (
-                        <div className="text-center text-gray-500">No messages found</div>
+                        <div className="flex justify-center items-center h-64 text-gray-500 dark:text-gray-400">No messages found</div>
                       ) : (
                         selectedChat.messages.map((message, index) => (
                           <div 
                             key={index} 
                             className={`p-3 rounded-lg max-w-[80%] ${
                               message.role === 'user' 
-                                ? 'bg-blue-100 ml-auto' 
-                                : 'bg-gray-100'
+                                ? 'bg-blue-100 dark:bg-blue-900/30 ml-auto' 
+                                : 'bg-gray-100 dark:bg-gray-700'
                             }`}
                           >
-                            <div className="text-sm font-medium mb-1">
+                            <div className="text-sm font-medium mb-1 text-gray-900 dark:text-white">
                               {message.role === 'user' ? 'Customer' : 'TSV AI'}
                             </div>
-                            <div>{message.content}</div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-gray-800 dark:text-gray-200">{message.content}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {formatDate(message.timestamp)}
                             </div>
                           </div>

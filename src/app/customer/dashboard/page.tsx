@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import { Sun, Moon } from 'lucide-react'
 import SupportTicketModal from '@/components/customer/support-ticket-modal'
 
 interface CustomerData {
@@ -46,7 +47,7 @@ export default function CustomerDashboard() {
   const [uptimeError, setUptimeError] = useState<string | null>(null)
   const [showSupportModal, setShowSupportModal] = useState(false)
   const router = useRouter()
-  const { theme } = useTheme()
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -239,6 +240,20 @@ export default function CustomerDashboard() {
                   <span className="text-gray-700 dark:text-gray-200 font-medium">{customer.name}</span>
                 </div>
               </div>
+              {/* Theme Toggle */}
+              {mounted && (
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="w-5 h-5" />
+                  ) : (
+                    <Moon className="w-5 h-5" />
+                  )}
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
