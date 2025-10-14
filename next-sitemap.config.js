@@ -9,6 +9,30 @@ module.exports = {
   additionalPaths: async (config) => {
     const result = [];
 
+    // Add information pages
+    const informationSlugs = [
+      'web-design-birmingham',
+      'seo-birmingham-guide',
+      'mobile-website-design',
+      'ecommerce-website-guide',
+      'website-maintenance-guide',
+      'website-hosting-guide',
+      'wordpress-development-birmingham',
+      'web-design-cost-birmingham',
+      'local-seo-birmingham',
+      'website-speed-optimization',
+      'website-security-guide'
+    ];
+    
+    informationSlugs.forEach((slug) => {
+      result.push({
+        loc: `/information/${slug}`,
+        changefreq: 'monthly',
+        priority: 0.9,
+        lastmod: new Date().toISOString(),
+      });
+    });
+
     // Fetch blog posts from API
     try {
       const blogResponse = await fetch('https://tsvweb.com/api/blog?status=published');
@@ -77,7 +101,7 @@ module.exports = {
   },
   transform: async (config, path) => {
     // Custom priority for important pages
-    const highPriorityPages = ['/', '/services', '/contact', '/portfolio', '/blog'];
+    const highPriorityPages = ['/', '/services', '/contact', '/portfolio', '/blog', '/information'];
     const servicePriority = [
       '/services/seo',
       '/services/ecommerce',
@@ -113,6 +137,11 @@ module.exports = {
     else if (servicePriority.includes(path)) {
       priority = 0.95;
       changefreq = 'weekly';
+    }
+    // Information pages (SEO content)
+    else if (path.startsWith('/information/')) {
+      priority = 0.9;
+      changefreq = 'monthly';
     }
     // Industry pages
     else if (industryPages.includes(path)) {
