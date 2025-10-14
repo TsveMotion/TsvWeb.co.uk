@@ -18,9 +18,90 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // Redirect all known spam paths to home
+      // Redirect known spam paths to home
+      // Each spam keyword must be an exact match or have additional path segments
       {
-        source: '/:path(Mixer|Chevrolet|Brake|Plastic|Curtain|Feekoon|Fans|Snack|Handlebar|Drive|Adjustable|DB37|Chassis|Snap|Steel|New|Bits)*',
+        source: '/Mixer/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Chevrolet/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Brake/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Plastic/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Curtain/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Feekoon/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Fans/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Snack/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Handlebar/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Drive/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Adjustable/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/DB37/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Chassis/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Snap/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Steel/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/New/:path*',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/Bits/:path*',
         destination: '/',
         permanent: false,
       },
