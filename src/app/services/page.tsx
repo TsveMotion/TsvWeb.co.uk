@@ -171,7 +171,7 @@ export default function ServicesPage() {
   ]
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-white dark:bg-gray-900">
       <PageSEO
         title="Professional Web Design & Digital Services | TsvWeb Birmingham"
         description="Affordable web design, e-commerce, SEO, and digital marketing services. Monthly plans from £30/month. No upfront costs. Fast delivery in 3-5 days."
@@ -181,7 +181,7 @@ export default function ServicesPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-white via-blue-50 to-white">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-white via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container-custom">
           <motion.div 
             className="max-w-4xl mx-auto text-center"
@@ -189,10 +189,10 @@ export default function ServicesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
               Professional <span className="text-[#007BFF]">Web Design</span> & Digital Services
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
               Affordable, high-quality websites and digital solutions for businesses of all sizes. 
               From monthly plans to one-time packages, we've got you covered.
             </p>
@@ -210,13 +210,13 @@ export default function ServicesPage() {
       </section>
 
       {/* Monthly Website Plans */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               🌐 <span className="text-[#007BFF]">Monthly Website Plans</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Pay monthly with no upfront costs. All plans include hosting, SSL, and ongoing support.
             </p>
           </div>
@@ -225,7 +225,7 @@ export default function ServicesPage() {
             {monthlyPlans.map((plan, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-[#EAF2FF] hover:border-[#007BFF] group"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-2 border-[#EAF2FF] dark:border-gray-700 hover:border-[#007BFF] group"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -234,19 +234,19 @@ export default function ServicesPage() {
                 <div className="text-[#007BFF] mb-4 group-hover:scale-110 transition-transform duration-300">
                   {plan.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.title}</h3>
-                <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{plan.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{plan.description}</p>
                 
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-[#007BFF]">
-                    {plan.price}<span className="text-lg text-gray-500">{plan.period}</span>
+                    {plan.price}<span className="text-lg text-gray-500 dark:text-gray-400">{plan.period}</span>
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">⚡ {plan.timeframe}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">⚡ {plan.timeframe}</div>
                 </div>
 
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start text-sm text-gray-600">
+                    <li key={idx} className="flex items-start text-sm text-gray-600 dark:text-gray-300">
                       <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
@@ -268,13 +268,13 @@ export default function ServicesPage() {
       </section>
 
       {/* One-Time Packages */}
-      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white">
+      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white dark:from-gray-800 dark:to-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               💻 <span className="text-[#007BFF]">One-Time Website Packages</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Complete website solutions with one-time payment. Perfect for businesses ready to launch.
             </p>
           </div>
@@ -283,7 +283,7 @@ export default function ServicesPage() {
             {oneTimePackages.map((pkg, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 text-center"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 text-center"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -292,13 +292,13 @@ export default function ServicesPage() {
                 <div className="text-[#007BFF] mb-4 flex justify-center">
                   {pkg.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.title}</h3>
-                {pkg.subtitle && <p className="text-sm text-gray-500 mb-3">{pkg.subtitle}</p>}
-                <p className="text-gray-600 text-sm mb-4">{pkg.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{pkg.title}</h3>
+                {pkg.subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{pkg.subtitle}</p>}
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{pkg.description}</p>
                 <div className="text-2xl font-bold text-[#007BFF] mb-4">{pkg.price}</div>
                 <button
                   onClick={() => setIsWizardOpen(true)}
-                  className="w-full py-3 bg-white border-2 border-[#007BFF] text-[#007BFF] font-semibold rounded-lg hover:bg-[#007BFF] hover:text-white transition-all duration-300"
+                  className="w-full py-3 bg-white dark:bg-gray-900 border-2 border-[#007BFF] text-[#007BFF] font-semibold rounded-lg hover:bg-[#007BFF] hover:text-white transition-all duration-300"
                 >
                   Learn More
                 </button>
@@ -309,13 +309,13 @@ export default function ServicesPage() {
       </section>
 
       {/* Design & Branding */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               🎨 <span className="text-[#007BFF]">Design & Branding</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Professional branding services to make your business stand out.
             </p>
           </div>
@@ -324,14 +324,14 @@ export default function ServicesPage() {
             {brandingServices.map((service, index) => (
               <motion.div
                 key={index}
-                className="bg-gradient-to-br from-white to-[#EAF2FF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10"
+                className="bg-gradient-to-br from-white to-[#EAF2FF] dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10 dark:border-gray-600"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{service.description}</p>
                 <div className="text-xl font-bold text-[#007BFF]">{service.price}</div>
               </motion.div>
             ))}
@@ -340,13 +340,13 @@ export default function ServicesPage() {
       </section>
 
       {/* Marketing & Growth */}
-      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white">
+      <section className="py-20 bg-gradient-to-br from-[#EAF2FF] to-white dark:from-gray-800 dark:to-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               🚀 <span className="text-[#007BFF]">Marketing & Growth</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Drive traffic, increase visibility, and grow your online presence.
             </p>
           </div>
@@ -355,14 +355,14 @@ export default function ServicesPage() {
             {marketingServices.map((service, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{service.description}</p>
                 <div className="text-lg font-bold text-[#007BFF]">{service.price}</div>
               </motion.div>
             ))}
@@ -371,13 +371,13 @@ export default function ServicesPage() {
       </section>
 
       {/* Add-Ons & Extras */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               🧩 <span className="text-[#007BFF]">Add-On Services</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Enhance your website with additional features and ongoing support.
             </p>
           </div>
@@ -386,14 +386,14 @@ export default function ServicesPage() {
             {addOns.map((addon, index) => (
               <motion.div
                 key={index}
-                className="bg-gradient-to-br from-white to-[#EAF2FF] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10"
+                className="bg-gradient-to-br from-white to-[#EAF2FF] dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-[#007BFF]/10 dark:border-gray-600"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <h3 className="text-base font-bold text-gray-900 mb-2">{addon.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{addon.description}</p>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{addon.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{addon.description}</p>
                 <div className="text-lg font-bold text-[#007BFF]">{addon.price}</div>
               </motion.div>
             ))}

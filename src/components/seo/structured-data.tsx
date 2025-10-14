@@ -9,6 +9,9 @@ interface StructuredDataProps {
 
 export default function StructuredData({ type, data }: StructuredDataProps) {
   useEffect(() => {
+    // Validate type exists
+    if (!type) return
+    
     // Generate unique ID for the script to avoid duplicates
     const scriptId = `structured-data-${type.toLowerCase()}-${Math.random().toString(36).substr(2, 9)}`
     

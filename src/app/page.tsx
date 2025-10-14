@@ -111,10 +111,75 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <PageSEO 
-        title="Web Design Birmingham | Get More Customers Online | TsvWeb"
-        description="Fast, SEO-optimised websites for Birmingham businesses. Get 3x more leads in 30 days. Trusted by 500+ local businesses. Free quote + SEO checklist."
+        title="Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb"
+        description="Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google, mobile-ready in 48 hours. Trusted by 500+ Birmingham businesses. Free quote + SEO checklist today!"
         canonical="https://tsvweb.com"
-        keywords="web design Birmingham, affordable websites Birmingham, SEO optimisation UK, website design Birmingham, Birmingham web developer, local SEO Birmingham"
+        keywords="web design Birmingham, Birmingham web design, website design Birmingham, affordable web design Birmingham, SEO Birmingham, Birmingham web developer, local SEO Birmingham, mobile website design Birmingham, e-commerce Birmingham, restaurant website Birmingham"
+        openGraph={{
+          title: "Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb",
+          description: "Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google. Trusted by 500+ Birmingham businesses. Free quote today!",
+          url: "https://tsvweb.com",
+          type: "website",
+          images: [{
+            url: "https://tsvweb.com/TsvWeb_Logo.png",
+            width: 1200,
+            height: 630,
+            alt: "TsvWeb - Professional Web Design Birmingham"
+          }]
+        }}
+        structuredData={{
+          type: "LocalBusiness",
+          data: {
+            "name": "TsvWeb - Web Design Birmingham",
+            "alternateName": "TsvWeb Birmingham Web Developer",
+            "description": "Professional web design services in Birmingham from £30/month. Expert web developer creating SEO-optimised, mobile-ready websites for Birmingham businesses.",
+            "url": "https://tsvweb.com",
+            "telephone": "+44-7444-358808",
+            "email": "hello@tsvweb.com",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Birmingham",
+              "addressRegion": "West Midlands",
+              "addressCountry": "GB"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 52.4862,
+              "longitude": -1.8904
+            },
+            "openingHours": "Mo-Fr 09:00-18:00",
+            "priceRange": "£30-£500",
+            "currenciesAccepted": "GBP",
+            "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
+            "areaServed": [
+              {"@type": "City", "name": "Birmingham"},
+              {"@type": "City", "name": "Solihull"},
+              {"@type": "City", "name": "Sutton Coldfield"},
+              {"@type": "City", "name": "Edgbaston"},
+              {"@type": "Region", "name": "West Midlands"}
+            ],
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "reviewCount": "500",
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "offers": {
+              "@type": "AggregateOffer",
+              "priceCurrency": "GBP",
+              "lowPrice": "30",
+              "highPrice": "500",
+              "offerCount": "8"
+            },
+            "sameAs": [
+              "https://twitter.com/tsvweb",
+              "https://linkedin.com/company/tsvweb",
+              "https://facebook.com/tsvweb",
+              "https://instagram.com/tsvweb"
+            ]
+          }
+        }}
       />
       <Navbar />
 
@@ -223,51 +288,51 @@ export default function Home() {
           {/* Uptime Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             <motion.div 
-              className="bg-blue-50 p-6 rounded-lg border-2 border-[#007BFF] text-center"
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF] text-center"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
               <div className="text-4xl font-black text-[#007BFF] mb-2">
-                {uptimeStats ? `${uptimeStats.avgUptime.toFixed(1)}%` : '99.9%'}
+                {uptimeStats && uptimeStats.avgUptime > 0 ? `${uptimeStats.avgUptime.toFixed(1)}%` : '99.9%'}
               </div>
-              <div className="text-sm text-gray-700 font-bold">Uptime</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300 font-bold">Uptime</div>
             </motion.div>
 
             <motion.div 
-              className="bg-blue-50 p-6 rounded-lg border-2 border-[#007BFF] text-center"
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF] text-center"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <div className="text-4xl font-black text-[#007BFF] mb-2">
-                {uptimeStats ? `${Math.round(uptimeStats.avgResponseTime)}ms` : '170ms'}
+                {uptimeStats && uptimeStats.avgResponseTime > 0 ? `${Math.round(uptimeStats.avgResponseTime)}ms` : '170ms'}
               </div>
-              <div className="text-sm text-gray-700 font-bold">Load Time</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300 font-bold">Load Time</div>
             </motion.div>
 
             <motion.div 
-              className="bg-blue-50 p-6 rounded-lg border-2 border-[#007BFF] text-center"
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF] text-center"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <div className="text-4xl font-black text-[#007BFF] mb-2">500+</div>
-              <div className="text-sm text-gray-700 font-bold">Happy Clients</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300 font-bold">Happy Clients</div>
             </motion.div>
 
             <motion.div 
-              className="bg-blue-50 p-6 rounded-lg border-2 border-[#007BFF] text-center"
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF] text-center"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <div className="text-4xl font-black text-[#007BFF] mb-2">24/7</div>
-              <div className="text-sm text-gray-700 font-bold">Support</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300 font-bold">Support</div>
             </motion.div>
           </div>
         </div>
@@ -345,7 +410,7 @@ export default function Home() {
                 className="group"
               >
                 <motion.div
-                  className="bg-blue-50 p-6 rounded-lg border-2 border-transparent hover:border-[#007BFF] hover:shadow-xl transition-all duration-300 text-center h-full"
+                  className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-transparent hover:border-[#007BFF] hover:shadow-xl transition-all duration-300 text-center h-full"
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
@@ -435,7 +500,7 @@ export default function Home() {
             ].map((testimonial, index) => (
               <motion.div
                 key={index}
-                className="bg-blue-50 p-8 rounded-lg border-2 border-[#007BFF] shadow-lg"
+                className="bg-white dark:bg-gray-800 p-8 rounded-lg border-2 border-[#007BFF] shadow-lg"
                 initial={{ opacity: 0, x: index === 0 ? -20 : 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -449,7 +514,7 @@ export default function Home() {
                 <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 italic leading-relaxed">
                   "{testimonial.quote}"
                 </p>
-                <div className="border-t-2 border-[#007BFF] pt-4">
+                <div className="border-t-2 border-[#007BFF] dark:border-[#007BFF] pt-4">
                   <p className="text-[#007BFF] font-black text-lg">{testimonial.author}</p>
                   <p className="text-gray-600 dark:text-gray-400">{testimonial.business}</p>
                 </div>

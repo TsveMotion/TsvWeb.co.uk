@@ -63,7 +63,7 @@ export default function PlumbersPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+      <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
         <div className="container-custom relative z-10">
           <motion.div 
             className="max-w-5xl mx-auto text-center"
@@ -71,13 +71,13 @@ export default function PlumbersPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-8 leading-tight text-gray-900">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-8 leading-tight text-gray-900 dark:text-white">
               Websites That Keep <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#007BFF] to-[#0056D2]">
                 Your Phone Ringing 24/7
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
               Rank higher on Google Maps in Birmingham. Show you're reliable. Get more emergency callouts. <br className="hidden md:block" />
               Built for Birmingham plumbers who want more local jobs.
             </p>
@@ -92,7 +92,7 @@ export default function PlumbersPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <motion.div 
             className="text-center mb-20"
@@ -100,7 +100,7 @@ export default function PlumbersPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-6">
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">
               Everything a <span className="text-[#007BFF]">Plumber Needs</span>
             </h2>
           </motion.div>
@@ -130,7 +130,7 @@ export default function PlumbersPage() {
             ].map((benefit, index) => (
               <motion.div
                 key={index}
-                className="bg-blue-50 p-8 border-l-4 border-[#007BFF] hover:shadow-xl transition-all duration-300"
+                className="bg-blue-50 dark:bg-gray-800 p-8 border-l-4 border-[#007BFF] hover:shadow-xl transition-all duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -138,7 +138,7 @@ export default function PlumbersPage() {
               >
                 <div className="text-6xl mb-6">{benefit.icon}</div>
                 <h3 className="text-2xl font-black mb-4 text-[#007BFF]">{benefit.title}</h3>
-                <p className="text-gray-700 text-lg leading-relaxed">{benefit.description}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
@@ -146,7 +146,7 @@ export default function PlumbersPage() {
       </section>
 
       {/* Portfolio Section */}
-      <section className="py-24 bg-blue-50">
+      <section className="py-24 bg-blue-50 dark:bg-gray-800">
         <div className="container-custom">
           <motion.div 
             className="text-center mb-16"
@@ -154,10 +154,10 @@ export default function PlumbersPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-4">
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-4">
               Sites We've Built
             </h2>
-            <p className="text-2xl text-gray-700">Real plumbers. Real results.</p>
+            <p className="text-2xl text-gray-700 dark:text-gray-300">Real Birmingham plumbers. Real results.</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -175,7 +175,7 @@ export default function PlumbersPage() {
             ].map((business, index) => (
               <motion.div
                 key={index}
-                className="bg-white shadow-lg overflow-hidden group rounded-lg"
+                className="bg-white dark:bg-gray-900 shadow-lg overflow-hidden group rounded-lg"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -184,9 +184,9 @@ export default function PlumbersPage() {
                 <div className="h-80 bg-gradient-to-br from-[#007BFF] to-[#0056D2] flex items-center justify-center text-9xl group-hover:scale-110 transition-transform duration-500">
                   🔧
                 </div>
-                <div className="p-8 bg-white">
-                  <h3 className="text-3xl font-black text-gray-900 mb-2">{business.name}</h3>
-                  <p className="text-gray-700 text-lg mb-4">{business.location}</p>
+                <div className="p-8 bg-white dark:bg-gray-900">
+                  <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{business.name}</h3>
+                  <p className="text-gray-700 dark:text-gray-300 text-lg mb-4">{business.location}</p>
                   <p className="text-[#007BFF] font-bold text-xl">✓ {business.result}</p>
                 </div>
               </motion.div>
@@ -196,7 +196,7 @@ export default function PlumbersPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {[
@@ -213,7 +213,7 @@ export default function PlumbersPage() {
             ].map((testimonial, index) => (
               <motion.div
                 key={index}
-                className="bg-blue-50 p-10 border-l-4 border-[#007BFF] shadow-lg"
+                className="bg-blue-50 dark:bg-gray-800 p-10 border-l-4 border-[#007BFF] shadow-lg"
                 initial={{ opacity: 0, x: index === 0 ? -20 : 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -224,12 +224,10 @@ export default function PlumbersPage() {
                     <span key={i} className="text-[#007BFF] text-3xl">★</span>
                   ))}
                 </div>
-                <p className="text-2xl text-gray-700 mb-8 italic leading-relaxed">
-                  "{testimonial.quote}"
-                </p>
-                <div className="border-t border-gray-300 pt-6">
-                  <p className="text-[#007BFF] font-black text-xl">{testimonial.author}</p>
-                  <p className="text-gray-600 text-lg">{testimonial.business}</p>
+                <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 italic leading-relaxed">"{testimonial.quote}"</p>
+                <div className="border-t-2 border-[#007BFF] pt-4">
+                  <p className="text-[#007BFF] font-black text-lg">{testimonial.author}</p>
+                  <p className="text-gray-600 dark:text-gray-400">{testimonial.business}</p>
                 </div>
               </motion.div>
             ))}
@@ -255,7 +253,7 @@ export default function PlumbersPage() {
 
             <motion.form 
               onSubmit={handleSubmit}
-              className="bg-white p-10 md:p-12 space-y-6 shadow-2xl rounded-lg"
+              className="bg-white dark:bg-gray-800 p-10 md:p-12 space-y-6 shadow-2xl rounded-lg"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -268,7 +266,7 @@ export default function PlumbersPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 focus:border-[#007BFF] text-gray-900 dark:text-white text-lg focus:outline-none rounded-lg"
                     placeholder="John Smith"
                   />
                 </div>
@@ -279,7 +277,7 @@ export default function PlumbersPage() {
                     required
                     value={formData.businessName}
                     onChange={(e) => setFormData({...formData, businessName: e.target.value})}
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-300 focus:border-[#007BFF] text-gray-900 text-lg focus:outline-none rounded-lg"
+                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 focus:border-[#007BFF] text-gray-900 dark:text-white text-lg focus:outline-none rounded-lg"
                     placeholder="Your Plumbing Business"
                   />
                 </div>
@@ -337,7 +335,7 @@ export default function PlumbersPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div 
             className="text-center mb-16"
@@ -345,7 +343,7 @@ export default function PlumbersPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-4">
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-4">
               Common <span className="text-[#007BFF]">Questions</span>
             </h2>
           </motion.div>
@@ -367,14 +365,14 @@ export default function PlumbersPage() {
             ].map((faq, index) => (
               <motion.div
                 key={index}
-                className="bg-blue-50 p-8 border-l-4 border-[#007BFF]"
+                className="bg-blue-50 dark:bg-gray-800 p-8 border-l-4 border-[#007BFF]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <h3 className="text-2xl font-black text-[#007BFF] mb-4">{faq.question}</h3>
-                <p className="text-gray-700 text-xl leading-relaxed">{faq.answer}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">{faq.answer}</p>
               </motion.div>
             ))}
           </div>
@@ -382,10 +380,10 @@ export default function PlumbersPage() {
       </section>
 
       {/* Footer SEO Section */}
-      <section className="py-12 bg-gradient-to-br from-blue-50 to-white border-t-4 border-[#007BFF]">
+      <section className="py-12 bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 border-t-4 border-[#007BFF]">
         <div className="container-custom text-center">
-          <p className="text-gray-700 text-lg max-w-4xl mx-auto leading-relaxed">
-            <span className="text-[#007BFF] font-bold">TsvWeb</span> builds websites for plumbers across Birmingham and the West Midlands. 
+          <p className="text-gray-700 dark:text-gray-300 text-lg max-w-4xl mx-auto leading-relaxed">
+            <span className="text-[#007BFF] font-bold">TsvWeb</span> builds websites for plumbers across Birmingham. and the West Midlands. 
             Fast, affordable, and optimized for Google Maps. Get more emergency callouts. Rank higher in Birmingham. Grow your plumbing business.
           </p>
         </div>
