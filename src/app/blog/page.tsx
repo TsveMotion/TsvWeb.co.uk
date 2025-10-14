@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 import { BlogService } from '@/services/blog-service'
 import { BlogPost } from '@/types/blog'
 
@@ -71,27 +70,6 @@ export default function BlogPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <PageSEO 
-        title="WordPress Web Design Birmingham Blog | WordPress Developer Tips & Small Business Web Design"
-        description="WordPress web design Birmingham blog by our expert WordPress developer. Learn about affordable WordPress websites, custom WordPress development, small business web design, and SEO-friendly WordPress design tips for Birmingham businesses."
-        canonical="https://tsvweb.com/blog"
-        structuredData={{
-          type: 'WebSite',
-          data: {
-            name: 'TsvWeb Blog',
-            url: 'https://tsvweb.com/blog',
-            description: 'Web design and development insights from TsvWeb',
-            publisher: {
-              '@type': 'Organization',
-              name: 'TsvWeb',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https://tsvweb.com/images/logo.png'
-              }
-            }
-          }
-        }}
-      />
       <Navbar />
       
       {/* Blog Header */}

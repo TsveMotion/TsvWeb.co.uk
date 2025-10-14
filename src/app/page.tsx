@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 interface UptimeStats {
   totalMonitors: number
@@ -110,77 +109,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <PageSEO 
-        title="Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb"
-        description="Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google, mobile-ready in 48 hours. Trusted by 500+ Birmingham businesses. Free quote + SEO checklist today!"
-        canonical="https://tsvweb.com"
-        keywords="web design Birmingham, Birmingham web design, website design Birmingham, affordable web design Birmingham, SEO Birmingham, Birmingham web developer, local SEO Birmingham, mobile website design Birmingham, e-commerce Birmingham, restaurant website Birmingham"
-        openGraph={{
-          title: "Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb",
-          description: "Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google. Trusted by 500+ Birmingham businesses. Free quote today!",
-          url: "https://tsvweb.com",
-          type: "website",
-          images: [{
-            url: "https://tsvweb.com/TsvWeb_Logo.png",
-            width: 1200,
-            height: 630,
-            alt: "TsvWeb - Professional Web Design Birmingham"
-          }]
-        }}
-        structuredData={{
-          type: "LocalBusiness",
-          data: {
-            "name": "TsvWeb - Web Design Birmingham",
-            "alternateName": "TsvWeb Birmingham Web Developer",
-            "description": "Professional web design services in Birmingham from £30/month. Expert web developer creating SEO-optimised, mobile-ready websites for Birmingham businesses.",
-            "url": "https://tsvweb.com",
-            "telephone": "+44-7444-358808",
-            "email": "hello@tsvweb.com",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Birmingham",
-              "addressRegion": "West Midlands",
-              "addressCountry": "GB"
-            },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": 52.4862,
-              "longitude": -1.8904
-            },
-            "openingHours": "Mo-Fr 09:00-18:00",
-            "priceRange": "£30-£500",
-            "currenciesAccepted": "GBP",
-            "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
-            "areaServed": [
-              {"@type": "City", "name": "Birmingham"},
-              {"@type": "City", "name": "Solihull"},
-              {"@type": "City", "name": "Sutton Coldfield"},
-              {"@type": "City", "name": "Edgbaston"},
-              {"@type": "Region", "name": "West Midlands"}
-            ],
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "500",
-              "bestRating": "5",
-              "worstRating": "1"
-            },
-            "offers": {
-              "@type": "AggregateOffer",
-              "priceCurrency": "GBP",
-              "lowPrice": "30",
-              "highPrice": "500",
-              "offerCount": "8"
-            },
-            "sameAs": [
-              "https://twitter.com/tsvweb",
-              "https://linkedin.com/company/tsvweb",
-              "https://facebook.com/tsvweb",
-              "https://instagram.com/tsvweb"
-            ]
-          }
-        }}
-      />
       <Navbar />
 
       {/* Hero Section with Email Capture */}

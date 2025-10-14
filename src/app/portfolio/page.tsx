@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
-import PageSEO from '@/components/seo/page-seo'
 
 interface PortfolioItem {
   _id: string;
@@ -79,28 +78,6 @@ export default function PortfolioPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <PageSEO 
-        title="Portfolio Birmingham | Web Design Portfolio Birmingham | TsvWeb Projects"
-        description="Birmingham web design portfolio. View our stunning WordPress websites, e-commerce stores, and custom web development projects. 50+ successful Birmingham businesses. See our work. Call 07444 358808."
-        canonical="https://tsvweb.com/portfolio"
-        keywords="portfolio Birmingham, web design portfolio Birmingham, WordPress portfolio Birmingham, Birmingham web design examples, website portfolio Birmingham, web development portfolio Birmingham"
-        structuredData={{
-          type: 'WebSite',
-          data: {
-            name: 'TsvWeb Portfolio',
-            description: 'Web design and development portfolio showcasing our best work',
-            url: 'https://tsvweb.com/portfolio',
-            publisher: {
-              '@type': 'Organization',
-              name: 'TsvWeb',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https://tsvweb.com/images/logo.png'
-              }
-            }
-          }
-        }}
-      />
       <Navbar />
       
       {/* Portfolio Header */}

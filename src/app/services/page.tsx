@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import PageSEO from '@/components/seo/page-seo'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
@@ -181,12 +180,6 @@ export default function ServicesPage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
-      <PageSEO
-        title="Professional Web Design & Digital Services | TsvWeb Birmingham"
-        description="Affordable web design, e-commerce, SEO, and digital marketing services. Monthly plans from £30/month. No upfront costs. Fast delivery in 3-5 days."
-        canonical="https://tsvweb.com/services"
-        keywords="web design Birmingham, website design services, e-commerce website, SEO services, digital marketing, logo design, monthly website plans"
-      />
       <Navbar />
 
       {/* Hero Section */}
