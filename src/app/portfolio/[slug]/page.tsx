@@ -115,7 +115,7 @@ export default function PortfolioDetailPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <PageSEO 
         title={`${portfolioItem.title} - Portfolio | TsvWeb`}
         description={portfolioItem.description.substring(0, 160)}
@@ -131,7 +131,7 @@ export default function PortfolioDetailPage() {
       />
       <Navbar />
       
-      <div className="container mx-auto px-4 py-32">
+      <div className="container mx-auto px-4 py-24 md:py-32">
       {/* Breadcrumb */}
       <nav className="flex mb-8" aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
@@ -162,11 +162,23 @@ export default function PortfolioDetailPage() {
         </ol>
       </nav>
 
+      {/* Hero Section */}
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-royal-blue to-blue-600">
+          {portfolioItem.title}
+        </h1>
+        {portfolioItem.projectType && (
+          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-royal-blue to-blue-600 text-white shadow-lg">
+            {portfolioItem.projectType}
+          </span>
+        )}
+      </div>
+
       {/* Portfolio Detail */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Image Gallery */}
         <div className="space-y-6">
-          <div className="relative h-[400px] w-full overflow-hidden rounded-xl shadow-md">
+          <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700 transform hover:scale-[1.02] transition-transform duration-300">
             {activeImage ? (
               <Image 
                 src={activeImage} 
@@ -177,25 +189,29 @@ export default function PortfolioDetailPage() {
                 className="object-cover"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-royal-blue-light to-royal-blue flex items-center justify-center text-white text-lg font-medium">
+              <div className="absolute inset-0 bg-gradient-to-br from-royal-blue via-blue-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold p-8 text-center">
                 {portfolioItem.title}
               </div>
             )}
           </div>
           
           {/* Thumbnail Gallery */}
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
             {/* Always include thumbnail image in the gallery if it exists */}
             {portfolioItem.thumbnailImage && (
               <button 
                 onClick={() => setActiveImage(portfolioItem.thumbnailImage)}
-                className={`relative h-20 w-20 overflow-hidden rounded-md transition-all ${activeImage === portfolioItem.thumbnailImage ? 'ring-2 ring-royal-blue scale-105' : 'hover:scale-105'}`}
+                className={`relative h-24 w-24 overflow-hidden rounded-xl transition-all duration-300 ${
+                  activeImage === portfolioItem.thumbnailImage 
+                    ? 'ring-4 ring-royal-blue scale-110 shadow-xl' 
+                    : 'hover:scale-105 hover:shadow-lg ring-2 ring-gray-200 dark:ring-gray-700'
+                }`}
               >
                 <Image 
                   src={portfolioItem.thumbnailImage} 
                   alt={`${portfolioItem.title} - Thumbnail`}
                   fill
-                  sizes="80px"
+                  sizes="96px"
                   className="object-cover"
                 />
               </button>
@@ -207,13 +223,17 @@ export default function PortfolioDetailPage() {
                 <button 
                   key={index}
                   onClick={() => setActiveImage(image)}
-                  className={`relative h-20 w-20 overflow-hidden rounded-md transition-all ${activeImage === image ? 'ring-2 ring-royal-blue scale-105' : 'hover:scale-105'}`}
+                  className={`relative h-24 w-24 overflow-hidden rounded-xl transition-all duration-300 ${
+                    activeImage === image 
+                      ? 'ring-4 ring-royal-blue scale-110 shadow-xl' 
+                      : 'hover:scale-105 hover:shadow-lg ring-2 ring-gray-200 dark:ring-gray-700'
+                  }`}
                 >
                   <Image 
                     src={image} 
                     alt={`${portfolioItem.title} - Image ${index + 1}`}
                     fill
-                    sizes="80px"
+                    sizes="96px"
                     className="object-cover"
                   />
                 </button>
@@ -223,48 +243,65 @@ export default function PortfolioDetailPage() {
         </div>
 
         {/* Project Details */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{portfolioItem.title}</h1>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
+          <div className="mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg className="w-8 h-8 mr-3 text-royal-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Project Overview
+            </h2>
+          </div>
           
-          {portfolioItem.projectType && (
-            <div className="mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-royal-blue-light text-royal-blue dark:bg-blue-900 dark:text-blue-100">
-                {portfolioItem.projectType}
-              </span>
-            </div>
-          )}
-          
-          <div className="prose prose-lg max-w-none mb-8 text-gray-700 dark:text-gray-300">
+          <div className="prose prose-lg max-w-none mb-8 text-gray-700 dark:text-gray-300 leading-relaxed">
             {portfolioItem.description.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4">{paragraph}</p>
+              <p key={index} className="mb-4 text-base md:text-lg">{paragraph}</p>
             ))}
           </div>
           
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
+          <div className="border-t-2 border-gradient-to-r from-royal-blue to-blue-600 pt-8 space-y-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg className="w-6 h-6 mr-2 text-royal-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Project Details
+            </h3>
+            
             {portfolioItem.clientName && (
-              <div className="flex items-center">
-                <span className="text-gray-500 dark:text-gray-400 w-32 font-medium">Client:</span>
-                <span className="font-medium text-gray-900 dark:text-white">{portfolioItem.clientName}</span>
+              <div className="flex items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                <svg className="w-5 h-5 mr-3 text-royal-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="text-gray-600 dark:text-gray-400 font-medium mr-3">Client:</span>
+                <span className="font-bold text-gray-900 dark:text-white">{portfolioItem.clientName}</span>
               </div>
             )}
             
             {portfolioItem.completionDate && (
-              <div className="flex items-center">
-                <span className="text-gray-500 dark:text-gray-400 w-32 font-medium">Completed:</span>
-                <span className="font-medium text-gray-900 dark:text-white">
+              <div className="flex items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                <svg className="w-5 h-5 mr-3 text-royal-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-gray-600 dark:text-gray-400 font-medium mr-3">Completed:</span>
+                <span className="font-bold text-gray-900 dark:text-white">
                   {format(new Date(portfolioItem.completionDate), 'MMMM yyyy')}
                 </span>
               </div>
             )}
             
             {portfolioItem.technologies && portfolioItem.technologies.length > 0 && (
-              <div className="flex items-start">
-                <span className="text-gray-500 dark:text-gray-400 w-32 pt-1 font-medium">Technologies:</span>
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <svg className="w-5 h-5 mr-2 text-royal-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Technologies Used:</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {portfolioItem.technologies.map((tech, index) => (
                     <span 
                       key={index} 
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-xs font-medium"
+                      className="px-4 py-2 bg-gradient-to-r from-royal-blue to-blue-600 text-white rounded-full text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                       {tech}
                     </span>
@@ -274,16 +311,20 @@ export default function PortfolioDetailPage() {
             )}
             
             {portfolioItem.projectUrl && (
-              <div className="flex items-center">
-                <span className="text-gray-500 dark:text-gray-400 w-32 font-medium">Project URL:</span>
+              <div className="bg-gradient-to-r from-royal-blue to-blue-600 p-4 rounded-lg">
                 <a 
                   href={portfolioItem.projectUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-royal-blue hover:underline flex items-center"
+                  className="flex items-center justify-between text-white hover:text-gray-100 transition-colors group"
                 >
-                  Visit Website
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    <span className="font-bold">Visit Live Website</span>
+                  </div>
+                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                 </a>
@@ -291,12 +332,12 @@ export default function PortfolioDetailPage() {
             )}
           </div>
           
-          <div className="mt-8 flex justify-between items-center">
+          <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
             <Link 
               href="/portfolio"
-              className="inline-flex items-center text-royal-blue hover:text-royal-blue-dark transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to Portfolio
@@ -307,15 +348,45 @@ export default function PortfolioDetailPage() {
                 href={portfolioItem.projectUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-royal-blue to-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
               >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
                 View Live Project
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="mt-16 bg-gradient-to-r from-royal-blue to-blue-600 rounded-2xl shadow-2xl p-8 md:p-12 text-center text-white">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Your Project?</h2>
+        <p className="text-lg md:text-xl mb-8 text-blue-100">Let's create something amazing together!</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link 
+            href="/contact"
+            className="inline-flex items-center justify-center px-8 py-4 bg-white text-royal-blue font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Get In Touch
+          </Link>
+          <Link 
+            href="/portfolio"
+            className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-xl hover:bg-white hover:text-royal-blue transition-all duration-200 transform hover:scale-105"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            View More Projects
+          </Link>
         </div>
       </div>
     </div>
