@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+// Extend Window interface to include google
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 interface GoogleMapProps {
   center?: {
     lat: number
@@ -25,7 +32,7 @@ export default function GoogleMap({
   className = ''
 }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const [map, setMap] = useState<google.maps.Map | null>(null)
+  const [map, setMap] = useState<any>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

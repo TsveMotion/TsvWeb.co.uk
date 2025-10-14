@@ -21,12 +21,23 @@ export default function AllPagesPage() {
       ]
     },
     {
+      category: "Service Pages",
+      icon: "💼",
+      pages: [
+        { name: "SEO Services", url: "/services/seo", description: "SEO optimization Birmingham" },
+        { name: "E-commerce", url: "/services/ecommerce", description: "Online store development" },
+        { name: "Web Development", url: "/services/web-development", description: "Custom coded websites" },
+        { name: "Web Design", url: "/services/web-design", description: "WordPress website design" },
+        { name: "Booking Websites", url: "/services/booking", description: "Salon & barber booking systems" },
+        { name: "Portfolio Websites", url: "/services/portfolio", description: "Creative portfolio sites" }
+      ]
+    },
+    {
       category: "Industry Landing Pages",
       icon: "🏢",
       pages: [
         { name: "Restaurants", url: "/restaurants", description: "Restaurant website design Birmingham" },
-        { name: "Barbers", url: "/barbers", description: "Barber website design Birmingham" },
-        { name: "E-commerce", url: "/ecommerce", description: "E-commerce website design Birmingham" }
+        { name: "Barbers", url: "/barbers", description: "Barber website design Birmingham" }
       ]
     },
     {
@@ -53,7 +64,7 @@ export default function AllPagesPage() {
   ]
 
   return (
-    <main className="min-h-screen flex flex-col bg-white">
+    <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <PageSEO 
         title="All Pages | TsvWeb Site Directory"
         description="Complete directory of all TsvWeb pages including industry landing pages, trade services, and more."
@@ -70,10 +81,10 @@ export default function AllPagesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-6">
+            <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">
               All <span className="text-[#007BFF]">Pages</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Complete directory of all TsvWeb pages. Click any page to navigate.
             </p>
           </motion.div>
@@ -90,7 +101,7 @@ export default function AllPagesPage() {
                 {/* Category Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-4xl">{category.icon}</span>
-                  <h2 className="text-3xl font-black text-gray-900">{category.category}</h2>
+                  <h2 className="text-3xl font-black text-gray-900 dark:text-white">{category.category}</h2>
                   <div className="flex-1 h-1 bg-gradient-to-r from-[#007BFF] to-transparent ml-4"></div>
                 </div>
 
@@ -102,9 +113,9 @@ export default function AllPagesPage() {
                       href={page.url}
                       className="group"
                     >
-                      <div className="bg-blue-50 border-2 border-transparent hover:border-[#007BFF] p-6 rounded-lg transition-all duration-300 hover:shadow-lg h-full">
+                      <div className="bg-blue-50 dark:bg-gray-800 border-2 border-transparent hover:border-[#007BFF] dark:hover:border-blue-400 p-6 rounded-lg transition-all duration-300 hover:shadow-lg h-full">
                         <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-xl font-black text-gray-900 group-hover:text-[#007BFF] transition-colors">
+                          <h3 className="text-xl font-black text-gray-900 dark:text-white group-hover:text-[#007BFF] dark:group-hover:text-blue-400 transition-colors">
                             {page.name}
                           </h3>
                           <svg 
@@ -116,8 +127,8 @@ export default function AllPagesPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
-                        <p className="text-gray-600 text-sm mb-3">{page.description}</p>
-                        <p className="text-[#007BFF] text-sm font-mono">{page.url}</p>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{page.description}</p>
+                        <p className="text-[#007BFF] dark:text-blue-400 text-sm font-mono">{page.url}</p>
                       </div>
                     </Link>
                   ))}
@@ -168,7 +179,7 @@ export default function AllPagesPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <p className="text-gray-600 mb-6">Need help navigating?</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">Need help navigating?</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link 
                 href="/contact" 
@@ -178,13 +189,13 @@ export default function AllPagesPage() {
               </Link>
               <Link 
                 href="/services" 
-                className="bg-white border-2 border-[#007BFF] text-[#007BFF] font-bold px-8 py-3 rounded-lg hover:bg-[#007BFF] hover:text-white transition-all"
+                className="bg-white dark:bg-gray-800 border-2 border-[#007BFF] dark:border-blue-400 text-[#007BFF] dark:text-blue-400 font-bold px-8 py-3 rounded-lg hover:bg-[#007BFF] hover:text-white transition-all"
               >
                 View Services
               </Link>
               <Link 
                 href="/" 
-                className="bg-gray-100 text-gray-700 font-bold px-8 py-3 rounded-lg hover:bg-gray-200 transition-all"
+                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold px-8 py-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
               >
                 Back to Home
               </Link>

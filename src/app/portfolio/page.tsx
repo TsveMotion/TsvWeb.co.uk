@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import PageSEO from '@/components/seo/page-seo'
@@ -79,9 +80,10 @@ export default function PortfolioPage() {
   return (
     <main className="min-h-screen flex flex-col">
       <PageSEO 
-        title="WordPress Portfolio Birmingham | Custom WordPress Websites & Small Business Web Design"
-        description="View our WordPress portfolio showcasing affordable WordPress web design projects in Birmingham. See how our WordPress developer creates custom WordPress websites and small business web design solutions for local Birmingham businesses."
+        title="Portfolio Birmingham | Web Design Portfolio Birmingham | TsvWeb Projects"
+        description="Birmingham web design portfolio. View our stunning WordPress websites, e-commerce stores, and custom web development projects. 50+ successful Birmingham businesses. See our work. Call 07444 358808."
         canonical="https://tsvweb.com/portfolio"
+        keywords="portfolio Birmingham, web design portfolio Birmingham, WordPress portfolio Birmingham, Birmingham web design examples, website portfolio Birmingham, web development portfolio Birmingham"
         structuredData={{
           type: 'WebSite',
           data: {
@@ -102,41 +104,83 @@ export default function PortfolioPage() {
       <Navbar />
       
       {/* Portfolio Header */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 opacity-90"></div>
-          <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 dark:opacity-5">
-            <div className="w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-royal-blue/30 to-transparent"></div>
-          </div>
-          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 opacity-10 dark:opacity-5">
-            <div className="w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-royal-blue/30 to-transparent"></div>
-          </div>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-blue-400/10 dark:bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 left-10 w-96 h-96 bg-purple-400/10 dark:bg-purple-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
         
         <div className="container-custom relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <span className="inline-block px-3 py-1 bg-royal-blue/10 dark:bg-royal-blue/20 text-royal-blue dark:text-royal-blue-light rounded-full text-sm font-medium mb-6">Our Work</span>
-            <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-              WordPress <span className="text-royal-blue">Portfolio Birmingham</span>
-            </h1>
-            <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              Explore our collection of successful WordPress web design projects for Birmingham businesses. 
-              Each project showcases our WordPress developer expertise in creating affordable, beautiful, and functional custom WordPress websites that drive results for local businesses.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="inline-block px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-bold mb-6 shadow-lg">
+                🎨 Our Work
+              </span>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              Birmingham <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Portfolio</span>
+            </motion.h1>
+            
+            <motion.p 
+              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Stunning websites that drive real results for Birmingham businesses. <br className="hidden md:block" />
+              From WordPress to custom development, see what we've built.
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-wrap justify-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               <button 
-                className="btn-primary" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-lg px-10 py-4 rounded-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300" 
                 onClick={() => {
                   document.getElementById('portfolio-grid')?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                View Projects
+                View Projects →
               </button>
-              <Link href="/contact" className="btn-outline">
+              <Link href="/contact" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 font-black text-lg px-10 py-4 rounded-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 Start Your Project
               </Link>
-            </div>
+            </motion.div>
+            
+            {/* Stats */}
+            <motion.div 
+              className="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-gray-200 dark:border-gray-700"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div className="text-center">
+                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">50+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Projects</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">100%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Satisfaction</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">8+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Years</div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

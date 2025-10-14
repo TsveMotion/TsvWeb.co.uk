@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import PageSEO from '@/components/seo/page-seo'
@@ -94,16 +95,43 @@ export default function BlogPage() {
       <Navbar />
       
       {/* Blog Header */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="heading-1 text-gray-900 dark:text-white mb-6">
-              WordPress Web Design <span className="text-royal-blue">Birmingham Blog</span>
-            </h1>
-            <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              WordPress developer insights, tips, and strategies to help Birmingham businesses succeed online with affordable WordPress web design.
-              Stay updated with the latest trends in WordPress development, custom WordPress websites, and small business web design.
-            </p>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        {/* Animated Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-blue-400/10 dark:bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 left-10 w-96 h-96 bg-purple-400/10 dark:bg-purple-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
+        <div className="container-custom relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="inline-block px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-bold mb-6 shadow-lg">
+                📝 Web Design Insights
+              </span>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              Birmingham <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Blog</span>
+            </motion.h1>
+            
+            <motion.p 
+              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Web design tips, WordPress insights, and digital marketing strategies <br className="hidden md:block" />
+              to help Birmingham businesses thrive online.
+            </motion.p>
           </div>
         </div>
       </section>

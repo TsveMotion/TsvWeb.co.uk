@@ -75,9 +75,10 @@ export default function AboutPage() {
 
   // SEO metadata
   const seoData = {
-    title: 'About Our WordPress Developer Birmingham Team | Affordable WordPress Web Design',
-    description: 'Meet our Birmingham WordPress developer team. Learn about TsvWeb, our WordPress web design expertise, Birmingham local knowledge, and our mission to provide affordable custom WordPress websites for local businesses.',
+    title: 'About TsvWeb Birmingham | Web Design Team Birmingham | Our Story',
+    description: 'Meet the TsvWeb Birmingham team. Award-winning web designers and developers. 8+ years experience. 200+ projects completed. Serving Birmingham businesses. Call 07444 358808.',
     canonical: 'https://tsvweb.com/about',
+    keywords: 'about TsvWeb, Birmingham web design team, web designers Birmingham, web developers Birmingham, Birmingham web agency, TsvWeb team',
     openGraph: {
       title: 'About Our WordPress Developer Birmingham Team | TsvWeb',
       description: 'Meet our Birmingham WordPress developer team specializing in affordable WordPress web design and custom WordPress websites for local Birmingham businesses.',

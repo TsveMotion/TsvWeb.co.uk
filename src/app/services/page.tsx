@@ -6,73 +6,79 @@ import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function ServicesPage() {
   const [isWizardOpen, setIsWizardOpen] = useState(false)
 
-  // Monthly Website Plans
+  // Monthly Website Plans (WordPress)
   const monthlyPlans = [
     {
-      title: 'Website Design & Hosting',
-      description: 'Modern responsive business website, hosting included, zero upfront.',
+      title: 'WordPress Website & Hosting',
+      description: 'WordPress website with modern design, hosting included, zero upfront.',
       price: '£30',
       period: '/month',
       timeframe: '3–5 days',
+      link: '/services/web-design',
       icon: (
         <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
-      features: ['Responsive Design', 'Mobile-Friendly', 'SEO Optimized', 'Fast Loading']
+      features: ['WordPress CMS', 'Responsive Design', 'Mobile-Friendly', 'SEO Optimized']
     },
     {
-      title: 'E-commerce Website',
-      description: 'Sell your products online with full shop setup, payment gateway, and SSL.',
+      title: 'WordPress E-commerce',
+      description: 'WordPress WooCommerce store with payment gateway, SSL, and full shop setup.',
       price: '£50',
       period: '/month',
       timeframe: '3–5 days',
+      link: '/services/ecommerce',
       icon: (
         <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      features: ['Payment Gateway', 'Product Management', 'Secure Checkout', 'Inventory System']
+      features: ['WooCommerce', 'Payment Gateway', 'Product Management', 'Inventory System']
     },
     {
-      title: 'Booking Website',
-      description: 'Perfect for barbers, salons, or service businesses. Includes booking system and notifications.',
+      title: 'WordPress Booking Site',
+      description: 'WordPress booking website for barbers, salons, or service businesses.',
       price: '£45',
       period: '/month',
       timeframe: '3–5 days',
+      link: '/services/booking',
       icon: (
         <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      features: ['Online Booking', 'Email Notifications', 'Calendar Integration', 'Customer Management']
+      features: ['WordPress', 'Online Booking', 'Email Notifications', 'Calendar Integration']
     },
     {
-      title: 'Portfolio / Artist Website',
-      description: 'Showcase your work beautifully with image/video galleries and SEO setup.',
+      title: 'WordPress Portfolio',
+      description: 'WordPress portfolio website with beautiful image/video galleries and SEO.',
       price: '£35',
       period: '/month',
       timeframe: '3–5 days',
+      link: '/services/portfolio',
       icon: (
         <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      features: ['Image Galleries', 'Video Support', 'Portfolio Showcase', 'Contact Forms']
+      features: ['WordPress', 'Image Galleries', 'Video Support', 'Portfolio Showcase']
     }
   ]
 
-  // One-Time Packages
+  // One-Time Packages (WordPress)
   const oneTimePackages = [
     {
       title: 'WordPress Website',
-      subtitle: '(No E-commerce)',
-      description: 'Professional 5-page design with mobile optimization.',
+      subtitle: '(Business Site)',
+      description: 'Professional 5-page WordPress website with mobile optimization.',
       price: 'From £295',
+      link: '/services/web-design',
       icon: (
         <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -80,10 +86,11 @@ export default function ServicesPage() {
       )
     },
     {
-      title: 'E-commerce Website',
-      subtitle: '',
-      description: 'Fully functional online store with payment integration.',
+      title: 'WordPress E-commerce',
+      subtitle: '(WooCommerce)',
+      description: 'Fully functional WordPress online store with WooCommerce and payment integration.',
       price: 'From £395',
+      link: '/services/ecommerce',
       icon: (
         <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -91,13 +98,14 @@ export default function ServicesPage() {
       )
     },
     {
-      title: 'Landing Page / Sales Funnel',
-      subtitle: '',
-      description: 'Designed to convert leads with SEO and analytics tracking.',
-      price: 'From £199',
+      title: 'Custom Coded Website',
+      subtitle: '(Fully Bespoke)',
+      description: 'Fully custom-coded website built from scratch with advanced features. Contact for quote.',
+      price: 'Contact Us',
+      link: '/services/web-development',
       icon: (
         <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
         </svg>
       )
     }
@@ -127,7 +135,8 @@ export default function ServicesPage() {
     {
       title: 'SEO Optimisation',
       description: 'Full on-page optimisation, speed, tags, and ranking improvements.',
-      price: 'From £100'
+      price: 'From £100',
+      link: '/services/seo'
     },
     {
       title: 'Google & Meta Ads Management',
@@ -214,10 +223,10 @@ export default function ServicesPage() {
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              🌐 <span className="text-[#007BFF]">Monthly Website Plans</span>
+              🌐 <span className="text-[#007BFF]">Monthly WordPress Plans</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Pay monthly with no upfront costs. All plans include hosting, SSL, and ongoing support.
+              Pay monthly with no upfront costs. All WordPress plans include hosting, SSL, and ongoing support.
             </p>
           </div>
 
@@ -255,12 +264,22 @@ export default function ServicesPage() {
                   ))}
                 </ul>
 
-                <button
-                  onClick={() => setIsWizardOpen(true)}
-                  className="w-full py-3 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300"
-                >
-                  Get Started
-                </button>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setIsWizardOpen(true)}
+                    className="w-full py-3 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300"
+                  >
+                    Get Started
+                  </button>
+                  {plan.link && (
+                    <Link
+                      href={plan.link}
+                      className="block w-full py-3 bg-white dark:bg-gray-700 text-[#007BFF] dark:text-blue-400 font-semibold rounded-lg border-2 border-[#007BFF] dark:border-blue-400 hover:bg-[#007BFF] hover:text-white dark:hover:bg-blue-600 transition-all duration-300 text-center"
+                    >
+                      Learn More →
+                    </Link>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -275,7 +294,7 @@ export default function ServicesPage() {
               💻 <span className="text-[#007BFF]">One-Time Website Packages</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Complete website solutions with one-time payment. Perfect for businesses ready to launch.
+              WordPress websites or fully custom-coded solutions. One-time payment, own it forever.
             </p>
           </div>
 
@@ -296,12 +315,21 @@ export default function ServicesPage() {
                 {pkg.subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{pkg.subtitle}</p>}
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{pkg.description}</p>
                 <div className="text-2xl font-bold text-[#007BFF] mb-4">{pkg.price}</div>
-                <button
-                  onClick={() => setIsWizardOpen(true)}
-                  className="w-full py-3 bg-white dark:bg-gray-900 border-2 border-[#007BFF] text-[#007BFF] font-semibold rounded-lg hover:bg-[#007BFF] hover:text-white transition-all duration-300"
-                >
-                  Learn More
-                </button>
+                {pkg.link ? (
+                  <Link
+                    href={pkg.link}
+                    className="block w-full py-3 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300"
+                  >
+                    Learn More →
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => setIsWizardOpen(true)}
+                    className="w-full py-3 bg-white dark:bg-gray-900 border-2 border-[#007BFF] text-[#007BFF] font-semibold rounded-lg hover:bg-[#007BFF] hover:text-white transition-all duration-300"
+                  >
+                    Get Quote
+                  </button>
+                )}
               </motion.div>
             ))}
           </div>
@@ -363,7 +391,15 @@ export default function ServicesPage() {
               >
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{service.description}</p>
-                <div className="text-lg font-bold text-[#007BFF]">{service.price}</div>
+                <div className="text-lg font-bold text-[#007BFF] mb-3">{service.price}</div>
+                {service.link && (
+                  <Link
+                    href={service.link}
+                    className="inline-flex items-center text-[#007BFF] hover:text-[#0056D2] font-semibold text-sm transition-colors"
+                  >
+                    Learn More →
+                  </Link>
+                )}
               </motion.div>
             ))}
           </div>
