@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, Settings } from 'lucide-react'
 import SupportTicketModal from '@/components/customer/support-ticket-modal'
+import AccountSettingsModal from '@/components/customer/account-settings-modal'
 
 interface CustomerData {
   id: string
@@ -14,6 +15,9 @@ interface CustomerData {
   username: string
   websites?: string[]
   company?: string
+  phone?: string
+  googleId?: string
+  googleEmail?: string
 }
 
 interface UptimeStats {
@@ -46,6 +50,7 @@ export default function CustomerDashboard() {
   const [mounted, setMounted] = useState(false)
   const [uptimeError, setUptimeError] = useState<string | null>(null)
   const [showSupportModal, setShowSupportModal] = useState(false)
+  const [showAccountSettings, setShowAccountSettings] = useState(false)
   const router = useRouter()
   const { theme, setTheme } = useTheme()
 
@@ -235,10 +240,14 @@ export default function CustomerDashboard() {
             </div>
             <div className="flex items-center space-x-3">
               <div className="hidden md:flex items-center space-x-2 text-sm">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <button
+                  onClick={() => setShowAccountSettings(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer group"
+                >
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-gray-700 dark:text-gray-200 font-medium">{customer.name}</span>
-                </div>
+                  <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                </button>
               </div>
               {/* Theme Toggle */}
               {mounted && (
@@ -603,6 +612,16 @@ export default function CustomerDashboard() {
         onSubmit={(ticketData) => {
           console.log('Support ticket created:', ticketData);
           // You can add additional handling here if needed
+        }}
+      />
+
+      {/* Account Settings Modal */}
+      <AccountSettingsModal
+        isOpen={showAccountSettings}
+        onClose={() => setShowAccountSettings(false)}
+        customer={customer}
+        onUpdate={() => {
+          checkAuth(); // Refresh customer data after update
         }}
       />
     </div>

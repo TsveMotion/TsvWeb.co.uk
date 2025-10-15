@@ -31,9 +31,12 @@ export async function POST(request: NextRequest) {
     const client = await clientPromise
     const db = client.db()
 
-    // Find user by username
+    // Find user by username or email
     const user = await db.collection('users').findOne({ 
-      username: username.toLowerCase(),
+      $or: [
+        { username: username.toLowerCase() },
+        { email: username.toLowerCase() }
+      ],
       role: 'customer' // Only allow customer role users to login here
     }) as CustomerUser | null
 

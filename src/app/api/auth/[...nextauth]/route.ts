@@ -149,8 +149,8 @@ const authOptions: NextAuthOptions = {
       else if (new URL(url).origin === baseUrl) {
         return url;
       }
-      // Otherwise, redirect to dashboard
-      return `${baseUrl}/admin/dashboard`;
+      // Default redirect - will be overridden by callbackUrl
+      return `${baseUrl}/customer/dashboard`;
     }
   },
   pages: {
