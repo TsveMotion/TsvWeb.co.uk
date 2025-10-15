@@ -14,8 +14,10 @@ const nextConfig = {
   compress: true,
   
   // Experimental features for better performance
+  // Note: optimizeCss disabled due to build compatibility issues
+  // CSS is still optimized through other means (Tailwind purge, minification)
   experimental: {
-    optimizeCss: true, // Critical: Reduces render-blocking CSS
+    // optimizeCss: true, // Disabled - causing build errors with critters
   },
   
   typescript: {
