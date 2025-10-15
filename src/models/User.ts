@@ -6,7 +6,7 @@ export interface IUser {
   _id?: string;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   phone?: string;
   role: 'admin' | 'editor';
   avatar?: string;
@@ -25,7 +25,7 @@ const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
     phone: { type: String },
     role: { 
       type: String, 
@@ -59,6 +59,11 @@ UserSchema.methods.validatePassword = function(password: string): boolean {
 
 // Pre-save hook to hash password before saving
 UserSchema.pre('save', function(next) {
+  // Skip if no password (OAuth users)
+  if (!this.password) {
+    return next();
+  }
+  
   // Only hash the password if it's modified or new
   if (!this.isModified('password')) {
     return next();

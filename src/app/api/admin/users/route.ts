@@ -2,9 +2,37 @@ import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+
+// Helper function to check admin authentication
+async function checkAdminAuth() {
+  const session = await getServerSession(authOptions)
+  
+  if (!session || !session.user) {
+    return { authenticated: false, error: 'Unauthorized' }
+  }
+  
+  // Check if user is admin
+  const userRole = (session.user as any).role
+  if (userRole !== 'admin' && userRole !== 'editor') {
+    return { authenticated: false, error: 'Forbidden: Admin access required' }
+  }
+  
+  return { authenticated: true }
+}
 
 // Get all users (with pagination)
 export async function GET(request: NextRequest) {
+  // Check authentication
+  const auth = await checkAdminAuth()
+  if (!auth.authenticated) {
+    return NextResponse.json(
+      { success: false, message: auth.error },
+      { status: auth.error === 'Unauthorized' ? 401 : 403 }
+    )
+  }
+  
   try {
     const client = await clientPromise
     const db = client.db()
@@ -63,6 +91,15 @@ export async function GET(request: NextRequest) {
 
 // Create a new user
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const auth = await checkAdminAuth()
+  if (!auth.authenticated) {
+    return NextResponse.json(
+      { success: false, message: auth.error },
+      { status: auth.error === 'Unauthorized' ? 401 : 403 }
+    )
+  }
+  
   try {
     const client = await clientPromise
     const db = client.db()

@@ -12,7 +12,8 @@ export default function CustomerLogin() {
   const { data: session, status } = useSession()
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -170,11 +171,9 @@ export default function CustomerLogin() {
               </div>
             )}
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Username or Email
-              </label>
-              <div className="mt-1 relative">
+            {/* Email/Username Field with Floating Label */}
+            <div className="relative">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
@@ -183,20 +182,24 @@ export default function CustomerLogin() {
                   name="username"
                   type="text"
                   required
-                  autoComplete="username"
+                  autoComplete="email username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-royal-blue focus:border-royal-blue dark:bg-gray-700 dark:text-white sm:text-sm"
-                  placeholder="Username or Email"
+                  placeholder=" "
+                  className="peer appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-md placeholder-transparent focus:outline-none focus:ring-2 focus:ring-royal-blue focus:border-royal-blue dark:bg-gray-700 dark:text-white sm:text-sm transition-all"
                 />
+                <label
+                  htmlFor="username"
+                  className="absolute left-10 -top-2.5 bg-white dark:bg-gray-800 px-1 text-sm text-gray-600 dark:text-gray-400 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-royal-blue dark:peer-focus:text-royal-blue-light"
+                >
+                  Username or Email
+                </label>
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
-              </label>
-              <div className="mt-1 relative">
+            {/* Password Field with Floating Label */}
+            <div className="relative">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <LockClosedIcon className="h-5 w-5 text-gray-400" />
                 </div>
@@ -208,14 +211,21 @@ export default function CustomerLogin() {
                   autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-royal-blue focus:border-royal-blue dark:bg-gray-700 dark:text-white sm:text-sm"
-                  placeholder="Enter your password"
+                  placeholder=" "
+                  className="peer appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-md placeholder-transparent focus:outline-none focus:ring-2 focus:ring-royal-blue focus:border-royal-blue dark:bg-gray-700 dark:text-white sm:text-sm transition-all"
                 />
+                <label
+                  htmlFor="password"
+                  className="absolute left-10 -top-2.5 bg-white dark:bg-gray-800 px-1 text-sm text-gray-600 dark:text-gray-400 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-royal-blue dark:peer-focus:text-royal-blue-light"
+                >
+                  Password
+                </label>
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="h-5 w-5" />
@@ -227,11 +237,37 @@ export default function CustomerLogin() {
               </div>
             </div>
 
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                  className="h-4 w-4 text-royal-blue focus:ring-royal-blue border-gray-300 dark:border-gray-600 rounded cursor-pointer"
+                />
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link
+                  href="/customer/forgot-password"
+                  className="font-medium text-royal-blue hover:text-royal-blue-dark dark:text-royal-blue-light dark:hover:text-royal-blue transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
+
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {loading ? (
                   <div className="flex items-center">

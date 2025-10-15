@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isClientAuthenticated, getClientAuthData, clearClientSession } from '@/lib/auth-client'
+import { useSession } from 'next-auth/react'
 
 /**
  * A higher-order component (HOC) that wraps admin components with authentication logic
@@ -14,27 +14,28 @@ export default function withAdminAuth<P extends object>(
   return function ProtectedComponent(props: P) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [user, setUser] = useState<{name?: string; email: string; role: string} | null>(null)
+    const { data: session, status } = useSession()
     const router = useRouter()
 
     useEffect(() => {
       // Check for authentication on the client side
       const checkAuth = async () => {
         try {
-          // Use the client auth helper
-          const authenticated = isClientAuthenticated()
+          // Check NextAuth session
+          if (status === 'loading') {
+            return // Still loading
+          }
           
-          if (!authenticated) {
+          if (status === 'unauthenticated' || !session) {
             redirectToLogin()
             return
           }
           
-          // Get the auth data
-          const authData = getClientAuthData()
+          // Check if user has admin role
+          const userRole = (session.user as any)?.role
           
-          if (authData?.user?.role === 'admin' || authData?.role === 'admin') {
+          if (userRole === 'admin' || userRole === 'editor') {
             setIsAuthenticated(true)
-            setUser(authData.user || { email: authData.email, role: authData.role, name: authData.name })
           } else {
             redirectToLogin()
           }
@@ -51,33 +52,8 @@ export default function withAdminAuth<P extends object>(
         router.push('/admin/login')
       }
       
-      const logout = async () => {
-        try {
-          // Call logout endpoint to clear server-side cookies
-          await fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-          
-          // Also clear client-side cookies using our utility
-          clearClientSession()
-          
-          redirectToLogin()
-        } catch (error) {
-          console.error('Logout error:', error)
-          redirectToLogin()
-        }
-      }
-      
       checkAuth()
-      
-      // Set up an interval to periodically check session status
-      const interval = setInterval(checkAuth, 5 * 60 * 1000) // Check every 5 minutes
-      
-      return () => clearInterval(interval)
-    }, [router])
+    }, [session, status, router])
 
     if (isLoading) {
       return (
@@ -87,6 +63,6 @@ export default function withAdminAuth<P extends object>(
       )
     }
 
-    return isAuthenticated ? <Component {...props} user={user} /> : null
+    return isAuthenticated ? <Component {...props} user={session?.user} /> : null
   }
 }

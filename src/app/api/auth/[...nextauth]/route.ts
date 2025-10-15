@@ -117,10 +117,33 @@ const authOptions: NextAuthOptions = {
             token.email = dbUser.email;
             token.name = dbUser.name;
           } else {
-            // Set default admin role for authorized emails
-            token.role = 'admin';
-            token.email = profile.email;
-            token.name = profile.name;
+            // Create user in MongoDB for authorized Google OAuth users
+            const authorizedEmails = [
+              'kristiyan@tsvweb.com',
+              'tsvetozarkt@gmail.com',
+            ];
+            
+            if (authorizedEmails.some(email => email.toLowerCase() === profile.email?.toLowerCase())) {
+              // Create new admin user
+              const newUser = await User.create({
+                name: profile.name || 'Admin User',
+                email: profile.email?.toLowerCase(),
+                googleId: account.providerAccountId,
+                googleEmail: profile.email,
+                role: 'admin',
+                username: profile.email?.split('@')[0] || 'admin',
+              });
+              
+              token.role = newUser.role;
+              token.id = newUser._id.toString();
+              token.email = newUser.email;
+              token.name = newUser.name;
+            } else {
+              // Set default admin role for authorized emails (fallback)
+              token.role = 'admin';
+              token.email = profile.email;
+              token.name = profile.name;
+            }
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
@@ -178,4 +201,4 @@ const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST, authOptions };

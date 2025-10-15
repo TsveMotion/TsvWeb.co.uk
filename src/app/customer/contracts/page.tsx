@@ -61,6 +61,11 @@ export default function CustomerContracts() {
   const [customer, setCustomer] = useState<{ name: string } | null>(null)
   const router = useRouter()
 
+  // Calculate total monthly amount from all signed contracts
+  const totalMonthlyAmount = contracts
+    .filter(contract => contract.status === 'signed')
+    .reduce((sum, contract) => sum + contract.amount, 0)
+
   useEffect(() => {
     fetchCustomer()
     fetchContracts()
@@ -214,6 +219,27 @@ export default function CustomerContracts() {
           </div>
         )}
 
+        {/* Monthly Payment Summary */}
+        {totalMonthlyAmount > 0 && (
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm font-medium mb-1">Total Monthly Payment</p>
+                <p className="text-4xl font-bold">GBP {totalMonthlyAmount.toLocaleString()}<span className="text-xl font-normal text-blue-100">/month</span></p>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-2 justify-end mb-2">
+                  <svg className="w-5 h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-blue-100 text-sm font-medium">Payment Due</p>
+                </div>
+                <p className="text-2xl font-bold">1st of every month</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-8">
           <div className="flex items-center justify-between">
@@ -247,8 +273,15 @@ export default function CustomerContracts() {
                 </button>
               )}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <span className="font-semibold">{contracts.length}</span> contract{contracts.length !== 1 ? 's' : ''} found
+            <div className="text-right">
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <span className="font-semibold">{contracts.length}</span> contract{contracts.length !== 1 ? 's' : ''} found
+              </div>
+              {totalMonthlyAmount > 0 && (
+                <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                  Total: GBP {totalMonthlyAmount.toLocaleString()}/month
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -277,7 +310,7 @@ export default function CustomerContracts() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
                         <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {contract.currency} {contract.amount.toLocaleString()}
+                          {contract.currency} {contract.amount.toLocaleString()}/month
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -394,8 +427,12 @@ export default function CustomerContracts() {
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Amount:</span>
                         <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {selectedContract.currency} {selectedContract.amount.toLocaleString()}
+                          {selectedContract.currency} {selectedContract.amount.toLocaleString()}/month
                         </p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Due:</span>
+                        <p className="text-gray-900 dark:text-white">1st of every month</p>
                       </div>
                       {selectedContract.duration && (
                         <div>
