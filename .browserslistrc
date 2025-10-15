@@ -1,0 +1,9 @@
+# Browsers that we support
+# This removes legacy JavaScript transpilation for old browsers
+# Saves ~12KB and improves performance
+
+> 0.5%
+last 2 versions
+not dead
+not IE 11
+not op_mini all

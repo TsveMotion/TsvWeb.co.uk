@@ -7,7 +7,15 @@ import React from 'react'
 import TsvAIWrapper from '@/components/TsvAIWrapper'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 
-const inter = Inter({ subsets: ['latin'] })
+// Optimize font loading for better LCP
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap', // Prevent invisible text during font load
+  preload: true,
+  variable: '--font-inter',
+  adjustFontFallback: true, // Reduce layout shift
+  fallback: ['system-ui', 'arial'], // Faster fallback fonts
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tsvweb.com'),
@@ -198,6 +206,12 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preconnect to external domains for faster loading */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="dns-prefetch" href="https://region1.google-analytics.com" />
+      </head>
       <body className={inter.className}>
         <script
           type="application/ld+json"

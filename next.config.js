@@ -1,6 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  
+  // Enable SWC minification for better performance
+  swcMinify: true,
+  
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
+  // Enable gzip compression
+  compress: true,
+  
+  // Experimental features for better performance
+  experimental: {
+    optimizeCss: true, // Critical: Reduces render-blocking CSS
+  },
+  
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -113,6 +130,10 @@ const nextConfig = {
     ]
   },
   images: {
+    formats: ['image/webp'], // Use WebP for better compression
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: 'https',
@@ -125,6 +146,30 @@ const nextConfig = {
         pathname: '**',
       },
     ],
+  },
+  
+  // Add caching headers for static assets
+  async headers() {
+    return [
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|gif|woff|woff2|ttf|otf)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ]
   },
 }
 
