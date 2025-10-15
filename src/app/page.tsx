@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
+import FAQSchema from '@/components/seo/FAQSchema'
 
 interface UptimeStats {
   totalMonitors: number
@@ -107,8 +108,28 @@ export default function Home() {
     { name: 'E-commerce', url: '/ecommerce', icon: '🛒', desc: 'Sell online fast' }
   ]
 
+  const faqData = [
+    {
+      question: 'How long does a website take?',
+      answer: 'Most websites are live in 48-72 hours. We work fast without compromising quality. You review it, approve it, and we launch it.'
+    },
+    {
+      question: 'Do you handle SEO?',
+      answer: 'Yes. Every website is SEO-optimised from day one. We target local Birmingham searches so you show up when customers are looking for your services.'
+    },
+    {
+      question: 'Can you manage updates for me?',
+      answer: 'Absolutely. You can update content yourself, or we can do it for you. Simple updates are free. We\'re here to help.'
+    },
+    {
+      question: 'What if I need changes later?',
+      answer: 'Easy. Message us and we\'ll make the changes. Minor tweaks are included. We want you to be 100% happy with your site.'
+    }
+  ]
+
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+      <FAQSchema faqs={faqData} />
       <Navbar />
 
       {/* Hero Section with Email Capture */}

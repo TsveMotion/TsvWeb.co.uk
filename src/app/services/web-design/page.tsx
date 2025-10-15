@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import Link from 'next/link'
+import ServiceSchema from '@/components/seo/ServiceSchema'
+import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema'
 
 export default function WebDesignPage() {
   const [formData, setFormData] = useState({
@@ -176,6 +178,20 @@ export default function WebDesignPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+      <ServiceSchema
+        name="Web Design Birmingham"
+        description="Professional custom web design services in Birmingham. Beautiful, mobile-responsive websites that convert visitors into customers. From £30/month with unlimited revisions."
+        url="https://tsvweb.com/services/web-design"
+        priceRange="30-500"
+        areaServed={['Birmingham', 'Solihull', 'Sutton Coldfield', 'West Midlands', 'UK']}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://tsvweb.com' },
+          { name: 'Services', url: 'https://tsvweb.com/services' },
+          { name: 'Web Design', url: 'https://tsvweb.com/services/web-design' }
+        ]}
+      />
       <Navbar />
 
       {/* Hero Section */}
