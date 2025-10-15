@@ -149,9 +149,9 @@ export default function BlogPostPage() {
               </div>
             )}
             
-            <article className="max-w-none">
+            <article className="max-w-none prose prose-lg dark:prose-invert prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-img:rounded-xl prose-img:shadow-lg">
               <div 
-                className="blog-content leading-relaxed"
+                className="leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
             </article>

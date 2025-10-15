@@ -72,6 +72,7 @@ const authOptions: NextAuthOptions = {
           // If no user found, check authorized emails list
           const authorizedEmails = [
             'kristiyan@tsvweb.com',
+            'tsvetozarkt@gmail.com',
             // Add more authorized admin emails here
           ];
           
@@ -158,7 +159,19 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 90 * 24 * 60 * 60, // 90 days - extended for better persistence
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 90 * 24 * 60 * 60, // 90 days
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

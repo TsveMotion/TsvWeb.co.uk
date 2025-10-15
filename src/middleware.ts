@@ -11,7 +11,12 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     // Check if the user is authenticated (custom cookie or NextAuth session)
     const authCookie = request.cookies.get(ADMIN_AUTH_COOKIE)
-    const nextAuthSession = request.cookies.get('next-auth.session-token') || request.cookies.get('__Secure-next-auth.session-token')
+    
+    // Check for NextAuth session cookie (multiple possible names)
+    const nextAuthSession = 
+      request.cookies.get('next-auth.session-token') || 
+      request.cookies.get('__Secure-next-auth.session-token') ||
+      request.cookies.get('__Host-next-auth.session-token')
     
     // If no auth cookie and no NextAuth session, redirect to login
     if (!authCookie && !nextAuthSession) {
@@ -25,8 +30,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
     
-    // Cookie exists, allow the request to proceed without validating its contents
-    // This makes the authentication less strict as requested by the user
+    // Cookie exists, allow the request to proceed
     // The client-side admin-layout.tsx will handle further validation if needed
   }
   

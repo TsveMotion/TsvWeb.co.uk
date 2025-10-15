@@ -122,6 +122,7 @@ export default function AdminLogin() {
                   alt="TsvWeb Logo" 
                   width={180} 
                   height={60}
+                  priority
                   className="h-12 w-auto brightness-0 invert"
                 />
               ) : (
@@ -130,6 +131,7 @@ export default function AdminLogin() {
                   alt="TsvWeb Logo" 
                   width={180} 
                   height={60}
+                  priority
                   className="h-12 w-auto"
                 />
               )}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -17,17 +17,18 @@ const inter = Inter({
   fallback: ['system-ui', 'arial'], // Faster fallback fonts
 })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://tsvweb.com'),
   title: 'Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb',
   description: 'Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google, mobile-ready in 48 hours. Trusted by 500+ Birmingham businesses. Free quote + SEO checklist today!',
   keywords: 'web design Birmingham, Birmingham web design, website design Birmingham, affordable web design Birmingham, SEO Birmingham, Birmingham web developer, local SEO Birmingham, mobile website design Birmingham, e-commerce Birmingham, restaurant website Birmingham',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   icons: {
     icon: '/TsvWeb_Favicon.png',
     apple: '/TsvWeb_Favicon.png',

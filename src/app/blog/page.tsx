@@ -122,15 +122,15 @@ export default function BlogPage() {
             <div className="md:w-2/3">
               <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Latest WordPress Web Design Birmingham Articles</h2>
               
-              {/* Category filter */}
-              <div className="mb-8 overflow-x-auto">
-                <div className="flex space-x-4 pb-2">
+              {/* Category filter - Wrapped, no horizontal scroll */}
+              <div className="mb-8">
+                <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => setSelectedCategory('All')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                    className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                       selectedCategory === 'All'
-                        ? 'bg-royal-blue text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:shadow-md hover:scale-105 border border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     All
@@ -141,13 +141,13 @@ export default function BlogPage() {
                       <button
                         key={category.name}
                         onClick={() => setSelectedCategory(category.name)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                        className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                           selectedCategory === category.name
-                            ? 'bg-royal-blue text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:shadow-md hover:scale-105 border border-gray-200 dark:border-gray-700'
                         }`}
                       >
-                        {category.name} ({category.count})
+                        {category.name} <span className="opacity-70">({category.count})</span>
                       </button>
                     ))}
                 </div>
@@ -195,14 +195,7 @@ export default function BlogPage() {
                           </div>
                         )}
                         <div className="p-6">
-                          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                            <span>{post.date}</span>
-                            <span className="mx-2">•</span>
-                            <span>{post.readTime}</span>
-                            <span className="mx-2">•</span>
-                            <span>{post.category}</span>
-                          </div>
-                          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                             <Link href={`/blog/${post.slug}`} className="hover:text-royal-blue dark:hover:text-royal-blue-light">
                               {post.title}
                             </Link>

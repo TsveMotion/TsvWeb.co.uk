@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { getClientAuthData, isClientAuthenticated } from '@/lib/auth-client'
+import { useSession } from 'next-auth/react'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 interface InquiryData {
@@ -37,54 +37,12 @@ interface UptimeStats {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  
-  // Check authentication
-  useEffect(() => {
-    try {
-      // Use the client auth helper
-      const authenticated = isClientAuthenticated()
-      console.log('Authentication status:', authenticated)
-      
-      if (authenticated) {
-        const authData = getClientAuthData()
-        console.log('Auth data:', authData)
-        
-        // Check if user is admin
-        if (authData?.role === 'admin' || authData?.user?.role === 'admin') {
-          console.log('User authenticated as admin')
-          setIsAuthenticated(true)
-        } else {
-          console.log('User not admin, redirecting to login')
-          window.location.href = '/admin/login'
-        }
-      } else {
-        console.log('Not authenticated, redirecting to login')
-        window.location.href = '/admin/login'
-      }
-    } catch (error) {
-      console.error('Error checking authentication:', error)
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
       router.push('/admin/login')
-    } finally {
-      setIsLoading(false)
-    }
-    
-    // Check periodically for session expiration
-    const interval = setInterval(() => {
-      try {
-        // Use the client auth helper
-        const authenticated = isClientAuthenticated()
-        if (!authenticated) {
-          router.push('/admin/login?expired=true')
-        }
-      } catch (error) {
-        console.error('Auth check interval error:', error)
-      }
-    }, 5 * 60 * 1000) // Every 5 minutes
-    
-    return () => clearInterval(interval)
-  }, [router])
+    },
+  })
   
   const [stats, setStats] = useState({
     totalVisits: 0,
@@ -203,14 +161,12 @@ export default function AdminDashboard() {
     fetchData()
   }, [])
 
-  if (isLoading) {
+  if (status === 'loading' || !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-royal-blue"></div>
+      </div>
     )
-  }
-  
-  if (!isAuthenticated) {
-    return null; // Will redirect in the useEffect
   }
 
   return (

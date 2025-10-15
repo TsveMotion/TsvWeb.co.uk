@@ -62,18 +62,26 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           return
         }
         
-        // Then check custom auth cookie
+        // If NextAuth is still loading, wait
+        if (status === 'loading') {
+          setIsLoading(true)
+          return
+        }
+        
+        // Then check custom auth cookie (for backwards compatibility)
         const authData = Cookies.get(ADMIN_AUTH_COOKIE)
         if (authData) {
           try {
             const parsedData = JSON.parse(authData)
             
-            // Less strict check - accept any valid JSON with authenticated flag or role
             // Check for expired session only if expires field exists
             if (parsedData.expires && parsedData.expires < Date.now()) {
               console.log('Authentication status: expired session')
               setIsAuthenticated(false)
-              router.push('/admin/login?expired=true')
+              setIsLoading(false)
+              if (pathname !== '/admin/login') {
+                router.push('/admin/login?expired=true')
+              }
               return
             }
             
@@ -84,10 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               (parsedData.user?.role === 'admin')
             
             if (isAdmin) {
-              console.log('Authentication status: true')
-              console.log('Auth data:', parsedData)
-              console.log('User authenticated as admin')
-              
+              console.log('Custom auth cookie authenticated')
               setIsAuthenticated(true)
               
               // Set user email from any of the possible structures
@@ -101,35 +106,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 setUserEmail(parsedData.name)
               }
               
-              // Already authenticated, no need to redirect
               setIsLoading(false)
               return
             }
           } catch (parseError) {
-            // Even if JSON parsing fails, consider the presence of the cookie as authentication
-            // This makes the system less strict as requested
-            console.log('Auth cookie exists but could not be parsed, allowing access')
-            setIsAuthenticated(true)
-            setIsLoading(false)
-            return
+            console.log('Auth cookie parse error:', parseError)
           }
-        } else {
+        }
+        
+        // No valid authentication found
+        if (status === 'unauthenticated') {
           setIsAuthenticated(false)
+          setIsLoading(false)
           if (pathname !== '/admin/login') {
             router.push('/admin/login')
           }
         }
       } catch (error) {
         console.error('Auth check error:', error)
-        // Even in case of error, if we're not on login page, stay on current page
-        // This makes the authentication less strict
-        if (pathname === '/admin/login') {
-          setIsAuthenticated(false)
-        } else {
-          // Assume authenticated to prevent redirect loops
-          setIsAuthenticated(true)
-        }
-      } finally {
         setIsLoading(false)
       }
     }
