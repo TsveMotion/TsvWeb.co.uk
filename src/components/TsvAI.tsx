@@ -176,25 +176,41 @@ export default function TsvAI() {
   };
 
   const formatMessage = (content: string) => {
-    // Replace service links with actual links
-    const serviceRegex = /\/services/gi;
-    const whatsappRegex = /\+44\s?07444\s?358\s?808/g;
-    const portfolioRegex = /\/portfolio/gi;
-    const contactRegex = /\/contact/gi;
-    const enquiryRegex = /(send|submit)\s+(an?|your)\s+enqu?ir(y|ies)/gi;
+    // Convert URLs and paths to clickable links
+    let formattedContent = content;
     
-    let formattedContent = content.replace(serviceRegex, '<a href="/services" class="text-blue-500 hover:underline">/services</a>');
-    formattedContent = formattedContent.replace(whatsappRegex, '<a href="https://wa.me/447444358808" target="_blank" class="text-green-500 hover:underline">+44 07444 358 808</a>');
-    formattedContent = formattedContent.replace(portfolioRegex, '<a href="/portfolio" class="text-blue-500 hover:underline">/portfolio</a>');
-    formattedContent = formattedContent.replace(contactRegex, '<a href="/contact" class="text-blue-500 hover:underline">/contact</a>');
-    formattedContent = formattedContent.replace(enquiryRegex, '<button class="text-blue-500 hover:underline enquiry-button">send an enquiry</button>');
+    // Match and replace service pages
+    formattedContent = formattedContent.replace(/\/services\/web-design/gi, '<a href="/services/web-design" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/services/web-design</a>');
+    formattedContent = formattedContent.replace(/\/services\/web-development/gi, '<a href="/services/web-development" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/services/web-development</a>');
+    formattedContent = formattedContent.replace(/\/services\/seo/gi, '<a href="/services/seo" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/services/seo</a>');
+    formattedContent = formattedContent.replace(/\/services\/ecommerce/gi, '<a href="/services/ecommerce" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/services/ecommerce</a>');
+    formattedContent = formattedContent.replace(/\/services(?!\/)/gi, '<a href="/services" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/services</a>');
+    
+    // Match other pages
+    formattedContent = formattedContent.replace(/\/portfolio/gi, '<a href="/portfolio" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/portfolio</a>');
+    formattedContent = formattedContent.replace(/\/contact/gi, '<a href="/contact" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/contact</a>');
+    formattedContent = formattedContent.replace(/\/blog/gi, '<a href="/blog" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">/blog</a>');
+    
+    // Match phone numbers and make them WhatsApp links
+    formattedContent = formattedContent.replace(/\+44\s?0?7444\s?358\s?808/gi, '<a href="https://wa.me/447444358808" target="_blank" rel="noopener noreferrer" class="text-green-600 dark:text-green-400 hover:underline font-medium">+44 7444 358808</a>');
+    
+    // Match pricing mentions and make them stand out
+    formattedContent = formattedContent.replace(/£(\d+)(\/month)?/gi, '<span class="font-bold text-blue-600 dark:text-blue-400">£$1$2</span>');
     
     return (
       <div 
+        className="prose prose-sm dark:prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: formattedContent }} 
         onClick={(e) => {
+          const target = e.target as HTMLElement;
+          // Handle link clicks
+          if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('/')) {
+            e.preventDefault();
+            router.push(target.getAttribute('href') || '/');
+            setIsOpen(false);
+          }
           // Handle enquiry button clicks
-          if ((e.target as HTMLElement).classList.contains('enquiry-button')) {
+          if (target.classList.contains('enquiry-button')) {
             setShowEnquiryForm(true);
           }
         }}
@@ -252,30 +268,31 @@ export default function TsvAI() {
       {/* Chat button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all z-50"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all z-50 active:scale-95"
         aria-label="Open chat with TSV AI"
       >
         {isOpen ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
           <div className="flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-            <span className="text-xs font-bold mt-1">TSV AI</span>
+            <img src="/TsvWeb_Favicon.png" alt="TSV AI" className="h-8 w-8 sm:h-10 sm:w-10 brightness-0 invert" />
+            <span className="text-[10px] sm:text-xs font-bold mt-0.5">TSV AI</span>
           </div>
         )}
       </button>
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] bg-white rounded-lg shadow-xl flex flex-col z-50 border border-gray-200">
+        <div className="fixed inset-x-4 bottom-20 sm:bottom-24 sm:right-6 sm:left-auto w-auto sm:w-96 h-[calc(100vh-120px)] sm:h-[500px] max-h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col z-50 border border-gray-200 dark:border-gray-700">
           {/* Header */}
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-bold">TSV AI Assistant</h3>
-            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200">
+          <div className="bg-blue-600 text-white p-3 sm:p-4 rounded-t-lg flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <img src="/TsvWeb_Favicon.png" alt="TSV AI" className="h-6 w-6 sm:h-8 sm:w-8 brightness-0 invert" />
+              <h3 className="font-bold text-sm sm:text-base">TSV AI Assistant</h3>
+            </div>
+            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200 p-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -283,28 +300,28 @@ export default function TsvAI() {
           </div>
           
           {/* Quick Navigation Buttons */}
-          <div className="bg-gray-50 p-2 flex space-x-2 overflow-x-auto">
+          <div className="bg-gray-50 dark:bg-gray-900 p-2 flex space-x-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
             <button 
               onClick={() => handleNavigate('/services')}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-full hover:bg-gray-100 whitespace-nowrap"
+              className="px-3 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap transition-colors"
             >
               Services
             </button>
             <button 
               onClick={() => handleNavigate('/portfolio')}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-full hover:bg-gray-100 whitespace-nowrap"
+              className="px-3 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap transition-colors"
             >
               Portfolio
             </button>
             <button 
               onClick={() => handleNavigate('/contact')}
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-full hover:bg-gray-100 whitespace-nowrap"
+              className="px-3 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap transition-colors"
             >
               Contact Us
             </button>
             <button 
               onClick={() => window.open('https://wa.me/447444358808', '_blank')}
-              className="px-3 py-1 text-sm bg-green-50 border border-green-300 text-green-700 rounded-full hover:bg-green-100 whitespace-nowrap"
+              className="px-3 py-1 text-sm bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 rounded-full hover:bg-green-100 dark:hover:bg-green-900/50 whitespace-nowrap transition-colors"
             >
               WhatsApp
             </button>
@@ -382,7 +399,7 @@ export default function TsvAI() {
           ) : (
             <div 
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4"
+              className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900"
             >
               {messages.map((message, index) => (
                 <div 
@@ -390,10 +407,10 @@ export default function TsvAI() {
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`max-w-[80%] p-3 rounded-lg ${
+                    className={`max-w-[85%] p-3 rounded-lg shadow-sm ${
                       message.role === 'user' 
-                        ? 'bg-blue-500 text-white rounded-br-none' 
-                        : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                        ? 'bg-blue-600 dark:bg-blue-500 text-white rounded-br-none' 
+                        : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-600'
                     }`}
                   >
                     {formatMessage(message.content)}
@@ -402,11 +419,11 @@ export default function TsvAI() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 p-3 rounded-lg rounded-bl-none max-w-[80%]">
+                  <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-lg rounded-bl-none max-w-[85%] shadow-sm">
                     <div className="flex space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
                 </div>
@@ -417,21 +434,21 @@ export default function TsvAI() {
           
           {/* Input area - only show when not displaying enquiry form */}
           {!showEnquiryForm && (
-            <div className="border-t border-gray-200 p-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4 bg-white dark:bg-gray-800">
               <div className="flex space-x-2">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type your message..."
-                  className="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-lg p-2 sm:p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 resize-none text-sm sm:text-base"
                   rows={2}
                   disabled={isLoading}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={isLoading || !input.trim()}
-                  className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+                  className="bg-blue-600 dark:bg-blue-500 text-white rounded-lg px-3 sm:px-4 py-2 hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:bg-blue-300 dark:disabled:bg-blue-800 disabled:cursor-not-allowed active:scale-95"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

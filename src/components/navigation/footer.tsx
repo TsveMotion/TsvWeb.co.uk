@@ -109,7 +109,7 @@ export default function Footer() {
                 width={150} 
                 height={50}
                 style={{ width: 'auto', height: 'auto' }} 
-                className="h-8 w-auto" 
+                className={`h-8 w-auto transition-all duration-300 ${mounted && resolvedTheme === 'dark' ? 'brightness-0 invert' : ''}`}
                 priority
               />
             </Link>

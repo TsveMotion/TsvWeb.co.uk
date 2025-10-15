@@ -1,7 +1,11 @@
+'use client'
+
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 export default function AboutPage() {
   // Team members data
@@ -94,22 +98,142 @@ export default function AboutPage() {
     },
   }
 
+  // Add structured data for SEO
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About TsvWeb Birmingham",
+      "description": "Learn about TsvWeb, Birmingham's trusted web design and development team with 8+ years experience and 200+ completed projects.",
+      "url": "https://tsvweb.com/about",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "TsvWeb",
+        "url": "https://tsvweb.com",
+        "logo": "https://tsvweb.com/TsvWeb_Logo.png",
+        "description": "Professional web design and development services in Birmingham",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "318 Shady Ln.",
+          "addressLocality": "Birmingham",
+          "addressRegion": "West Midlands",
+          "postalCode": "B44 9EB",
+          "addressCountry": "GB"
+        },
+        "telephone": "+447444358808",
+        "foundingDate": "2015",
+        "numberOfEmployees": "15",
+        "slogan": "Get More Customers Online in Birmingham"
+      }
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
   return (
     <>
       <Navbar />
       
-      <main className="pt-16">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                About Our WordPress Developer <span className="text-royal-blue dark:text-blue-400">Birmingham</span> Team
+      <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+        {/* Hero Section - Futuristic Style */}
+        <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          </div>
+          
+          <div className="container-custom relative z-10">
+            <motion.div 
+              className="max-w-5xl mx-auto text-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full text-sm font-semibold text-blue-600 dark:text-blue-400 mb-6">
+                🏆 Award-Winning Team Since 2015
+              </span>
+              
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-6 leading-tight text-gray-900 dark:text-white">
+                Meet Your <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#007BFF] to-[#8B5CF6]">
+                  Birmingham Web Design
+                </span> Team
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                We're a team of passionate WordPress developers and web professionals dedicated to creating exceptional WordPress websites for Birmingham businesses through affordable web design solutions.
+              
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+                200+ projects completed. 8+ years experience. <br className="hidden md:block" />
+                Affordable web design from <span className="font-bold text-blue-600 dark:text-blue-400">£30/month</span>.
               </p>
-            </div>
+              
+              {/* Trust Badges */}
+              <div className="flex flex-wrap justify-center gap-6 mb-12">
+                <motion.div 
+                  className="flex items-center gap-3 bg-white dark:bg-gray-800 px-6 py-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-2xl font-black text-gray-900 dark:text-white">200+</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Projects Done</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-3 bg-white dark:bg-gray-800 px-6 py-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-2xl font-black text-gray-900 dark:text-white">8+</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Years Experience</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-3 bg-white dark:bg-gray-800 px-6 py-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-2xl font-black text-gray-900 dark:text-white">B'ham</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Based Team</div>
+                  </div>
+                </motion.div>
+              </div>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/contact" className="bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-black text-lg py-4 px-8 rounded-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 uppercase">
+                  Get Free Quote
+                </Link>
+                <Link href="/portfolio" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 font-bold text-lg py-4 px-8 rounded-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                  View Our Work
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -119,16 +243,19 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                  Our Story
+                  Our Story - Birmingham Web Design Since 2015
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Founded in 2015, TsvWeb began with a simple mission: to help businesses succeed online through exceptional web design and development services.
+                  Founded in 2015, TsvWeb began with a simple mission: to help Birmingham businesses succeed online through exceptional, affordable web design and development services starting from just £30/month.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  What started as a small team of passionate web enthusiasts has grown into a full-service web agency serving clients across various industries. Our growth has been fueled by our commitment to quality, innovation, and client satisfaction.
+                  What started as a small team of passionate web enthusiasts has grown into a full-service web agency serving 200+ clients across Birmingham and the West Midlands. Our growth has been fueled by our commitment to quality, innovation, and delivering websites that get results - 3x more leads in 30 days.
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  <strong>Our Services Include:</strong> Web Design, Web Development, SEO Services, E-commerce Solutions, Website Maintenance, and Hosting - all tailored for Birmingham businesses.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Today, we continue to evolve and adapt to the ever-changing digital landscape, staying ahead of trends and technologies to provide cutting-edge solutions that help our clients achieve their business goals.
+                  Today, we continue to evolve and adapt to the ever-changing digital landscape, staying ahead of trends and technologies to provide cutting-edge solutions. We specialize in mobile-ready websites delivered in 48 hours and SEO optimization to help you rank #1 on Google.
                 </p>
               </div>
               <div className="bg-gray-200 dark:bg-gray-700 rounded-lg h-96 flex items-center justify-center">
@@ -148,10 +275,10 @@ export default function AboutPage() {
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                Our Values
+                Our Core Values - What Makes TsvWeb Different
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                These core principles guide our work and define our company culture.
+                These core principles guide our Birmingham web design work and define our company culture. We're committed to delivering exceptional results for every client.
               </p>
             </div>
             
@@ -180,10 +307,10 @@ export default function AboutPage() {
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                Meet Our Team
+                Meet Our Birmingham Web Design Team
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                The talented professionals behind our exceptional web solutions.
+                The talented professionals behind our exceptional web solutions. Expert designers, developers, and SEO specialists dedicated to your success.
               </p>
             </div>
             
@@ -239,10 +366,13 @@ export default function AboutPage() {
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                Ready to Work With Us?
+                Ready to Work With Birmingham's Best Web Design Team?
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Let's discuss how we can help your business succeed online with our professional web services.
+                Let's discuss how we can help your Birmingham business succeed online with our professional web design services from £30/month. Get 3x more leads in 30 days with our SEO-optimized websites.
+              </p>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                <strong>Call us today:</strong> <a href="tel:+447444358808" className="text-royal-blue dark:text-blue-400 hover:underline font-semibold">07444 358808</a> or <a href="https://wa.me/447444358808" target="_blank" rel="noopener noreferrer" className="text-green-600 dark:text-green-400 hover:underline font-semibold">WhatsApp us</a>
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link 
