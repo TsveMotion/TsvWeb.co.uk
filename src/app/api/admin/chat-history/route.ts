@@ -1,29 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ChatHistory from '@/models/ChatHistory';
 import { connectToDatabase } from '@/lib/db';
-import { ADMIN_AUTH_COOKIE } from '@/lib/constants';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: NextRequest) {
   try {
-    // Check if user is authenticated as admin
-    const authCookie = req.cookies.get(ADMIN_AUTH_COOKIE);
-    if (!authCookie || !authCookie.value) {
+    // Verify authentication
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Parse auth data
-    try {
-      const authData = JSON.parse(authCookie.value);
-      const isAdmin = 
-        (authData.authenticated === true) || 
-        (authData.role === 'admin') || 
-        (authData.user?.role === 'admin');
-        
-      if (!isAdmin) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    } catch (error) {
-      return NextResponse.json({ error: 'Invalid authentication data' }, { status: 401 });
+    const userRole = (session.user as any).role;
+    if (userRole !== 'admin' && userRole !== 'editor') {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     await connectToDatabase();
@@ -74,25 +65,15 @@ export async function GET(req: NextRequest) {
 // Get details for a specific chat history
 export async function POST(req: NextRequest) {
   try {
-    // Check if user is authenticated as admin
-    const authCookie = req.cookies.get(ADMIN_AUTH_COOKIE);
-    if (!authCookie || !authCookie.value) {
+    // Verify authentication
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Parse auth data
-    try {
-      const authData = JSON.parse(authCookie.value);
-      const isAdmin = 
-        (authData.authenticated === true) || 
-        (authData.role === 'admin') || 
-        (authData.user?.role === 'admin');
-        
-      if (!isAdmin) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    } catch (error) {
-      return NextResponse.json({ error: 'Invalid authentication data' }, { status: 401 });
+    const userRole = (session.user as any).role;
+    if (userRole !== 'admin' && userRole !== 'editor') {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     await connectToDatabase();

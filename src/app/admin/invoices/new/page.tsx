@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { isClientAuthenticated } from '@/lib/auth-client'
+import withAdminAuth from '@/components/admin/with-admin-auth'
 
 interface InvoiceItem {
   description: string;
@@ -22,7 +22,7 @@ interface Template {
   notes?: string;
 }
 
-export default function NewInvoicePage() {
+function NewInvoicePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const type = searchParams.get('type') || 'invoice'
@@ -48,16 +48,11 @@ export default function NewInvoicePage() {
     status: 'draft'
   })
 
-  // Check authentication
+  // Initialize
   useEffect(() => {
-    const authenticated = isClientAuthenticated()
-    if (!authenticated) {
-      router.push('/admin/login')
-      return
-    }
     setIsAuthenticated(true)
     setIsLoading(false)
-  }, [router])
+  }, [])
 
   // Fetch templates
   useEffect(() => {
@@ -157,18 +152,6 @@ export default function NewInvoicePage() {
     } finally {
       setIsSaving(false)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-gray-600 dark:text-gray-300">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   return (
@@ -488,3 +471,5 @@ export default function NewInvoicePage() {
     </div>
   )
 }
+
+export default withAdminAuth(NewInvoicePage)

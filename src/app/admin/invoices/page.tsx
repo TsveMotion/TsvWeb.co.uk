@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { isClientAuthenticated } from '@/lib/auth-client'
+import withAdminAuth from '@/components/admin/with-admin-auth'
 
 interface Invoice {
   _id: string;
@@ -20,10 +20,8 @@ interface Invoice {
   emailSentAt?: string;
 }
 
-export default function InvoicesPage() {
+function InvoicesPage() {
   const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -31,20 +29,8 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Check authentication
-  useEffect(() => {
-    const authenticated = isClientAuthenticated()
-    if (!authenticated) {
-      router.push('/admin/login')
-      return
-    }
-    setIsAuthenticated(true)
-    setIsLoading(false)
-  }, [router])
-
   // Fetch invoices
   useEffect(() => {
-    if (!isAuthenticated) return
 
     const fetchInvoices = async () => {
       try {
@@ -69,7 +55,7 @@ export default function InvoicesPage() {
     }
 
     fetchInvoices()
-  }, [isAuthenticated, currentPage, activeTab, statusFilter, searchTerm])
+  }, [currentPage, activeTab, statusFilter, searchTerm])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -102,18 +88,6 @@ export default function InvoicesPage() {
       console.error('Error sending email:', error)
       alert('Failed to send email')
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-gray-600 dark:text-gray-300">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   return (
@@ -347,3 +321,5 @@ export default function InvoicesPage() {
     </div>
   )
 }
+
+export default withAdminAuth(InvoicesPage)

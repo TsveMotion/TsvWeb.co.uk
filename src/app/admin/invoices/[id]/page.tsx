@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { isClientAuthenticated } from '@/lib/auth-client'
+import withAdminAuth from '@/components/admin/with-admin-auth'
 
 interface InvoiceItem {
   description: string;
@@ -34,12 +34,12 @@ interface Invoice {
   emailSentAt?: string;
 }
 
-export default function EditInvoicePage() {
+function InvoiceDetailPage() {
   const router = useRouter()
   const params = useParams()
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   
@@ -59,19 +59,14 @@ export default function EditInvoicePage() {
     status: 'draft'
   })
 
-  // Check authentication
+  // Initialize
   useEffect(() => {
-    const authenticated = isClientAuthenticated()
-    if (!authenticated) {
-      router.push('/admin/login')
-      return
-    }
-    setIsAuthenticated(true)
-  }, [router])
+    setIsLoading(false)
+  }, [])
 
   // Fetch invoice data
   useEffect(() => {
-    if (!isAuthenticated || !params.id) return
+    if (!params.id) return
 
     const fetchInvoice = async () => {
       try {
@@ -246,16 +241,12 @@ export default function EditInvoicePage() {
     }
   }
 
-  if (isLoading) {
+  if (!invoice) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-gray-600 dark:text-gray-300">Loading...</div>
       </div>
     )
-  }
-
-  if (!isAuthenticated || !invoice) {
-    return null
   }
 
   return (
@@ -591,3 +582,5 @@ export default function EditInvoicePage() {
     </div>
   )
 }
+
+export default withAdminAuth(InvoiceDetailPage)
