@@ -5,31 +5,49 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BlogService } from '@/services/blog-service'
 import { BlogPost } from '@/types/blog'
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  PencilIcon,
+  TrashIcon,
+  EyeIcon,
+  CalendarIcon,
+  TagIcon,
+  FolderIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  XCircleIcon,
+  ChartBarIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/outline'
 
 export default function AdminBlog() {
+  const router = useRouter()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setIsLoading(true)
-        const posts = await BlogService.getAllPosts()
-        setAllPosts(posts)
-        setPosts(posts)
-      } catch (error) {
-        console.error('Error fetching posts:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchPosts()
   }, [])
+
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true)
+      const posts = await BlogService.getAllPosts()
+      setAllPosts(posts)
+      setPosts(posts)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -48,179 +66,166 @@ export default function AdminBlog() {
     return matchesSearch && matchesStatus && matchesCategory
   })
 
-  // Stats
-  const publishedCount = allPosts.filter(p => p.status.toLowerCase() === 'published').length
-  const draftCount = allPosts.filter(p => p.status.toLowerCase() === 'draft').length
+  const handleDelete = async (id: string) => {
+    if (deleteConfirm !== id) {
+      setDeleteConfirm(id)
+      return
+    }
 
-  const handleDeletePost = async (postId: string) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      try {
-        const success = await BlogService.deletePost(postId)
-        if (success) {
-          setAllPosts(prevPosts => prevPosts.filter(post => post.id !== postId))
-          setPosts(prevPosts => prevPosts.filter(post => post.id !== postId))
-        }
-      } catch (error) {
-        console.error('Error deleting post:', error)
-      }
+    try {
+      await BlogService.deletePost(id)
+      await fetchPosts()
+      setDeleteConfirm(null)
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      alert('Failed to delete post')
+    }
+  }
+
+  // Stats
+  const stats = {
+    total: allPosts.length,
+    published: allPosts.filter(p => p.status === 'Published').length,
+    draft: allPosts.filter(p => p.status === 'Draft').length,
+    scheduled: 0 // Not supported in current BlogPost type
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'published':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+      case 'draft':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'published':
+        return <CheckCircleIcon className="h-4 w-4" />
+      case 'draft':
+        return <DocumentTextIcon className="h-4 w-4" />
+      case 'scheduled':
+        return <ClockIcon className="h-4 w-4" />
+      default:
+        return <XCircleIcon className="h-4 w-4" />
     }
   }
 
   return (
-    <>
+    <div className="px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Blog Management
-          </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Create and manage your blog posts
-          </p>
-        </div>
-        <div className="mt-4 flex md:mt-0 md:ml-4">
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Posts</h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Manage your blog content and articles
+            </p>
+          </div>
           <Link
             href="/admin/blog/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
           >
-            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            New Blog Post
+            <PlusIcon className="h-5 w-5 mr-2" />
+            New Post
           </Link>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Posts</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{allPosts.length}</dd>
-                </dl>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Posts</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.total}</p>
+            </div>
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <DocumentTextIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Published</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{publishedCount}</dd>
-                </dl>
-              </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Published</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{stats.published}</p>
+            </div>
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <CheckCircleIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Drafts</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{draftCount}</dd>
-                </dl>
-              </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Drafts</p>
+              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400 mt-2">{stats.draft}</p>
+            </div>
+            <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <DocumentTextIcon className="h-8 w-8 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Categories</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{categories.length}</dd>
-                </dl>
-              </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Scheduled</p>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{stats.scheduled}</p>
+            </div>
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <ClockIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg px-4 py-5 sm:p-6 mb-6">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Search Posts
-            </label>
-            <div className="relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                placeholder="Search by title, excerpt, category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search posts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
 
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
+          {/* Status Filter */}
+          <div className="relative">
+            <FunnelIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <select
-              id="status"
-              name="status"
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
             >
               <option value="all">All Status</option>
               <option value="published">Published</option>
               <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
             </select>
           </div>
 
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Category
-            </label>
+          {/* Category Filter */}
+          <div className="relative">
+            <FolderIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <select
-              id="category"
-              name="category"
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
             >
               <option value="all">All Categories</option>
-              {categories.map((cat) => (
+              {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
@@ -228,111 +233,132 @@ export default function AdminBlog() {
         </div>
       </div>
 
-      {/* Blog Posts Table */}
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64"></div>
-          ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-12">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No posts found</h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {searchTerm || statusFilter !== 'all' ? 'Try adjusting your search or filter' : 'Get started by creating a new post'}
-              </p>
-              {!searchTerm && statusFilter === 'all' && (
-                <div className="mt-6">
-                  <Link
-                    href="/admin/blog/new"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
-                  >
-                    <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    New Post
-                  </Link>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th scope="col" className="relative px-6 py-3">
-                      <span className="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredPosts.map((post) => (
-                    <tr key={post.id}>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="max-w-md">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              {post.title}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                              {post.excerpt}
-                            </div>
-                            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                              {post.readTime} read
-                            </div>
+      {/* Posts Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : filteredPosts.length === 0 ? (
+          <div className="text-center py-12">
+            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No posts found</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
+                ? 'Try adjusting your filters'
+                : 'Get started by creating a new post'}
+            </p>
+            {!searchTerm && statusFilter === 'all' && categoryFilter === 'all' && (
+              <div className="mt-6">
+                <Link
+                  href="/admin/blog/new"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" />
+                  New Post
+                </Link>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredPosts.map((post, index) => (
+                  <tr key={post.id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {post.title}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                            {post.excerpt}
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">{post.category}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          post.status === 'Published' 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-                        }`}>
-                          {post.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {post.date}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex space-x-3 justify-end">
-                          <Link href={`/admin/blog/${post.id}`} className="text-royal-blue hover:text-royal-blue-dark">
-                            Edit
-                          </Link>
-                          <button
-                            onClick={() => handleDeletePost(post.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                          >
-                            Delete
-                          </button>
-                          <Link href={`/blog/${post.slug}`} target="_blank" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
-                            View
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                        <FolderIcon className="h-3 w-3 mr-1" />
+                        {post.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(post.status)}`}>
+                        {getStatusIcon(post.status)}
+                        <span className="ml-1">{post.status}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center">
+                        <CalendarIcon className="h-4 w-4 mr-1" />
+                        {new Date(post.date).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          target="_blank"
+                          className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          title="View"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </Link>
+                        <Link
+                          href={`/admin/blog/${post.id}`}
+                          className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(post.id)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            deleteConfirm === post.id
+                              ? 'text-white bg-red-600 hover:bg-red-700'
+                              : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                          }`}
+                          title={deleteConfirm === post.id ? 'Click again to confirm' : 'Delete'}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </>
+
+      {/* Results Count */}
+      {!isLoading && filteredPosts.length > 0 && (
+        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
+          Showing {filteredPosts.length} of {allPosts.length} posts
+        </div>
+      )}
+    </div>
   )
 }

@@ -10,7 +10,7 @@ export interface BlogPost {
   author: string;
   date: string;
   readTime: string;
-  status: 'Published' | 'Draft';
+  status: 'Published' | 'Draft' | 'Scheduled';
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;

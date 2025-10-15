@@ -2,38 +2,72 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
-import Cookies from 'js-cookie'
-import { ADMIN_AUTH_COOKIE } from '@/lib/auth-client'
-import LogoutButton from './logout-button'
-import SimpleSetupWizard from '@/components/setup-wizard/simple-setup-wizard'
-import AdminNotifications from './admin-notifications'
+import {
+  HomeIcon,
+  NewspaperIcon,
+  PhotoIcon,
+  EnvelopeIcon,
+  CurrencyDollarIcon,
+  ChatBubbleLeftRightIcon,
+  ClipboardDocumentListIcon,
+  UserGroupIcon,
+  MegaphoneIcon,
+  CogIcon,
+  Bars3Icon,
+  XMarkIcon,
+  BellIcon,
+  MoonIcon,
+  SunIcon,
+  ArrowRightOnRectangleIcon,
+  PlusIcon,
+  DocumentTextIcon,
+  UserPlusIcon,
+  SparklesIcon,
+  ChevronDownIcon,
+  ChevronRightIcon
+} from '@heroicons/react/24/outline'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
+interface NavItem {
+  name: string
+  href: string
+  icon: any
+  badge?: number
+  allowedRoles?: string[]
+}
+
+interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [userEmail, setUserEmail] = useState('')
-  const [isWizardOpen, setIsWizardOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [userRole, setUserRole] = useState<string>('admin')
+  const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'content', 'business', 'communication', 'system'])
   const pathname = usePathname()
   const router = useRouter()
 
-  // Theme toggle effect
+  useEffect(() => {
+    if (session?.user) {
+      const role = (session.user as any).role || 'admin'
+      setUserRole(role)
+    }
+  }, [session])
+
+  // Theme toggle
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       setIsDarkMode(true)
       document.documentElement.classList.add('dark')
-    } else {
-      setIsDarkMode(false)
-      document.documentElement.classList.remove('dark')
     }
   }, [])
 
@@ -49,371 +83,270 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }
 
-  useEffect(() => {
-    // Check authentication status
-    const checkAuth = () => {
-      try {
-        // First check NextAuth session
-        if (status === 'authenticated' && session) {
-          console.log('NextAuth session authenticated')
-          setIsAuthenticated(true)
-          setUserEmail(session.user?.email || session.user?.name || '')
-          setIsLoading(false)
-          return
-        }
-        
-        // If NextAuth is still loading, wait
-        if (status === 'loading') {
-          setIsLoading(true)
-          return
-        }
-        
-        // Then check custom auth cookie (for backwards compatibility)
-        const authData = Cookies.get(ADMIN_AUTH_COOKIE)
-        if (authData) {
-          try {
-            const parsedData = JSON.parse(authData)
-            
-            // Check for expired session only if expires field exists
-            if (parsedData.expires && parsedData.expires < Date.now()) {
-              console.log('Authentication status: expired session')
-              setIsAuthenticated(false)
-              setIsLoading(false)
-              if (pathname !== '/admin/login') {
-                router.push('/admin/login?expired=true')
-              }
-              return
-            }
-            
-            // Accept any of these authentication patterns for backward compatibility
-            const isAdmin = 
-              (parsedData.authenticated === true) || 
-              (parsedData.role === 'admin') || 
-              (parsedData.user?.role === 'admin')
-            
-            if (isAdmin) {
-              console.log('Custom auth cookie authenticated')
-              setIsAuthenticated(true)
-              
-              // Set user email from any of the possible structures
-              if (parsedData.email) {
-                setUserEmail(parsedData.email)
-              } else if (parsedData.user?.email) {
-                setUserEmail(parsedData.user.email)
-              } else if (parsedData.userData?.email) {
-                setUserEmail(parsedData.userData.email)
-              } else if (parsedData.name) {
-                setUserEmail(parsedData.name)
-              }
-              
-              setIsLoading(false)
-              return
-            }
-          } catch (parseError) {
-            console.log('Auth cookie parse error:', parseError)
-          }
-        }
-        
-        // No valid authentication found
-        if (status === 'unauthenticated') {
-          setIsAuthenticated(false)
-          setIsLoading(false)
-          if (pathname !== '/admin/login') {
-            router.push('/admin/login')
-          }
-        }
-      } catch (error) {
-        console.error('Auth check error:', error)
-        setIsLoading(false)
-      }
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev =>
+      prev.includes(section)
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    )
+  }
+
+  // Navigation sections
+  const navigationSections: NavSection[] = [
+    {
+      title: 'Overview',
+      items: [
+        { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon }
+      ]
+    },
+    {
+      title: 'Content Management',
+      items: [
+        { name: 'Blog Posts', href: '/admin/blog', icon: NewspaperIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Portfolio', href: '/admin/portfolio', icon: PhotoIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Announcements', href: '/admin/announcements', icon: MegaphoneIcon, allowedRoles: ['admin', 'editor'] }
+      ]
+    },
+    {
+      title: 'Business',
+      items: [
+        { name: 'Inquiries', href: '/admin/inquiries', icon: EnvelopeIcon },
+        { name: 'Invoices & Quotes', href: '/admin/invoices', icon: CurrencyDollarIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Contracts', href: '/admin/contracts', icon: ClipboardDocumentListIcon, allowedRoles: ['admin', 'editor'] }
+      ]
+    },
+    {
+      title: 'Communication',
+      items: [
+        { name: 'Newsletter', href: '/admin/newsletter', icon: EnvelopeIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Chat History', href: '/admin/chat-history', icon: ChatBubbleLeftRightIcon, allowedRoles: ['admin', 'viewer'] }
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { name: 'Users', href: '/admin/users', icon: UserGroupIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Settings', href: '/admin/settings', icon: CogIcon, allowedRoles: ['admin'] }
+      ]
     }
-
-    checkAuth()
-    
-    // Check periodically for session expiration
-    const interval = setInterval(() => {
-      // Only check for expiration, don't redirect unless expired
-      try {
-        const authData = Cookies.get(ADMIN_AUTH_COOKIE)
-        if (authData) {
-          const parsedData = JSON.parse(authData)
-          
-          // Only redirect if session is expired
-          if (parsedData.exp && parsedData.exp < Date.now()) {
-            setIsAuthenticated(false)
-            router.push('/admin/login?expired=true')
-          }
-        }
-      } catch (error) {
-        console.error('Periodic auth check error:', error)
-      }
-    }, 5 * 60 * 1000) // Every 5 minutes
-    
-    return () => clearInterval(interval)
-  }, [router, pathname, session, status])
-
-  // Logout functionality is now handled by the LogoutButton component
-
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ) },
-    { name: 'Blog Posts', href: '/admin/blog', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    ) },
-    { name: 'Portfolio', href: '/admin/portfolio', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ) },
-    { name: 'Contact Inquiries', href: '/admin/inquiries', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-      </svg>
-    ) },
-    { name: 'Invoices & Quotes', href: '/admin/invoices', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ) },
-    { name: 'Customer History', href: '/admin/chat-history', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ) },
-    { name: 'Newsletter', href: '/admin/newsletter', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ) },
-    { name: 'Contracts & Legal', href: '/admin/contracts', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ) },
-    { name: 'User Management', href: '/admin/users', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ) },
-    { name: 'Announcements', href: '/admin/announcements', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-      </svg>
-    ) },
-    { name: 'Settings', href: '/admin/settings', icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ) },
   ]
 
-  if (isLoading) {
+  // Quick actions
+  const quickActions = [
+    { name: 'New Post', href: '/admin/blog', icon: DocumentTextIcon, color: 'from-blue-500 to-blue-600', roles: ['admin', 'editor'] },
+    { name: 'New Invoice', href: '/admin/invoices/new', icon: CurrencyDollarIcon, color: 'from-green-500 to-green-600', roles: ['admin', 'editor'] },
+    { name: 'Add User', href: '/admin/users', icon: UserPlusIcon, color: 'from-purple-500 to-purple-600', roles: ['admin', 'editor'] },
+    { name: 'Announce', href: '/admin/announcements', icon: MegaphoneIcon, color: 'from-orange-500 to-orange-600', roles: ['admin', 'editor'] }
+  ]
+
+  // Filter navigation based on role
+  const filterNavByRole = (items: NavItem[]) => {
+    return items.filter(item => 
+      !item.allowedRoles || item.allowedRoles.includes(userRole)
+    )
+  }
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false })
+    router.push('/admin/login')
+  }
+
+  if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-royal-blue"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
       </div>
     )
   }
 
-  // Special case for login page - don't require authentication
-  if (pathname === '/admin/login') {
-    return <>{children}</>
-  }
-  
-  // For all other admin pages, require authentication
-  if (!isAuthenticated) {
-    return null // Will redirect to login in useEffect
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-40 lg:hidden ${isSidebarOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
-        {/* Overlay */}
-        <div 
-          className="fixed inset-0 bg-gray-600 bg-opacity-75" 
-          aria-hidden="true"
-          onClick={() => setIsSidebarOpen(false)}
-        ></div>
-
-        {/* Sidebar */}
-        <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-white dark:bg-gray-800">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              <span className="sr-only">Close sidebar</span>
-              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex-shrink-0 flex items-center px-4">
-            <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-royal-blue dark:text-white">
-                TsvWeb Admin
-              </span>
-            </Link>
-          </div>
-          
-          <div className="mt-5 flex-1 h-0 overflow-y-auto">
-            <nav className="px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
-                    pathname === item.href
-                      ? 'bg-royal-blue text-white'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <div className={`mr-4 ${
-                    pathname === item.href
-                      ? 'text-white'
-                      : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'
-                  }`}>
-                    {item.icon}
-                  </div>
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      {/* Static sidebar for desktop */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-        <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 pt-5 pb-4 overflow-y-auto">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-royal-blue dark:text-white">
-                TsvWeb Admin
-              </span>
-            </Link>
-          </div>
-          <div className="mt-5 flex-1 flex flex-col">
-            <nav className="flex-1 px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    pathname === item.href
-                      ? 'bg-royal-blue text-white'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <div className={`mr-3 ${
-                    pathname === item.href
-                      ? 'text-white'
-                      : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'
-                  }`}>
-                    {item.icon}
-                  </div>
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col">
-        {/* Top header */}
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 shadow">
-          <button
-            type="button"
-            className="px-4 text-gray-500 dark:text-gray-400 lg:hidden"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <span className="sr-only">Open sidebar</span>
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </button>
-          
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {navigation.find(item => item.href === pathname)?.name || 'Admin Panel'}
-              </h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
+        <div className="flex flex-col flex-grow bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-y-auto border-r border-gray-700">
+          {/* Logo */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+            <div>
+              <h1 className="text-xl font-bold text-white">TsvWeb Admin</h1>
+              <p className="text-xs text-gray-400 mt-0.5">Management Portal</p>
             </div>
-            <div className="ml-4 flex items-center md:ml-6 space-x-3">
-              {/* Setup Wizard Button */}
-              <button
-                onClick={() => setIsWizardOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>Setup Wizard</span>
-              </button>
+            <SparklesIcon className="h-6 w-6 text-blue-400" />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="px-4 py-4 border-b border-gray-700">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {quickActions.filter(action => action.roles.includes(userRole)).map((action) => {
+                const Icon = action.icon
+                return (
+                  <Link
+                    key={action.name}
+                    href={action.href}
+                    className={`flex flex-col items-center justify-center p-3 rounded-lg bg-gradient-to-br ${action.color} text-white hover:shadow-lg transform hover:scale-105 transition-all duration-200`}
+                  >
+                    <Icon className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">{action.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-4 space-y-1">
+            {navigationSections.map((section) => {
+              const filteredItems = filterNavByRole(section.items)
+              if (filteredItems.length === 0) return null
               
-              {/* Admin Notifications */}
-              <AdminNotifications />
-              
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDarkMode ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                  </svg>
-                )}
-              </button>
-              
-              {/* Profile dropdown */}
-              <div className="relative">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-royal-blue flex items-center justify-center">
-                    <span className="text-white font-medium">
-                      {userEmail ? userEmail.charAt(0).toUpperCase() : 'A'}
-                    </span>
-                  </div>
-                  <div className="ml-3">
-                    <LogoutButton />
-                  </div>
+              const sectionKey = section.title.toLowerCase().replace(/\s+/g, '-')
+              const isExpanded = expandedSections.includes(sectionKey)
+
+              return (
+                <div key={section.title} className="mb-4">
+                  <button
+                    onClick={() => toggleSection(sectionKey)}
+                    className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-colors"
+                  >
+                    <span>{section.title}</span>
+                    {isExpanded ? (
+                      <ChevronDownIcon className="h-4 w-4" />
+                    ) : (
+                      <ChevronRightIcon className="h-4 w-4" />
+                    )}
+                  </button>
+                  
+                  {isExpanded && (
+                    <div className="mt-1 space-y-1">
+                      {filteredItems.map((item) => {
+                        const Icon = item.icon
+                        const isActive = pathname === item.href
+                        return (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                              isActive
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                            }`}
+                          >
+                            <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                            <span className="flex-1">{item.name}</span>
+                            {item.badge && (
+                              <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
+              )
+            })}
+          </nav>
+
+          {/* User Info */}
+          <div className="px-4 py-4 border-t border-gray-700">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                  {session?.user?.name?.charAt(0) || 'A'}
+                </div>
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-white truncate">{session?.user?.name || 'Admin'}</p>
+                <p className="text-xs text-gray-400 capitalize">{userRole}</p>
               </div>
             </div>
           </div>
         </div>
-
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </div>
-          </div>
-        </main>
       </div>
 
-      {/* Setup Wizard Modal */}
-      <SimpleSetupWizard 
-        isOpen={isWizardOpen} 
-        onClose={() => setIsWizardOpen(false)} 
-      />
+      {/* Mobile sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 overflow-y-auto">
+            {/* Mobile sidebar content (same as desktop) */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+              <div>
+                <h1 className="text-xl font-bold text-white">TsvWeb Admin</h1>
+                <p className="text-xs text-gray-400 mt-0.5">Management Portal</p>
+              </div>
+              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            {/* Rest of sidebar content */}
+          </div>
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="lg:pl-72">
+        {/* Top Navigation */}
+        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+          <button
+            type="button"
+            className="lg:hidden -m-2.5 p-2.5 text-gray-700 dark:text-gray-300"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+
+          {/* Breadcrumb */}
+          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+            <div className="flex items-center gap-x-2 text-sm">
+              <HomeIcon className="h-4 w-4 text-gray-400" />
+              <span className="text-gray-400">/</span>
+              <span className="font-medium text-gray-900 dark:text-white capitalize">
+                {pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
+              </span>
+            </div>
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-x-4 lg:gap-x-6">
+            <button
+              type="button"
+              className="relative p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            >
+              <BellIcon className="h-6 w-6" />
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            >
+              {isDarkMode ? (
+                <SunIcon className="h-6 w-6" />
+              ) : (
+                <MoonIcon className="h-6 w-6" />
+              )}
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <main className="py-6">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
