@@ -1,21 +1,32 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import ImageUpload from '@/components/admin/image-upload';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import ImageUpload from '@/components/admin/image-upload'
+import {
+  ArrowLeftIcon,
+  DocumentTextIcon,
+  PhotoIcon,
+  CodeBracketIcon,
+  GlobeAltIcon,
+  EyeIcon,
+  CheckCircleIcon,
+  XMarkIcon,
+  StarIcon,
+  CalendarIcon,
+  BriefcaseIcon
+} from '@heroicons/react/24/outline'
 
-export default function EditPortfolioPage() {
-  const router = useRouter();
-  const { id } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+export default function EditPortfolioItem() {
+  const router = useRouter()
+  const { id } = useParams()
+  
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
-    description: '',
     shortDescription: '',
+    description: '',
     clientName: '',
     projectType: '',
     technologies: '',
@@ -23,25 +34,26 @@ export default function EditPortfolioPage() {
     projectUrl: '',
     featured: false,
     completionDate: ''
-  });
+  })
   
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [previewMode, setPreviewMode] = useState(false)
 
+  // Fetch existing portfolio item
   useEffect(() => {
     const fetchPortfolioItem = async () => {
-      setIsLoading(true);
-      setError('');
+      setIsLoading(true)
       try {
-        const response = await fetch(`/api/admin/portfolio/${id}`);
+        const response = await fetch(`/api/admin/portfolio/${id}`)
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch portfolio item: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('Failed to fetch')
         
-        const data = await response.json();
+        const data = await response.json()
         
         if (data.success && data.data) {
-          const item = data.data;
+          const item = data.data
           setFormData({
             title: item.title || '',
             slug: item.slug || '',
@@ -54,406 +66,475 @@ export default function EditPortfolioPage() {
             projectUrl: item.projectUrl || '',
             featured: item.featured || false,
             completionDate: item.completionDate ? new Date(item.completionDate).toISOString().split('T')[0] : ''
-          });
+          })
           
-          setImages(item.images || []);
-        } else {
-          throw new Error(data.message || 'Failed to fetch portfolio item');
+          setImages(item.images || [])
         }
-      } catch (error: any) {
-        console.error('Error fetching portfolio item:', error);
-        setError(error.message || 'Failed to load portfolio item. Please try again later.');
+      } catch (error) {
+        console.error('Error fetching portfolio item:', error)
+        alert('Failed to load portfolio item')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
     
     if (id) {
-      fetchPortfolioItem();
+      fetchPortfolioItem()
     }
-  }, [id]);
+  }, [id])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
-  };
+  // Auto-generate slug from title
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSaving(true)
 
     try {
       // Format technologies as an array
       const technologiesArray = formData.technologies
         .split(',')
         .map(tech => tech.trim())
-        .filter(tech => tech !== '');
+        .filter(tech => tech.length > 0)
 
-      // Prepare data for submission
-      const portfolioData = {
-        ...formData,
-        technologies: technologiesArray,
-        images: images
-      };
-
-      // Submit to API
       const response = await fetch(`/api/admin/portfolio/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(portfolioData)
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          technologies: technologiesArray,
+          images: images
+        })
+      })
 
-      const result = await response.json();
+      if (!response.ok) throw new Error('Failed to update portfolio item')
 
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to update portfolio item');
-      }
-
-      toast.success('Portfolio item updated successfully!');
-      router.push('/admin/portfolio');
-    } catch (error: any) {
-      console.error('Error updating portfolio item:', error);
-      toast.error('Failed to update portfolio item. Please try again.');
+      alert('Portfolio item updated successfully!')
+      router.push('/admin/portfolio')
+    } catch (error) {
+      console.error('Error updating portfolio item:', error)
+      alert('Failed to update portfolio item')
     } finally {
-      setIsSubmitting(false);
+      setIsSaving(false)
     }
-  };
+  }
 
-  const generateSlug = () => {
-    const slug = formData.title
-      .toLowerCase()
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, '-');
-    
+  const handleTitleChange = (title: string) => {
     setFormData(prev => ({
       ...prev,
-      slug
-    }));
-  };
+      title,
+      slug: generateSlug(title)
+    }))
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }))
+  }
+
+  const handleImageUpload = (url: string) => {
+    if (url && !images.includes(url)) {
+      setImages(prev => [...prev, url])
+    }
+  }
+
+  const removeImage = (url: string) => {
+    setImages(prev => prev.filter(img => img !== url))
+  }
 
   if (isLoading) {
     return (
-      <>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading portfolio item...</p>
         </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
-        <div className="text-center py-12">
-          <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error</h3>
-          <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
-          <div className="mt-6">
-            <button
-              onClick={() => router.push('/admin/portfolio')}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Back to Portfolio
-            </button>
-          </div>
-        </div>
-      </>
-    );
+      </div>
+    )
   }
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Edit Portfolio Item</h1>
-      <div>
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-              {/* Title */}
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Title *
-                </label>
-                <div className="mt-1">
+    <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <Link
+          href="/admin/portfolio"
+          className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+        >
+          <ArrowLeftIcon className="h-4 w-4 mr-2" />
+          Back to Portfolio
+        </Link>
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+              <BriefcaseIcon className="h-8 w-8 mr-3 text-pink-600 dark:text-pink-400" />
+              Edit Portfolio Item
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Update your portfolio project
+            </p>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={() => setPreviewMode(!previewMode)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <EyeIcon className="h-5 w-5 mr-2" />
+              {previewMode ? 'Edit' : 'Preview'}
+            </button>
+            
+            <button
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-pink-600 to-pink-700 text-white font-medium rounded-lg hover:from-pink-700 hover:to-pink-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <CheckCircleIcon className="h-5 w-5 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Preview Mode */}
+      {previewMode ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 border border-gray-200 dark:border-gray-700">
+          <div className="max-w-4xl mx-auto">
+            {formData.thumbnailImage && (
+              <img
+                src={formData.thumbnailImage}
+                alt={formData.title}
+                className="w-full h-96 object-cover rounded-lg mb-6"
+              />
+            )}
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                {formData.title || 'Untitled Project'}
+              </h1>
+              {formData.featured && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                  <StarIcon className="h-4 w-4 mr-1" />
+                  Featured
+                </span>
+              )}
+            </div>
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-4 mb-6">
+              {formData.clientName && <span>Client: {formData.clientName}</span>}
+              {formData.clientName && <span>•</span>}
+              <span>{formData.projectType || 'Uncategorized'}</span>
+              <span>•</span>
+              <span>{new Date(formData.completionDate).toLocaleDateString()}</span>
+            </div>
+
+            {formData.shortDescription && (
+              <div className="mb-6 p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500">
+                <p className="text-lg text-gray-700 dark:text-gray-300">
+                  {formData.shortDescription}
+                </p>
+              </div>
+            )}
+
+            <div 
+              className="prose prose-lg dark:prose-invert max-w-none mb-8"
+              dangerouslySetInnerHTML={{ __html: formData.description || '<p>No description yet...</p>' }}
+            />
+
+            {formData.technologies && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Technologies Used:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {formData.technologies.split(',').map((tech, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 rounded-full text-sm font-medium"
+                    >
+                      {tech.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {images.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Project Gallery:</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {images.map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt={`Project ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {formData.projectUrl && (
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
+                <a
+                  href={formData.projectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
+                >
+                  <GlobeAltIcon className="h-5 w-5 mr-2" />
+                  View Live Project
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content - Same as create page */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-6">
+                <DocumentTextIcon className="h-6 w-6 text-pink-600 dark:text-pink-400 mr-2" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Information</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Project Title *
+                  </label>
                   <input
                     type="text"
                     name="title"
-                    id="title"
-                    required
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
                     value={formData.title}
-                    onChange={handleChange}
-                    onBlur={() => {
-                      if (formData.title && !formData.slug) {
-                        generateSlug();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Slug */}
-              <div>
-                <label htmlFor="slug" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Slug *
-                </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
-                  <input
-                    type="text"
-                    name="slug"
-                    id="slug"
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     required
-                    className="focus:ring-royal-blue focus:border-royal-blue flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                    value={formData.slug}
-                    onChange={handleChange}
-                  />
-                  <button
-                    type="button"
-                    onClick={generateSlug}
-                    className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-sm"
-                  >
-                    Generate
-                  </button>
-                </div>
-              </div>
-
-              {/* Short Description */}
-              <div>
-                <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Short Description *
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="shortDescription"
-                    id="shortDescription"
-                    required
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.shortDescription}
-                    onChange={handleChange}
                   />
                 </div>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Brief summary for portfolio listings</p>
-              </div>
 
-              {/* Full Description */}
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Full Description *
-                </label>
-                <div className="mt-1">
-                  <textarea
-                    name="description"
-                    id="description"
-                    rows={4}
-                    required
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              {/* Project Type */}
-              <div>
-                <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Project Type *
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="projectType"
-                    id="projectType"
-                    required
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.projectType}
-                    onChange={handleChange}
-                    placeholder="E.g., E-commerce, Business, Healthcare"
-                  />
-                </div>
-              </div>
-
-              {/* Client Name */}
-              <div>
-                <label htmlFor="clientName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Client Name
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="clientName"
-                    id="clientName"
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.clientName}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              {/* Technologies */}
-              <div>
-                <label htmlFor="technologies" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Technologies
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="technologies"
-                    id="technologies"
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.technologies}
-                    onChange={handleChange}
-                    placeholder="React, Next.js, Tailwind CSS (comma separated)"
-                  />
-                </div>
-              </div>
-
-              {/* Thumbnail Image */}
-              <div>
-                <ImageUpload
-                  label="Thumbnail Image"
-                  required={true}
-                  currentImage={formData.thumbnailImage}
-                  onUploadComplete={(imageUrl) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      thumbnailImage: imageUrl
-                    }));
-                  }}
-                />
-              </div>
-
-              {/* Project Images */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Project Images
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <div className="relative h-32 w-full overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
-                        <img
-                          src={image}
-                          alt={`Project image ${index + 1}`}
-                          className="object-cover h-full w-full"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newImages = [...images];
-                          newImages.splice(index, 1);
-                          setImages(newImages);
-                        }}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  <div className="relative h-32 w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-royal-blue dark:hover:border-royal-blue transition-colors">
-                    <ImageUpload
-                      label=""
-                      onUploadComplete={(imageUrl) => {
-                        if (imageUrl) {
-                          setImages([...images, imageUrl]);
-                        }
-                      }}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Slug
+                  </label>
+                  <div className="flex items-center">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">/portfolio/</span>
+                    <input
+                      type="text"
+                      name="slug"
+                      value={formData.slug}
+                      onChange={handleChange}
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
                   </div>
                 </div>
-              </div>
 
-              {/* Project URL */}
-              <div>
-                <label htmlFor="projectUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Project URL
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="projectUrl"
-                    id="projectUrl"
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-                    value={formData.projectUrl}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Short Description *
+                  </label>
+                  <textarea
+                    name="shortDescription"
+                    value={formData.shortDescription}
                     onChange={handleChange}
-                    placeholder="https://example.com"
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    required
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Full Description *
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={12}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent font-mono text-sm"
+                    required
+                  />
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    HTML tags are supported
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Project Images Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-6">
+                <PhotoIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Project Images</h2>
               </div>
 
-              {/* Completion Date */}
-              <div>
-                <label htmlFor="completionDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Completion Date
-                </label>
-                <div className="mt-1">
+              <div className="space-y-4">
+                <ImageUpload
+                  onUploadComplete={handleImageUpload}
+                  label="Add Project Image"
+                />
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    {images.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={img}
+                          alt={`Project ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(img)}
+                          className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <XMarkIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar - Same as create page */}
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-4">
+                <PhotoIcon className="h-5 w-5 text-pink-600 dark:text-pink-400 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Thumbnail</h3>
+              </div>
+              
+              <ImageUpload
+                onUploadComplete={(url) => setFormData(prev => ({ ...prev, thumbnailImage: url }))}
+                currentImage={formData.thumbnailImage}
+                label="Thumbnail Image"
+                required
+              />
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Details</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Client Name
+                  </label>
+                  <input
+                    type="text"
+                    name="clientName"
+                    value={formData.clientName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Project Type *
+                  </label>
+                  <input
+                    type="text"
+                    name="projectType"
+                    value={formData.projectType}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Technologies (comma-separated) *
+                  </label>
+                  <input
+                    type="text"
+                    name="technologies"
+                    value={formData.technologies}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <CalendarIcon className="h-4 w-4 inline mr-1" />
+                    Completion Date
+                  </label>
                   <input
                     type="date"
                     name="completionDate"
-                    id="completionDate"
-                    className="shadow-sm focus:ring-royal-blue focus:border-royal-blue block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
                     value={formData.completionDate}
                     onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                   />
                 </div>
-              </div>
 
-              {/* Featured */}
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Project URL
+                  </label>
                   <input
+                    type="url"
+                    name="projectUrl"
+                    value={formData.projectUrl}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
                     id="featured"
                     name="featured"
-                    type="checkbox"
-                    className="focus:ring-royal-blue h-4 w-4 text-royal-blue border-gray-300 dark:border-gray-700 rounded"
                     checked={formData.featured}
                     onChange={handleCheckboxChange}
+                    className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
                   />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="featured" className="font-medium text-gray-700 dark:text-gray-300">
-                    Featured Project
+                  <label htmlFor="featured" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                    <StarIcon className="h-4 w-4 inline mr-1 text-yellow-500" />
+                    Mark as Featured
                   </label>
-                  <p className="text-gray-500 dark:text-gray-400">Featured projects are highlighted on the portfolio page</p>
                 </div>
               </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => router.push('/admin/portfolio')}
-                  className="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Updating...' : 'Update Portfolio Item'}
-                </button>
-              </div>
-            </form>
-      </div>
-    </>
-  );
+            </div>
+          </div>
+        </div>
+      </form>
+      )}
+    </div>
+  )
 }

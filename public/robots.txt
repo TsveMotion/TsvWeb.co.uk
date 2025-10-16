@@ -7,6 +7,36 @@ Disallow: /api
 Disallow: /sign-contract
 Disallow: /agreements
 
+# Block spam URLs (Negative SEO attack - 34.5K+ fake pages)
+# Spam gambling URLs
+Disallow: /news/jackpot*
+Disallow: /news/mahjong*
+Disallow: /news/scatter*
+Disallow: /news/strategi*
+Disallow: /news/tips-jackpot*
+Disallow: /news/trik-scatter*
+Disallow: /news/pengganda*
+Disallow: /news/ways2*
+Disallow: /news/cuan*
+Disallow: /news/gacor*
+Disallow: /news/bocor*
+Disallow: /news/ways*
+Disallow: /news/wins*
+
+# Spam product pages and directories
+Disallow: /reviews/product/
+Disallow: /cp/
+Disallow: /help/
+Disallow: /store/directory
+Disallow: /global/
+Disallow: /shop/
+Disallow: /all-departments
+Disallow: /browse/
+Disallow: /lists
+Disallow: /orders
+Disallow: /my-registries
+Disallow: /account/api/
+
 # Host
 Host: https://tsvweb.com
 

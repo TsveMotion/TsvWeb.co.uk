@@ -23,7 +23,7 @@ const convertToClientBlogPost = (dbPost: any): BlogPostType => {
 };
 
 // Helper function to convert BlogPost type to API request body
-const convertToApiPost = (clientPost: Partial<BlogPostType>): any => {
+const convertToApiPost = (clientPost: Partial<BlogPostType> & { publishDate?: string }): any => {
   const apiPost: any = {
     title: clientPost.title,
     slug: clientPost.slug,
@@ -31,9 +31,14 @@ const convertToApiPost = (clientPost: Partial<BlogPostType>): any => {
     content: clientPost.content,
     coverImage: clientPost.featuredImage,
     author: clientPost.author,
-    status: clientPost.status === 'Published' ? 'published' : 'draft',
+    status: clientPost.status === 'Published' || clientPost.status === 'Scheduled' ? 'published' : 'draft',
     tags: clientPost.tags || [],
   };
+
+  // Add publishedAt if publishDate is provided
+  if (clientPost.publishDate) {
+    apiPost.publishedAt = clientPost.publishDate;
+  }
 
   return apiPost;
 };

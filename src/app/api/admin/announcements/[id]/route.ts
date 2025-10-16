@@ -69,7 +69,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 
     return NextResponse.json({
       success: true,
-      announcement
+      data: announcement
     })
   } catch (error) {
     console.error('Error fetching announcement:', error)
@@ -101,16 +101,17 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     const body = await request.json()
-    const { title, content, type, targetAudience, displayLocation, isActive, expiresAt } = body
+    const { title, message, type, priority, status, startDate, endDate, targetAudience } = body
 
     const updateData: any = {}
     if (title !== undefined) updateData.title = title
-    if (content !== undefined) updateData.content = content
+    if (message !== undefined) updateData.message = message
     if (type !== undefined) updateData.type = type
+    if (priority !== undefined) updateData.priority = priority
+    if (status !== undefined) updateData.status = status
+    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null
+    if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null
     if (targetAudience !== undefined) updateData.targetAudience = targetAudience
-    if (displayLocation !== undefined) updateData.displayLocation = displayLocation
-    if (isActive !== undefined) updateData.isActive = isActive
-    if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null
 
     const announcement = await Announcement.findByIdAndUpdate(
       params.id,

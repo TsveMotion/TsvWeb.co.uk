@@ -45,44 +45,13 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase()
 
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-    const status = searchParams.get('status') // 'active', 'expired', 'all'
-
-    const skip = (page - 1) * limit
-
-    // Build query
-    let query: any = {}
-    
-    if (status === 'active') {
-      query.isActive = true
-      query.$or = [
-        { expiresAt: null },
-        { expiresAt: { $gt: new Date() } }
-      ]
-    } else if (status === 'expired') {
-      query.expiresAt = { $lte: new Date() }
-    }
-
-    const announcements = await Announcement.find(query)
+    const announcements = await Announcement.find({})
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate('createdBy', 'name email')
       .lean()
-
-    const total = await Announcement.countDocuments(query)
 
     return NextResponse.json({
       success: true,
-      announcements,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      data: announcements
     })
   } catch (error) {
     console.error('Error fetching announcements:', error)
@@ -201,12 +170,12 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
 
     const body = await request.json()
-    const { title, content, type, targetAudience, displayLocation, expiresAt, sendEmail } = body
+    const { title, message, type, priority, status, startDate, endDate, targetAudience } = body
 
     // Validation
-    if (!title || !content) {
+    if (!title || !message) {
       return NextResponse.json(
-        { success: false, message: 'Title and content are required' },
+        { success: false, message: 'Title and message are required' },
         { status: 400 }
       )
     }
@@ -214,76 +183,20 @@ export async function POST(request: NextRequest) {
     // Create announcement
     const announcement = await Announcement.create({
       title,
-      content,
+      message,
       type: type || 'info',
-      targetAudience: targetAudience || 'customers',
-      displayLocation: displayLocation || ['dashboard'],
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-      isActive: true,
-      publishedAt: new Date(),
-      createdBy: auth.userId,
-      emailSent: false
+      priority: priority || 'medium',
+      status: status || 'active',
+      startDate: startDate ? new Date(startDate) : new Date(),
+      endDate: endDate ? new Date(endDate) : null,
+      targetAudience: targetAudience || '',
+      createdBy: auth.userId
     })
-
-    // Send emails if requested
-    if (sendEmail) {
-      try {
-        // Build query based on target audience
-        let userQuery: any = { email: { $exists: true, $ne: null } }
-        
-        if (targetAudience === 'customers') {
-          userQuery.role = 'customer'
-        } else if (targetAudience === 'admins') {
-          userQuery.role = { $in: ['admin', 'editor'] }
-        } else if (targetAudience === 'all') {
-          // Send to all users (customers and admins)
-          userQuery.role = { $in: ['customer', 'admin', 'editor'] }
-        }
-        // For 'public', don't send emails (public is for website visitors)
-        
-        if (targetAudience !== 'public') {
-          const recipients = await User.find(userQuery).select('email name').lean()
-
-          if (recipients.length > 0) {
-            const emailHTML = getAnnouncementEmailHTML(title, content, type || 'info')
-            
-            // Send emails in batches to avoid rate limits
-            const batchSize = 50
-            for (let i = 0; i < recipients.length; i += batchSize) {
-              const batch = recipients.slice(i, i + batchSize)
-              
-              await Promise.all(
-                batch.map(recipient =>
-                  resend.emails.send({
-                    from: process.env.EMAIL_FROM || 'TsvWeb <hello@mail.tsvweb.com>',
-                    to: recipient.email,
-                    subject: `📢 ${title}`,
-                    html: emailHTML
-                  }).catch(err => {
-                    console.error(`Failed to send email to ${recipient.email}:`, err)
-                    return null
-                  })
-                )
-              )
-            }
-
-            // Update announcement to mark email as sent
-            await Announcement.findByIdAndUpdate(announcement._id, {
-              emailSent: true,
-              emailSentAt: new Date()
-            })
-          }
-        }
-      } catch (emailError) {
-        console.error('Error sending announcement emails:', emailError)
-        // Don't fail the request if email fails
-      }
-    }
 
     return NextResponse.json({
       success: true,
       message: 'Announcement created successfully',
-      announcement
+      data: announcement
     }, { status: 201 })
   } catch (error) {
     console.error('Error creating announcement:', error)
@@ -293,3 +206,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

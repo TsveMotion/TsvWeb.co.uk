@@ -51,9 +51,24 @@ export async function PUT(request: NextRequest, { params }: Params) {
       );
     }
     
-    // If updating status to published and it wasn't published before, set publishedAt date
-    if (data.status === 'published' && post.status !== 'published') {
-      data.publishedAt = new Date();
+    // Handle publishedAt date
+    if (data.status === 'published') {
+      // If publishing for the first time and no publishedAt provided, use current date
+      if (post.status !== 'published' && !data.publishedAt) {
+        data.publishedAt = new Date();
+      }
+      // If publishedAt is provided (scheduled), use that date
+      else if (data.publishedAt) {
+        data.publishedAt = new Date(data.publishedAt);
+      }
+      // If already published and no new date, keep existing
+      else if (post.publishedAt) {
+        data.publishedAt = post.publishedAt;
+      }
+    }
+    // If changing to draft, clear publishedAt
+    else if (data.status === 'draft') {
+      data.publishedAt = null;
     }
     
     // Update post

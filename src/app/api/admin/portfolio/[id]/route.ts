@@ -11,9 +11,17 @@ interface Params {
 // Get a single portfolio item by ID
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    await connectToDatabase();
-    
     const { id } = params;
+    
+    // Skip if id is "new" (create page route)
+    if (id === 'new') {
+      return NextResponse.json(
+        { success: false, message: 'Invalid ID' },
+        { status: 400 }
+      );
+    }
+    
+    await connectToDatabase();
     const item = await Portfolio.findById(id);
     
     if (!item) {

@@ -2,6 +2,20 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  EyeIcon,
+  FunnelIcon,
+  SparklesIcon,
+  BriefcaseIcon,
+  StarIcon,
+  CalendarIcon,
+  CodeBracketIcon
+} from '@heroicons/react/24/outline'
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 
 interface PortfolioItem {
   _id: string
@@ -27,467 +41,356 @@ export default function AdminPortfolio() {
   const [searchTerm, setSearchTerm] = useState('')
   const [projectTypeFilter, setProjectTypeFilter] = useState<string>('all')
   const [featuredFilter, setFeaturedFilter] = useState<string>('all')
-  const [error, setError] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchPortfolioItems = async () => {
-      setIsLoading(true)
-      setError('')
-      try {
-        const response = await fetch('/api/admin/portfolio')
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch portfolio items: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (data.success && data.data) {
-          setPortfolioItems(data.data)
-        } else {
-          throw new Error(data.message || 'Failed to fetch portfolio items')
-        }
-      } catch (error: any) {
-        console.error('Error fetching portfolio items:', error)
-        setError(error.message || 'Failed to load portfolio items. Please try again later.')
-        setPortfolioItems([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
     fetchPortfolioItems()
   }, [])
 
-  // Extract unique project types for filtering
-  const projectTypes = useMemo(() => {
-    const typeSet = new Set<string>()
-    portfolioItems.forEach(item => typeSet.add(item.projectType))
-    return Array.from(typeSet)
-  }, [portfolioItems])
-
-  // Format date to a more readable format
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  // Filter portfolio items based on search term, project type, and featured status
-  const filteredItems = portfolioItems.filter(item => {
-    const matchesSearch = 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.technologies.some((tech: string) => tech.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.clientName && item.clientName.toLowerCase().includes(searchTerm.toLowerCase()))
-    
-    const matchesProjectType = projectTypeFilter === 'all' || item.projectType.toLowerCase() === projectTypeFilter.toLowerCase()
-    
-    const matchesFeatured = featuredFilter === 'all' || 
-      (featuredFilter === 'featured' && item.featured) ||
-      (featuredFilter === 'not-featured' && !item.featured)
-    
-    return matchesSearch && matchesProjectType && matchesFeatured
-  })
-
-  const handleToggleFeatured = async (id: string, featured: boolean) => {
+  const fetchPortfolioItems = async () => {
+    setIsLoading(true)
     try {
-      // Optimistically update the UI
-      setPortfolioItems(portfolioItems.map(item => 
-        item._id === id ? { ...item, featured: !featured } : item
-      ))
+      const response = await fetch('/api/admin/portfolio')
+      if (!response.ok) throw new Error('Failed to fetch')
       
-      // Make the actual API call
-      const response = await fetch(`/api/admin/portfolio/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ featured: !featured }),
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update portfolio item: ${response.status}`)
+      const data = await response.json()
+      if (data.success && data.data) {
+        setPortfolioItems(data.data)
       }
-      
-      // No need to update state again as we already did it optimistically
-    } catch (error: any) {
-      console.error('Error updating portfolio item:', error)
-      // Revert the optimistic update on error
-      setPortfolioItems(portfolioItems.map(item => 
-        item._id === id ? { ...item, featured: featured } : item
-      ))
-      setError(`Failed to update item: ${error.message}`)
-      setTimeout(() => setError(''), 3000) // Clear error after 3 seconds
+    } catch (error) {
+      console.error('Error fetching portfolio items:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleDeleteItem = async (id: string) => {
-    if (confirm('Are you sure you want to delete this portfolio item?')) {
+  const handleDelete = async (id: string) => {
+    if (deleteConfirm === id) {
       try {
-        // Optimistically update the UI
-        const originalItems = [...portfolioItems]
-        setPortfolioItems(portfolioItems.filter(item => item._id !== id))
-        
-        // Make the actual API call
         const response = await fetch(`/api/admin/portfolio/${id}`, {
-          method: 'DELETE',
+          method: 'DELETE'
         })
         
-        if (!response.ok) {
-          throw new Error(`Failed to delete portfolio item: ${response.status}`)
+        if (response.ok) {
+          setPortfolioItems(portfolioItems.filter(item => item._id !== id))
+          setDeleteConfirm(null)
+          alert('Portfolio item deleted successfully!')
+        } else {
+          alert('Failed to delete portfolio item')
         }
-        
-        // No need to update state again as we already did it optimistically
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error deleting portfolio item:', error)
-        // Revert the optimistic update on error
-        setPortfolioItems([...portfolioItems]) // Force a refresh
-        setError(`Failed to delete item: ${error.message}`)
-        setTimeout(() => setError(''), 3000) // Clear error after 3 seconds
+        alert('Failed to delete portfolio item')
       }
+    } else {
+      setDeleteConfirm(id)
+      setTimeout(() => setDeleteConfirm(null), 3000)
     }
+  }
+
+  // Get unique project types
+  const projectTypes = useMemo(() => {
+    const types = new Set(portfolioItems.map(item => item.projectType))
+    return Array.from(types)
+  }, [portfolioItems])
+
+  // Filter portfolio items
+  const filteredItems = useMemo(() => {
+    return portfolioItems.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          item.clientName?.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesType = projectTypeFilter === 'all' || item.projectType === projectTypeFilter
+      const matchesFeatured = featuredFilter === 'all' || 
+                             (featuredFilter === 'featured' && item.featured) ||
+                             (featuredFilter === 'not-featured' && !item.featured)
+      
+      return matchesSearch && matchesType && matchesFeatured
+    })
+  }, [portfolioItems, searchTerm, projectTypeFilter, featuredFilter])
+
+  // Stats
+  const stats = {
+    total: portfolioItems.length,
+    featured: portfolioItems.filter(item => item.featured).length,
+    types: projectTypes.length,
+    recent: portfolioItems.filter(item => {
+      const date = new Date(item.createdAt)
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+      return date > thirtyDaysAgo
+    }).length
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading portfolio...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <>
+    <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Portfolio Management
-          </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Manage your portfolio projects and showcase your work
-          </p>
-        </div>
-        <div className="mt-4 flex md:mt-0 md:ml-4">
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+              <BriefcaseIcon className="h-8 w-8 mr-3 text-pink-600 dark:text-pink-400" />
+              Portfolio Management
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Manage your portfolio projects and showcase your work
+            </p>
+          </div>
+          
           <Link
             href="/admin/portfolio/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-700 text-white font-medium rounded-lg hover:from-pink-700 hover:to-pink-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
           >
-            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            New Portfolio Item
+            <PlusIcon className="h-5 w-5 mr-2" />
+            New Project
           </Link>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Projects</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{portfolioItems.length}</dd>
-                </dl>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-pink-100 text-sm font-medium">Total Projects</p>
+              <p className="text-3xl font-bold mt-2">{stats.total}</p>
             </div>
+            <BriefcaseIcon className="h-12 w-12 text-pink-200" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Featured</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {portfolioItems.filter(item => item.featured).length}
-                  </dd>
-                </dl>
-              </div>
+        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-yellow-100 text-sm font-medium">Featured</p>
+              <p className="text-3xl font-bold mt-2">{stats.featured}</p>
             </div>
+            <StarIcon className="h-12 w-12 text-yellow-200" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Categories</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{projectTypes.length}</dd>
-                </dl>
-              </div>
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-100 text-sm font-medium">Project Types</p>
+              <p className="text-3xl font-bold mt-2">{stats.types}</p>
             </div>
+            <CodeBracketIcon className="h-12 w-12 text-purple-200" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Filtered Results</dt>
-                  <dd className="text-lg font-semibold text-gray-900 dark:text-white">{filteredItems.length}</dd>
-                </dl>
-              </div>
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm font-medium">Recent (30d)</p>
+              <p className="text-3xl font-bold mt-2">{stats.recent}</p>
             </div>
+            <CalendarIcon className="h-12 w-12 text-blue-200" />
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg px-4 py-5 sm:p-6 mb-6">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Search Projects
-            </label>
-            <div className="relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
-                placeholder="Search by title, client, tech..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center mb-4">
+          <FunnelIcon className="h-5 w-5 text-gray-600 dark:text-gray-400 mr-2" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+            />
           </div>
 
-          <div>
-            <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Project Type
-            </label>
-            <select
-              id="projectType"
-              name="projectType"
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              value={projectTypeFilter}
-              onChange={(e) => setProjectTypeFilter(e.target.value)}
-            >
-              <option value="all">All Types</option>
-              {projectTypes.map((type: string, index: number) => (
-                <option key={index} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Project Type Filter */}
+          <select
+            value={projectTypeFilter}
+            onChange={(e) => setProjectTypeFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+          >
+            <option value="all">All Types</option>
+            {projectTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
 
-          <div>
-            <label htmlFor="featured" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Featured Status
-            </label>
-            <select
-              id="featured"
-              name="featured"
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              value={featuredFilter}
-              onChange={(e) => setFeaturedFilter(e.target.value)}
-            >
-              <option value="all">All Projects</option>
-              <option value="featured">Featured Only</option>
-              <option value="not-featured">Not Featured</option>
-            </select>
-          </div>
+          {/* Featured Filter */}
+          <select
+            value={featuredFilter}
+            onChange={(e) => setFeaturedFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+          >
+            <option value="all">All Projects</option>
+            <option value="featured">Featured Only</option>
+            <option value="not-featured">Not Featured</option>
+          </select>
+        </div>
+
+        {/* Results count */}
+        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+          Showing <span className="font-semibold text-gray-900 dark:text-white">{filteredItems.length}</span> of <span className="font-semibold text-gray-900 dark:text-white">{stats.total}</span> projects
         </div>
       </div>
 
-      {/* Portfolio Items */}
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64"></div>
-        ) : error ? (
+      {/* Portfolio Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+        {filteredItems.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error</h3>
-            <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
-            <div className="mt-6">
-              <button
-                onClick={() => {
-                  setError('');
-                  const fetchPortfolioItems = async () => {
-                    setIsLoading(true);
-                    setError('');
-                    try {
-                      const response = await fetch('/api/admin/portfolio');
-                      
-                      if (!response.ok) {
-                        throw new Error(`Failed to fetch portfolio items: ${response.status}`);
-                      }
-                      
-                      const data = await response.json();
-                      
-                      if (data.success && data.data) {
-                        setPortfolioItems(data.data);
-                      } else {
-                        throw new Error(data.message || 'Failed to fetch portfolio items');
-                      }
-                    } catch (error: any) {
-                      console.error('Error fetching portfolio items:', error);
-                      setError(error.message || 'Failed to load portfolio items. Please try again later.');
-                      setPortfolioItems([]);
-                    } finally {
-                      setIsLoading(false);
-                    }
-                  };
-                  fetchPortfolioItems();
-                }}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
-              >
-                <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Try Again
-              </button>
-            </div>
-          </div>
-        ) : filteredItems.length === 0 ? (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No portfolio items found</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm || projectTypeFilter !== 'all' ? 'Try adjusting your search or filter' : 'Get started by creating a new portfolio item'}
+            <BriefcaseIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 text-lg">No portfolio items found</p>
+            <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
+              {searchTerm || projectTypeFilter !== 'all' || featuredFilter !== 'all'
+                ? 'Try adjusting your filters'
+                : 'Create your first project to get started'}
             </p>
-            {!searchTerm && projectTypeFilter === 'all' && (
-              <div className="mt-6">
-                <Link
-                  href="/admin/portfolio/new"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
-                >
-                  <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  New Portfolio Item
-                </Link>
-              </div>
-            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Project
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Category
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Type
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Client
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Technologies
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Date
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Featured
-                  </th>
-                  <th scope="col" className="relative px-6 py-3">
-                    <span className="sr-only">Actions</span>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredItems.map((item) => (
-                  <tr key={item._id}>
+                {filteredItems.map((item, index) => (
+                  <tr key={item._id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <img 
-                            className="h-10 w-10 rounded-md object-cover" 
-                            src={item.thumbnailImage || '/images/placeholder.jpg'} 
-                            alt={item.title} 
+                        {item.thumbnailImage && (
+                          <img
+                            src={item.thumbnailImage}
+                            alt={item.title}
+                            className="h-12 w-12 rounded-lg object-cover mr-4"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=No+Image'
+                            }}
                           />
-                        </div>
-                        <div className="ml-4 max-w-md">
+                        )}
+                        <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {item.title}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                            {item.description}
+                          <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                            {item.shortDescription || item.description}
                           </div>
+                          {item.clientName && (
+                            <div className="text-xs text-gray-400 dark:text-gray-500">
+                              Client: {item.clientName}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">{item.projectType}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {item.technologies.slice(0, 2).join(', ')}
-                        {item.technologies.length > 2 && '...'}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                        <CodeBracketIcon className="h-3 w-3 mr-1" />
+                        {item.projectType}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {item.technologies.slice(0, 3).map((tech, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                        {item.technologies.length > 3 && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                            +{item.technologies.length - 3}
+                          </span>
+                        )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {item.clientName || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {formatDate(item.createdAt)}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleToggleFeatured(item._id, item.featured)}
-                        className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue ${
-                          item.featured ? 'bg-royal-blue' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      >
-                        <span className="sr-only">Toggle featured</span>
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
-                            item.featured ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
+                      {item.featured ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                          <StarIconSolid className="h-3 w-3 mr-1" />
+                          Featured
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                          Standard
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center">
+                        <CalendarIcon className="h-4 w-4 mr-1" />
+                        {new Date(item.completionDate || item.createdAt).toLocaleDateString()}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex space-x-3 justify-end">
-                        <Link href={`/admin/portfolio/${item._id}`} className="text-royal-blue hover:text-royal-blue-dark">
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteItem(item._id)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          Delete
-                        </button>
+                      <div className="flex items-center justify-end space-x-2">
                         {item.projectUrl && (
-                          <a 
-                            href={item.projectUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
+                          <a
+                            href={item.projectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            title="View Project"
                           >
-                            View
+                            <EyeIcon className="h-5 w-5" />
                           </a>
                         )}
+                        <Link
+                          href={`/admin/portfolio/${item._id}`}
+                          className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            deleteConfirm === item._id
+                              ? 'text-white bg-red-600 hover:bg-red-700'
+                              : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                          }`}
+                          title={deleteConfirm === item._id ? 'Click again to confirm' : 'Delete'}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -497,6 +400,6 @@ export default function AdminPortfolio() {
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }

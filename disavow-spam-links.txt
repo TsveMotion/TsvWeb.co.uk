@@ -1,0 +1,46 @@
+# Disavow file for tsvweb.com - Negative SEO Attack
+# Created: 2025-10-16
+# Updated: 2025-10-16
+# 
+# This file disavows spam domains linking to 34,500+ fake pages on tsvweb.com
+# These pages include fake product listings, gambling URLs, and spam directories
+# 
+# INSTRUCTIONS:
+# 1. Upload this file to Google Search Console: https://search.google.com/search-console/disavow-links
+# 2. Add more spam domains from Ahrefs as you discover them
+# 3. Re-upload to GSC after adding new domains
+#
+# FORMAT: domain:example.com (one per line)
+
+# ============================================
+# KNOWN SPAM DOMAINS (From Ahrefs Analysis)
+# ============================================
+
+# Pazzles spam links (fake product pages)
+domain:pazzles.net
+
+# Mars Society spam links (fake gambling pages)
+domain:fmars.marssociety.org
+
+# ============================================
+# ADD MORE SPAM DOMAINS HERE
+# ============================================
+# 
+# To find more spam domains:
+# 1. Go to Ahrefs: https://ahrefs.com/backlink-checker
+# 2. Enter: tsvweb.com
+# 3. Click: "Broken inbound links" tab
+# 4. Export the list
+# 5. Extract unique domains
+# 6. Add them below in format: domain:example.com
+#
+# Example spam domains to look for:
+# - Domains linking to /reviews/product/*
+# - Domains linking to /cp/*
+# - Domains linking to /help/*
+# - Domains linking to /news/jackpot*
+# - Domains linking to fake product pages (URLs ending in 6+ digits)
+#
+# Add new domains below:
+
+# [ADD NEW SPAM DOMAINS HERE AS YOU FIND THEM]
