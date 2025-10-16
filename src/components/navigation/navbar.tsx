@@ -113,9 +113,9 @@ export default function Navbar() {
   }`
 
   return (
-    <React.Fragment>
+    <>
       <AnnouncementBanner location="header" />
-      <header className={navbarClasses} style={{ top: '52px' }}>
+      <header className={navbarClasses} style={{ marginTop: '0' }}>
         <nav className="container-custom flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
@@ -350,6 +350,6 @@ export default function Navbar() {
         onClose={() => setIsWizardOpen(false)} 
       />
     </header>
-    </React.Fragment>
+    </>
   )
 }

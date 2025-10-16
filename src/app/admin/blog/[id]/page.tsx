@@ -401,9 +401,14 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
                     placeholder="Write your post content here (HTML supported)..."
                     required
                   />
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    HTML tags are supported. Use &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, etc.
-                  </p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      HTML tags are supported. Use &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, etc.
+                    </p>
+                    <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                      📖 Read time: {Math.ceil(formData.content.split(/\s+/).filter(w => w.length > 0).length / 200)} min
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

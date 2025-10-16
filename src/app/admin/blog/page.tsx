@@ -87,7 +87,7 @@ export default function AdminBlog() {
     total: allPosts.length,
     published: allPosts.filter(p => p.status === 'Published').length,
     draft: allPosts.filter(p => p.status === 'Draft').length,
-    scheduled: 0 // Not supported in current BlogPost type
+    scheduled: allPosts.filter(p => p.status === 'Scheduled').length
   }
 
   const getStatusColor = (status: string) => {
@@ -96,6 +96,8 @@ export default function AdminBlog() {
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
       case 'draft':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
@@ -317,14 +319,15 @@ export default function AdminBlog() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
-                        <Link
+                        <a
                           href={`/blog/${post.slug}`}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="View"
+                          title="View on Blog"
                         >
                           <EyeIcon className="h-5 w-5" />
-                        </Link>
+                        </a>
                         <Link
                           href={`/admin/blog/${post.id}`}
                           className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"

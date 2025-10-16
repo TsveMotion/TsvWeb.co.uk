@@ -57,8 +57,10 @@ export async function POST(request: NextRequest) {
       ...data,
       // Set default author if not provided
       author: data.author || 'Admin',
-      // Set publish date if status is published
-      publishedAt: data.status === 'published' ? new Date() : null
+      // Set publish date - use provided publishedAt or current date if published
+      publishedAt: data.status === 'published' 
+        ? (data.publishedAt ? new Date(data.publishedAt) : new Date())
+        : null
     });
     
     await newPost.save();

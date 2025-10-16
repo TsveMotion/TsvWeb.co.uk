@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import {
   HomeIcon,
@@ -48,12 +49,17 @@ interface NavSection {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession()
+  const { theme, setTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [userRole, setUserRole] = useState<string>('admin')
   const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'content', 'business', 'communication', 'system'])
   const pathname = usePathname()
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (session?.user) {
@@ -62,25 +68,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, [session])
 
-  // Theme toggle
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDarkMode(true)
-      document.documentElement.classList.add('dark')
-    }
-  }, [])
-
+  // Theme toggle function
   const toggleTheme = () => {
-    const newTheme = !isDarkMode
-    setIsDarkMode(newTheme)
-    if (newTheme) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   const toggleSection = (section: string) => {
@@ -324,8 +314,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <button
               onClick={toggleTheme}
               className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+              aria-label="Toggle theme"
             >
-              {isDarkMode ? (
+              {mounted && theme === 'dark' ? (
                 <SunIcon className="h-6 w-6" />
               ) : (
                 <MoonIcon className="h-6 w-6" />

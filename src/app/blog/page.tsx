@@ -102,7 +102,7 @@ export default function BlogPage() {
             </motion.h1>
             
             <motion.p 
-              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 leading-relaxed"
+              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -110,6 +110,38 @@ export default function BlogPage() {
               Web design tips, WordPress insights, and digital marketing strategies <br className="hidden md:block" />
               to help Birmingham businesses thrive online.
             </motion.p>
+            
+            <motion.div
+              className="flex flex-wrap gap-4 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Link 
+                href="/services/web-design"
+                className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+              >
+                🎨 Web Design Services
+              </Link>
+              <Link 
+                href="/services/seo"
+                className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+              >
+                📈 SEO Services
+              </Link>
+              <Link 
+                href="/portfolio"
+                className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+              >
+                💼 View Portfolio
+              </Link>
+              <Link 
+                href="/contact"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                📞 Contact Us
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -278,7 +310,7 @@ export default function BlogPage() {
               </div>
               
               {/* Popular tags */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Popular Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {tags.map(tag => (
@@ -291,7 +323,76 @@ export default function BlogPage() {
                   ))}
                 </div>
               </div>
+              
+              {/* Quick Links */}
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Our Services</h3>
+                <div className="space-y-3">
+                  <Link 
+                    href="/services/web-design"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → Web Design Birmingham
+                  </Link>
+                  <Link 
+                    href="/services/seo"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → SEO Services Birmingham
+                  </Link>
+                  <Link 
+                    href="/services/web-development"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → Web Development
+                  </Link>
+                  <Link 
+                    href="/services/ecommerce"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → E-commerce Solutions
+                  </Link>
+                  <Link 
+                    href="/portfolio"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → View Our Portfolio
+                  </Link>
+                  <Link 
+                    href="/contact"
+                    className="block text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    → Contact Us
+                  </Link>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Ready to Transform Your Birmingham Business Online?
+          </h2>
+          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+            Get a free consultation and discover how our web design and SEO services can help you get 3x more leads in 30 days.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link 
+              href="/contact"
+              className="px-8 py-4 bg-white text-blue-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-bold text-lg"
+            >
+              Get Free Quote
+            </Link>
+            <Link 
+              href="/portfolio"
+              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg shadow-lg hover:bg-white hover:text-blue-600 transition-all duration-300 hover:scale-105 font-bold text-lg"
+            >
+              View Our Work
+            </Link>
           </div>
         </div>
       </section>

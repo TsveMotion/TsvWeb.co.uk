@@ -44,3 +44,152 @@ domain:fmars.marssociety.org
 # Add new domains below:
 
 # [ADD NEW SPAM DOMAINS HERE AS YOU FIND THEM]
+
+# ============================================
+# SPAM DOMAINS FROM AHREFS (October 16, 2025)
+# ============================================
+# These domains link to fake gambling pages with Indonesian keywords
+# Anchor text: "strategi mahjong wins", "jackpot cepat", "scatter hitam"
+# Target URLs: /news/tips-jackpot-ways2-pengganda.html, etc.
+
+# High DR spam domains (40+)
+domain:gaia-restaurants.com
+domain:elfstedenhal.frl
+domain:extraaedge.com
+domain:pdpu.edu.ua
+domain:ad.ua
+domain:gharaati.ir
+domain:kiaf.org
+
+# Medium DR spam domains (20-39)
+domain:vishwajyot.com
+domain:slubne.pl
+domain:tokyodiner.com
+domain:mounttalent.com
+domain:smartps.fr
+domain:pskenya.org
+domain:thecelebrationsportsclub.com
+domain:cuckoovina.com
+domain:humansofthekitchen.org
+domain:trektor.fr
+
+# Low DR spam domains (0-19)
+domain:ezbook.nl
+domain:yosoydelajosemiguel.edu.co
+domain:rechargeimprimante.fr
+
+# ============================================
+# INSTRUCTIONS TO FIND MORE SPAM DOMAINS
+# ============================================
+# 
+# The Ahrefs report shows 82 total linking domains.
+# You've only seen 20 in the preview above.
+# 
+# To get ALL spam domains:
+# 1. Sign up for Ahrefs (or use free trial)
+# 2. Go to: https://ahrefs.com/backlink-checker
+# 3. Enter: tsvweb.com
+# 4. Click: "Referring domains" tab
+# 5. Export the full list
+# 6. Filter for domains linking to /news/* URLs
+# 7. Add all spam domains below:
+
+# [ADD REMAINING 62 SPAM DOMAINS HERE AFTER EXPORTING FROM AHREFS]
+
+# ============================================
+# ADDITIONAL SPAM DOMAINS FROM SEO REVIEW TOOLS (October 16, 2025)
+# ============================================
+# These are broken backlinks (410 Gone) - middleware is working!
+# Total: 74 domains from free SEO Review Tools report
+
+# Additional spam domains not in Ahrefs preview:
+domain:canapii.com
+domain:trangiadigital.com
+domain:cmacck.goodschool.hk
+domain:pmontt.uach.cl
+domain:mosteirodesaobentorio.org.br
+domain:mediaavataarme.com
+domain:wordy.com
+domain:redcarpetjourney.com
+domain:americantruthproject.org
+domain:betsyrosemusic.org
+domain:cronica.com.gt
+domain:ediammesrv.edc.uoc.gr
+domain:arcadiafoundation.org
+domain:higuests.com
+domain:tajhadramawt.com
+domain:blog.workerscompensationshop.com
+domain:belstory.ru
+domain:prometheus.ipvc.pt
+domain:cdcsit.edu.np
+domain:chatai.com
+domain:brightngreen.com
+domain:belizepropertycenter.com
+domain:blog.causematch.com
+domain:conclotechnologies.com
+domain:newblog.tunstallhealthcare.com.au
+domain:media.co.id
+domain:blog.campusknot.com
+domain:astrus.digital
+domain:avianscienceinstitute.com
+domain:gamedevhq.com
+domain:careers.thewebops.com
+domain:abm.dz
+domain:agbuegypt.com
+domain:wisma-bahasa.com
+domain:lobsteryachtphuket.com
+domain:collegehealthtv.com
+domain:persakademika.com
+domain:vickys.design
+domain:thebakiproject.org
+domain:zhanhao.online
+domain:benimmagzam.com
+domain:congreso.confecol.org
+domain:ekobaski.com
+domain:jurnalisinvestigasinews.com
+domain:mightyoaksgroup.com
+domain:questreaming.com
+domain:tanzahost.com
+domain:tanzahost.ng
+domain:topfunnyjokes.net
+domain:tunstallblog.azurewebsites.net
+domain:vmcco.vn
+domain:fmlbe.eu
+domain:suny-plumbing.com
+
+# TOTAL DOMAINS IN DISAVOW FILE: 74 (2 original + 20 Ahrefs + 52 SEO Review Tools)
+
+# ============================================
+# ADDITIONAL SPAM DOMAINS FROM AHREFS FREE CHECKER (October 16, 2025)
+# ============================================
+# Extracted from Ahrefs free backlink checker (83 total domains)
+# These are additional domains not in previous lists
+
+# New spam domains from Ahrefs free checker:
+domain:psychopsy.com
+domain:srdceprovaclavahavla.cz
+domain:atishaydesigns.com
+domain:label-canalisateur.com
+domain:betterinbelize.com
+domain:ciftcitv.com
+domain:ufukaskeroglu.com
+domain:refuge-repoju.com
+domain:smaruzzi.com
+domain:cartouche-blog.fr
+domain:fourrage-girerd.com
+domain:mutmachen.janegoodall.at
+domain:englishschoolbassano.com
+domain:8coint.com
+domain:shortenurls.eu
+domain:blog.tunstallhealthcare.com.au
+domain:globaldomains.xyz
+domain:takes.homes
+domain:takes.sbs
+domain:seo-tip.com
+domain:backlink.wiki
+domain:weknow.website
+
+# NOTE: musclematrix.uk is YOUR client site - NOT spam! (says "made by tsvweb development")
+# This is a LEGITIMATE backlink - do NOT disavow!
+
+# FINAL TOTAL: 97 SPAM DOMAINS (2 original + 20 Ahrefs preview + 52 SEO Review + 23 Ahrefs free)

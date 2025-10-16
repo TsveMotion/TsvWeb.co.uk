@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const announcements = await Announcement.find(query)
       .sort({ publishedAt: -1 })
-      .select('title content type displayLocation targetAudience publishedAt')
+      .select('title message content type displayLocation targetAudience publishedAt')
       .lean()
 
     return NextResponse.json({

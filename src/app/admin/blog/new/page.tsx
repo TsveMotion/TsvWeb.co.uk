@@ -349,6 +349,23 @@ export default function NewBlogPost() {
                   </select>
                 </div>
 
+                {/* Publish Date & Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <ClockIcon className="h-4 w-4 inline mr-1" />
+                    Publish Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.publishDate}
+                    onChange={(e) => setFormData({ ...formData, publishDate: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {formData.status === 'Scheduled' ? 'Post will be published at this time' : 'Display date for the post'}
+                  </p>
+                </div>
+
                 {/* Author */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

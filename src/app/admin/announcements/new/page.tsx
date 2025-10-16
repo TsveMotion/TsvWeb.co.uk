@@ -26,7 +26,9 @@ export default function NewAnnouncement() {
     status: 'active' as 'active' | 'scheduled' | 'archived',
     startDate: new Date().toISOString().slice(0, 16),
     endDate: '',
-    targetAudience: ''
+    targetAudience: '',
+    displayLocation: ['header'] as Array<'dashboard' | 'header' | 'footer' | 'contact'>,
+    sendEmail: false
   })
   
   const [isSaving, setIsSaving] = useState(false)
@@ -234,6 +236,55 @@ export default function NewAnnouncement() {
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="e.g., All users, Premium members, etc."
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Display Locations *
+                  </label>
+                  <div className="space-y-2">
+                    {['header', 'contact', 'dashboard', 'footer'].map((location) => (
+                      <label key={location} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.displayLocation.includes(location as any)}
+                          onChange={(e) => {
+                            const checked = e.target.checked
+                            setFormData(prev => ({
+                              ...prev,
+                              displayLocation: checked
+                                ? [...prev.displayLocation, location as any]
+                                : prev.displayLocation.filter(l => l !== location)
+                            }))
+                          }}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                          {location}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Select where this announcement should be displayed
+                  </p>
+                </div>
+
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.sendEmail}
+                      onChange={(e) => setFormData(prev => ({ ...prev, sendEmail: e.target.checked }))}
+                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Send email notification to all customers
+                    </span>
+                  </label>
+                  <p className="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+                    Sends this announcement via email to all registered customers
+                  </p>
                 </div>
               </div>
             </div>

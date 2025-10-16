@@ -6,10 +6,11 @@ import { X } from 'lucide-react'
 interface Announcement {
   _id: string
   title: string
-  content: string
-  type: 'info' | 'warning' | 'success' | 'urgent'
+  message: string
+  content?: string // Backward compatibility
+  type: 'info' | 'warning' | 'success' | 'error'
   displayLocation: Array<'dashboard' | 'header' | 'footer' | 'contact'>
-  targetAudience: 'all' | 'customers' | 'admins' | 'public'
+  targetAudience?: string
 }
 
 interface AnnouncementBannerProps {
@@ -101,7 +102,7 @@ export default function AnnouncementBanner({ location }: AnnouncementBannerProps
         </svg>
       )
     },
-    urgent: {
+    error: {
       bg: 'bg-red-50 dark:bg-red-900/20',
       border: 'border-red-200 dark:border-red-800',
       text: 'text-red-900 dark:text-red-100',
@@ -116,7 +117,7 @@ export default function AnnouncementBanner({ location }: AnnouncementBannerProps
   const style = typeStyles[currentAnnouncement.type]
 
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[60] ${style.bg} ${style.border} border-b`}>
+    <div className={`fixed left-0 right-0 z-[45] ${style.bg} ${style.border} border-b`} style={{ top: '72px' }}>
       <div className="container-custom py-3">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1">
@@ -128,7 +129,7 @@ export default function AnnouncementBanner({ location }: AnnouncementBannerProps
                 {currentAnnouncement.title}
               </p>
               <p className={`${style.text} text-xs opacity-90`}>
-                {currentAnnouncement.content}
+                {currentAnnouncement.message || currentAnnouncement.content}
               </p>
             </div>
           </div>

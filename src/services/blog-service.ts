@@ -2,23 +2,37 @@ import { BlogPost as BlogPostType } from '@/types/blog';
 
 // Helper function to convert API response to BlogPost type
 const convertToClientBlogPost = (dbPost: any): BlogPostType => {
+  // Determine status based on publishedAt date and current status
+  let status: 'Published' | 'Draft' | 'Scheduled' = 'Draft';
+  
+  if (dbPost.status === 'published') {
+    const publishDate = dbPost.publishedAt ? new Date(dbPost.publishedAt) : null;
+    const now = new Date();
+    
+    if (publishDate && publishDate > now) {
+      status = 'Scheduled';
+    } else {
+      status = 'Published';
+    }
+  }
+  
   return {
     id: dbPost._id || '',
-    title: dbPost.title,
-    slug: dbPost.slug,
-    excerpt: dbPost.excerpt,
-    content: dbPost.content,
-    category: dbPost.tags?.[0] || '', // Using first tag as category for compatibility
+    title: dbPost.title || 'Untitled',
+    slug: dbPost.slug || '',
+    excerpt: dbPost.excerpt || '',
+    content: dbPost.content || '',
+    category: dbPost.tags?.[0] || 'Uncategorized', // Using first tag as category for compatibility
     tags: dbPost.tags || [],
     featuredImage: dbPost.coverImage || '',
-    author: dbPost.author,
+    author: dbPost.author || 'Admin',
     date: dbPost.publishedAt ? new Date(dbPost.publishedAt).toISOString().split('T')[0] : 
           dbPost.createdAt ? new Date(dbPost.createdAt).toISOString().split('T')[0] : '',
-    readTime: calculateReadTime(dbPost.content),
-    status: dbPost.status === 'published' ? 'Published' : 'Draft',
-    seoTitle: dbPost.title, // Using title as SEO title
-    seoDescription: dbPost.excerpt, // Using excerpt as SEO description
-    seoKeywords: dbPost.tags.join(', ') // Using tags as SEO keywords
+    readTime: calculateReadTime(dbPost.content || ''),
+    status: status,
+    seoTitle: dbPost.title || 'Untitled', // Using title as SEO title
+    seoDescription: dbPost.excerpt || '', // Using excerpt as SEO description
+    seoKeywords: (dbPost.tags || []).join(', ') // Using tags as SEO keywords
   };
 };
 
@@ -45,9 +59,12 @@ const convertToApiPost = (clientPost: Partial<BlogPostType> & { publishDate?: st
 
 // Helper function to calculate read time based on content length
 const calculateReadTime = (content: string): string => {
+  if (!content || content.trim().length === 0) {
+    return '1 min read';
+  }
   const wordsPerMinute = 200;
-  const wordCount = content.split(/\s+/).length;
-  const readTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
+  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+  const readTimeMinutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   return `${readTimeMinutes} min read`;
 };
 
@@ -145,7 +162,7 @@ export const BlogService = {
   },
 
   // Create new blog post
-  async createPost(post: Omit<BlogPostType, 'id'>): Promise<BlogPostType> {
+  async createPost(post: Omit<BlogPostType, 'id'> & { publishDate?: string }): Promise<BlogPostType> {
     try {
       const apiPost = convertToApiPost(post);
       const response = await fetch('/api/admin/blog', {
@@ -169,7 +186,7 @@ export const BlogService = {
   },
 
   // Update blog post
-  async updatePost(id: string, post: Partial<BlogPostType>): Promise<BlogPostType | null> {
+  async updatePost(id: string, post: Partial<BlogPostType> & { publishDate?: string }): Promise<BlogPostType | null> {
     try {
       const apiPost = convertToApiPost(post);
       

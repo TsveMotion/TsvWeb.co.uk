@@ -3,6 +3,7 @@
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import ContactForm from '@/components/forms/contact-form'
+import AnnouncementBanner from '@/components/announcements/AnnouncementBanner'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
@@ -10,6 +11,7 @@ export default function Contact() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
+      <AnnouncementBanner location="contact" />
       
       {/* Hero Section - Futuristic Style */}
       <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800">
@@ -85,7 +87,7 @@ export default function Contact() {
             </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
               <button 
                 onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white font-black text-lg py-4 px-8 rounded-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 uppercase"
@@ -99,6 +101,45 @@ export default function Contact() {
                 📍 View Info
               </button>
             </div>
+            
+            {/* Internal Links */}
+            <motion.div
+              className="flex flex-wrap gap-3 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Link 
+                href="/services/web-design"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm font-medium border border-gray-200 dark:border-gray-700"
+              >
+                🎨 Web Design
+              </Link>
+              <Link 
+                href="/services/seo"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm font-medium border border-gray-200 dark:border-gray-700"
+              >
+                📈 SEO Services
+              </Link>
+              <Link 
+                href="/services/web-development"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm font-medium border border-gray-200 dark:border-gray-700"
+              >
+                💻 Development
+              </Link>
+              <Link 
+                href="/portfolio"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm font-medium border border-gray-200 dark:border-gray-700"
+              >
+                💼 Portfolio
+              </Link>
+              <Link 
+                href="/blog"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm font-medium border border-gray-200 dark:border-gray-700"
+              >
+                📝 Blog
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -274,6 +315,86 @@ export default function Contact() {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Quick Links */}
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Our Birmingham Web Design Services
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Explore our full range of digital services to grow your business
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link 
+              href="/services/web-design"
+              className="group bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-4">🎨</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                Web Design
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Beautiful, modern websites that convert visitors into customers
+              </p>
+            </Link>
+            
+            <Link 
+              href="/services/seo"
+              className="group bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-4">📈</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                SEO Services
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Rank #1 on Google and get 3x more organic traffic
+              </p>
+            </Link>
+            
+            <Link 
+              href="/services/web-development"
+              className="group bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-4">💻</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                Development
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Custom web applications built with modern technology
+              </p>
+            </Link>
+            
+            <Link 
+              href="/services/ecommerce"
+              className="group bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-4">🛒</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                E-commerce
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Online stores that drive sales and grow your revenue
+              </p>
+            </Link>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              href="/portfolio"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-bold"
+            >
+              💼 View Our Portfolio
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>

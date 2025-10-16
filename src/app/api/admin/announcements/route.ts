@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
 
     const body = await request.json()
-    const { title, message, type, priority, status, startDate, endDate, targetAudience } = body
+    const { title, message, type, priority, status, startDate, endDate, targetAudience, displayLocation, sendEmail } = body
 
     // Validation
     if (!title || !message) {
@@ -189,9 +189,60 @@ export async function POST(request: NextRequest) {
       status: status || 'active',
       startDate: startDate ? new Date(startDate) : new Date(),
       endDate: endDate ? new Date(endDate) : null,
-      targetAudience: targetAudience || '',
+      targetAudience: targetAudience || 'all',
+      displayLocation: displayLocation || ['header'],
+      isActive: status === 'active',
+      publishedAt: status === 'active' ? new Date() : null,
       createdBy: auth.userId
     })
+
+    // Send email if requested
+    if (sendEmail && status === 'active') {
+      try {
+        // Import Resend dynamically to avoid errors if not configured
+        const { Resend } = await import('resend')
+        const resend = new Resend(process.env.RESEND_API_KEY)
+        
+        // Get all customer emails
+        const { User } = await import('@/models/User')
+        const customers = await User.find({ role: 'customer' }).select('email').lean()
+        const emails = customers.map((c: any) => c.email).filter(Boolean)
+        
+        if (emails.length > 0) {
+          // Send in batches of 50
+          const batchSize = 50
+          for (let i = 0; i < emails.length; i += batchSize) {
+            const batch = emails.slice(i, i + batchSize)
+            await resend.emails.send({
+              from: process.env.EMAIL_FROM || 'TsvWeb <noreply@tsvweb.com>',
+              to: batch,
+              subject: title,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+                    <h1 style="color: white; margin: 0;">${title}</h1>
+                  </div>
+                  <div style="padding: 30px; background: #f9fafb;">
+                    <p style="font-size: 16px; line-height: 1.6; color: #374151;">${message}</p>
+                  </div>
+                  <div style="padding: 20px; text-align: center; background: #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">TsvWeb - Web Design Birmingham</p>
+                  </div>
+                </div>
+              `
+            })
+          }
+          
+          // Update announcement to mark email as sent
+          announcement.emailSent = true
+          announcement.emailSentAt = new Date()
+          await announcement.save()
+        }
+      } catch (emailError) {
+        console.error('Error sending emails:', emailError)
+        // Don't fail the announcement creation if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
