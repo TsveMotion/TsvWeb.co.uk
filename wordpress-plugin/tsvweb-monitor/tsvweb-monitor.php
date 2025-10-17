@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.1
+ * Version: 1.0.3
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -34,9 +34,6 @@ class TsvWeb_Monitor {
         if (!wp_next_scheduled('tsvweb_daily_stats')) {
             wp_schedule_event(time(), 'daily', 'tsvweb_daily_stats');
         }
-        
-        // Send stats on plugin activation
-        register_activation_hook(__FILE__, array($this, 'on_activation'));
         
         // Replace WordPress logo with TsvWeb logo
         add_action('admin_bar_menu', array($this, 'replace_admin_bar_logo'), 11);
@@ -322,7 +319,10 @@ class TsvWeb_Monitor {
 }
 
 // Initialize plugin
-new TsvWeb_Monitor();
+$tsvweb_monitor = new TsvWeb_Monitor();
+
+// Activation hook - must be outside the class
+register_activation_hook(__FILE__, array($tsvweb_monitor, 'on_activation'));
 
 // Cleanup on deactivation
 register_deactivation_hook(__FILE__, function() {
