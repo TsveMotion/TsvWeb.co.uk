@@ -22,6 +22,14 @@ const WordPressStatsSchema = new mongoose.Schema({
   siteHealth: String,
   memoryLimit: String,
   maxUploadSize: String,
+  users: [{
+    id: Number,
+    email: String,
+    username: String,
+    display_name: String,
+    registered: String,
+    role: String
+  }],
   lastUpdated: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
@@ -29,19 +37,56 @@ const WordPressStatsSchema = new mongoose.Schema({
 // Create or get model
 const WordPressStats = mongoose.models.WordPressStats || mongoose.model('WordPressStats', WordPressStatsSchema);
 
+// API Keys Schema
+const ApiKeySchema = new mongoose.Schema({
+  key: String,
+  hashedKey: { type: String, required: true },
+  siteUrl: String,
+  siteName: String,
+  createdBy: String,
+  createdAt: { type: Date, default: Date.now },
+  lastUsed: Date,
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
+
+const ApiKey = mongoose.models.ApiKey || mongoose.model('ApiKey', ApiKeySchema);
+
 export async function POST(request: NextRequest) {
   try {
     // Get API key from header
     const authHeader = request.headers.get('authorization');
     const apiKey = authHeader?.replace('Bearer ', '');
     
-    // Basic API key validation (you should implement proper key validation)
+    // Validate API key
     if (!apiKey || apiKey.length < 10) {
       return NextResponse.json(
         { success: false, error: 'Invalid API key' },
         { status: 401 }
       );
     }
+
+    // Connect to database first
+    await connectToDatabase();
+
+    // Hash the provided API key
+    const crypto = require('crypto');
+    const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
+
+    // Check if the hashed key exists and is active
+    const validKey = await ApiKey.findOne({ hashedKey, isActive: true });
+    
+    if (!validKey) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
+    // Update last used timestamp
+    await ApiKey.updateOne(
+      { _id: validKey._id },
+      { lastUsed: new Date() }
+    );
     
     // Parse request body
     const data = await request.json();
@@ -73,6 +118,7 @@ export async function POST(request: NextRequest) {
       siteHealth: data.site_health,
       memoryLimit: data.memory_limit,
       maxUploadSize: data.max_upload_size,
+      users: data.users || [],
       lastUpdated: new Date(),
     };
     

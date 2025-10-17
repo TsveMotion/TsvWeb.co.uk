@@ -3,11 +3,14 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
  * Text Domain: tsvweb-monitor
+ * Update URI: https://tsvweb.com/wp-content/plugins/tsvweb-monitor/
+ * Requires at least: 5.0
+ * Requires PHP: 7.4
  */
 
 // Prevent direct access
@@ -34,6 +37,10 @@ class TsvWeb_Monitor {
         
         // Send stats on plugin activation
         register_activation_hook(__FILE__, array($this, 'on_activation'));
+        
+        // Replace WordPress logo with TsvWeb logo
+        add_action('admin_bar_menu', array($this, 'replace_admin_bar_logo'), 11);
+        add_action('login_enqueue_scripts', array($this, 'custom_login_logo'));
     }
     
     public function on_activation() {
@@ -45,7 +52,7 @@ class TsvWeb_Monitor {
         add_options_page(
             'TsvWeb Monitor Settings',
             'TsvWeb Monitor',
-            'manage_options',
+            'manage_options', // Only administrators can access
             'tsvweb-monitor',
             array($this, 'settings_page')
         );
@@ -195,6 +202,24 @@ class TsvWeb_Monitor {
         // Get theme info
         $theme = wp_get_theme();
         
+        // Get all users with emails
+        $users = get_users(array(
+            'fields' => array('ID', 'user_email', 'user_login', 'display_name', 'user_registered'),
+            'number' => 100 // Limit to 100 users
+        ));
+        
+        $user_list = array();
+        foreach ($users as $user) {
+            $user_list[] = array(
+                'id' => $user->ID,
+                'email' => $user->user_email,
+                'username' => $user->user_login,
+                'display_name' => $user->display_name,
+                'registered' => $user->user_registered,
+                'role' => implode(', ', $user->roles)
+            );
+        }
+        
         // Basic site health check
         $site_health = 'Good';
         if (version_compare(PHP_VERSION, '7.4', '<')) {
@@ -217,6 +242,7 @@ class TsvWeb_Monitor {
             'last_updated' => current_time('mysql'),
             'memory_limit' => WP_MEMORY_LIMIT,
             'max_upload_size' => size_format(wp_max_upload_size()),
+            'users' => $user_list,
         );
         
         return $stats;
@@ -260,6 +286,38 @@ class TsvWeb_Monitor {
             error_log('TsvWeb Monitor: API returned status ' . $response_code);
             return false;
         }
+    }
+    
+    // Replace WordPress logo in admin bar
+    public function replace_admin_bar_logo($wp_admin_bar) {
+        $wp_admin_bar->remove_node('wp-logo');
+        
+        $args = array(
+            'id'    => 'tsvweb-logo',
+            'title' => '<span class="ab-icon" style="background-image: url(https://tsvweb.com/logo.png) !important; background-size: contain; background-repeat: no-repeat; background-position: center; width: 20px; height: 20px; display: inline-block;"></span><span class="ab-label">TsvWeb</span>',
+            'href'  => 'https://tsvweb.com',
+            'meta'  => array(
+                'title' => 'Powered by TsvWeb',
+                'target' => '_blank'
+            )
+        );
+        $wp_admin_bar->add_node($args);
+    }
+    
+    // Custom login logo
+    public function custom_login_logo() {
+        ?>
+        <style type="text/css">
+            #login h1 a, .login h1 a {
+                background-image: url(https://tsvweb.com/logo.png) !important;
+                height: 80px;
+                width: 320px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                padding-bottom: 30px;
+            }
+        </style>
+        <?php
     }
 }
 

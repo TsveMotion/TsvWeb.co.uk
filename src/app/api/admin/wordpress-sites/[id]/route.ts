@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-// WordPress Stats Schema (same as in stats route)
+// WordPress Stats Schema
 const WordPressStatsSchema = new mongoose.Schema({
   siteUrl: { type: String, required: true, unique: true },
   siteName: { type: String, required: true },
@@ -30,41 +30,10 @@ const WordPressStatsSchema = new mongoose.Schema({
 
 const WordPressStats = mongoose.models.WordPressStats || mongoose.model('WordPressStats', WordPressStatsSchema);
 
-export async function GET(request: NextRequest) {
-  try {
-    // Verify authentication
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const userRole = (session.user as any).role;
-    if (userRole !== 'admin' && userRole !== 'editor') {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
-
-    // Connect to database
-    await connectToDatabase();
-
-    // Fetch all WordPress sites
-    const sites = await WordPressStats.find({}).sort({ lastUpdated: -1 });
-
-    return NextResponse.json({
-      success: true,
-      sites: sites,
-      count: sites.length,
-    });
-
-  } catch (error) {
-    console.error('Error fetching WordPress sites:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     // Verify authentication
     const session = await getServerSession(authOptions);
@@ -77,19 +46,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get site ID from URL
-    const url = new URL(request.url);
-    const siteId = url.pathname.split('/').pop();
-
-    if (!siteId) {
-      return NextResponse.json({ error: 'Site ID required' }, { status: 400 });
-    }
-
     // Connect to database
     await connectToDatabase();
 
     // Delete the site
-    await WordPressStats.findByIdAndDelete(siteId);
+    await WordPressStats.findByIdAndDelete(params.id);
 
     return NextResponse.json({
       success: true,
