@@ -53,15 +53,11 @@ export async function POST(request: NextRequest) {
     // Hash the API key for storage
     const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
 
-    // Check if site already has an API key
-    const existingKey = await ApiKey.findOne({ siteUrl, isActive: true });
-    
-    if (existingKey) {
-      return NextResponse.json({
-        success: false,
-        error: 'Site already has an active API key. Deactivate it first.',
-      }, { status: 400 });
-    }
+    // Deactivate any existing active keys for this site
+    await ApiKey.updateMany(
+      { siteUrl, isActive: true },
+      { isActive: false }
+    );
 
     // Store the hashed key
     const newKey = await ApiKey.create({

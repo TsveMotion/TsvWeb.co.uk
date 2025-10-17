@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.3
+ * Version: 1.0.5
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -27,17 +27,29 @@ class TsvWeb_Monitor {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         
-        // Send stats daily
-        add_action('tsvweb_daily_stats', array($this, 'send_stats'));
+        // Send stats every 30 seconds
+        add_action('tsvweb_stats_sync', array($this, 'send_stats'));
         
-        // Schedule cron if not scheduled
-        if (!wp_next_scheduled('tsvweb_daily_stats')) {
-            wp_schedule_event(time(), 'daily', 'tsvweb_daily_stats');
+        // Schedule cron if not scheduled (every 30 seconds)
+        if (!wp_next_scheduled('tsvweb_stats_sync')) {
+            wp_schedule_event(time(), 'thirty_seconds', 'tsvweb_stats_sync');
         }
         
         // Replace WordPress logo with TsvWeb logo
         add_action('admin_bar_menu', array($this, 'replace_admin_bar_logo'), 11);
         add_action('login_enqueue_scripts', array($this, 'custom_login_logo'));
+        
+        // Add custom cron schedule
+        add_filter('cron_schedules', array($this, 'add_thirty_second_cron_schedule'));
+    }
+    
+    // Add 30 second cron schedule
+    public function add_thirty_second_cron_schedule($schedules) {
+        $schedules['thirty_seconds'] = array(
+            'interval' => 30,
+            'display'  => __('Every 30 Seconds')
+        );
+        return $schedules;
     }
     
     public function on_activation() {
@@ -201,19 +213,19 @@ class TsvWeb_Monitor {
         
         // Get all users with emails
         $users = get_users(array(
-            'fields' => array('ID', 'user_email', 'user_login', 'display_name', 'user_registered'),
             'number' => 100 // Limit to 100 users
         ));
         
         $user_list = array();
         foreach ($users as $user) {
+            $user_data = get_userdata($user->ID);
             $user_list[] = array(
                 'id' => $user->ID,
                 'email' => $user->user_email,
                 'username' => $user->user_login,
                 'display_name' => $user->display_name,
                 'registered' => $user->user_registered,
-                'role' => implode(', ', $user->roles)
+                'role' => $user_data ? implode(', ', $user_data->roles) : 'Unknown'
             );
         }
         
@@ -326,5 +338,5 @@ register_activation_hook(__FILE__, array($tsvweb_monitor, 'on_activation'));
 
 // Cleanup on deactivation
 register_deactivation_hook(__FILE__, function() {
-    wp_clear_scheduled_hook('tsvweb_daily_stats');
+    wp_clear_scheduled_hook('tsvweb_stats_sync');
 });

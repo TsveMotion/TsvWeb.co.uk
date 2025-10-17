@@ -18,12 +18,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { siteId, siteUrl, email, username, password } = await request.json();
+    const body = await request.json();
+    const { siteId, siteUrl, email, username, password } = body;
+
+    console.log('Received create-admin request:', { siteId, siteUrl, email, username, hasPassword: !!password });
 
     // Validate inputs
     if (!email || !username || !password) {
       return NextResponse.json(
-        { error: 'Email, username, and password are required' },
+        { error: 'Email, username, and password are required', received: { email: !!email, username: !!username, password: !!password } },
+        { status: 400 }
+      );
+    }
+    
+    if (!siteUrl) {
+      return NextResponse.json(
+        { error: 'Site URL is required' },
         { status: 400 }
       );
     }
