@@ -27,7 +27,8 @@ import {
   UserPlusIcon,
   SparklesIcon,
   ChevronDownIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  RocketLaunchIcon
 } from '@heroicons/react/24/outline'
 
 interface AdminLayoutProps {
@@ -100,6 +101,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: 'Business',
       items: [
+        { name: 'Lead Generation', href: '/admin/lead-generation', icon: RocketLaunchIcon, allowedRoles: ['admin', 'editor'] },
         { name: 'Inquiries', href: '/admin/inquiries', icon: EnvelopeIcon },
         { name: 'Invoices & Quotes', href: '/admin/invoices', icon: CurrencyDollarIcon, allowedRoles: ['admin', 'editor'] },
         { name: 'Contracts', href: '/admin/contracts', icon: ClipboardDocumentListIcon, allowedRoles: ['admin', 'editor'] }
