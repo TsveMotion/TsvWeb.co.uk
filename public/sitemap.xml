@@ -45,14 +45,50 @@
     <lastmod>2025-10-17</lastmod>
   </url>
 
-  <!-- Portfolio / Projects -->
+  <!-- Portfolio -->
   <url>
     <loc>https://tsvweb.com/portfolio</loc>
     <lastmod>2025-10-17</lastmod>
   </url>
   <url>
-    <loc>https://tsvweb.com/reviews</loc>
-    <lastmod>2025-10-17</lastmod>
+    <loc>https://tsvweb.com/portfolio/swisstimedeals</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/statmandavies</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/tsvteach</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/Crevre</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/MuscleMatrix</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/TsvStock</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/trimslots</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/KtsvMedia</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/quizzqQuizzQ</loc>
+    <lastmod>2025-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://tsvweb.com/portfolio/TsvWeb</loc>
+    <lastmod>2025-10-14</lastmod>
   </url>
 
   <!-- Blog -->
@@ -72,16 +108,6 @@
   </url>
   <url>
     <loc>https://tsvweb.com/cookie-policy</loc>
-    <lastmod>2025-10-17</lastmod>
-  </url>
-
-  <!-- Business Tools / System Pages -->
-  <url>
-    <loc>https://tsvweb.com/agreements</loc>
-    <lastmod>2025-10-17</lastmod>
-  </url>
-  <url>
-    <loc>https://tsvweb.com/admin</loc>
     <lastmod>2025-10-17</lastmod>
   </url>
 
