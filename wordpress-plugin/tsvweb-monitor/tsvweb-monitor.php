@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later

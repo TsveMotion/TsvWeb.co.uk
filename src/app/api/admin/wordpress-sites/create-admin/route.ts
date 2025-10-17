@@ -149,10 +149,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating administrator:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { 
+        success: false, 
+        error: 'Internal server error',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }

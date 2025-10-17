@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const PLUGIN_INFO = {
   name: 'TsvWeb Monitor',
   slug: 'tsvweb-monitor',
-  version: '1.0.9',
+  version: '1.1.0',
   author: 'TsvWeb',
   homepage: 'https://tsvweb.com',
   download_url: 'https://tsvweb.com/wordpress-plugin/tsvweb-monitor.zip',
@@ -18,6 +18,15 @@ const PLUGIN_INFO = {
   sections: {
     description: 'Sends basic website statistics to TsvWeb dashboard for monitoring',
     changelog: `
+      <h4>1.1.0</h4>
+      <ul>
+        <li>🎨 ENHANCED ADMIN UI! Beautiful new sections for all data</li>
+        <li>📊 Content Statistics - Comments, Categories, Tags, Media</li>
+        <li>💾 Server Resources - Memory, Disk Space, Upload Limits</li>
+        <li>🔌 Full Plugin List - See all plugins with versions and authors</li>
+        <li>✨ Color-coded cards with icons</li>
+        <li>📱 Responsive design</li>
+      </ul>
       <h4>1.0.9</h4>
       <ul>
         <li>🔧 FIXED 500 errors in create-admin endpoint</li>
