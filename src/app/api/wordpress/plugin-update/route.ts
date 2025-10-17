@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const PLUGIN_INFO = {
   name: 'TsvWeb Monitor',
   slug: 'tsvweb-monitor',
-  version: '1.2.0',
+  version: '1.3.0',
   author: 'TsvWeb',
   homepage: 'https://tsvweb.com',
   download_url: 'https://tsvweb.com/wordpress-plugin/tsvweb-monitor.zip',
@@ -18,6 +18,15 @@ const PLUGIN_INFO = {
   sections: {
     description: 'Sends basic website statistics to TsvWeb dashboard for monitoring',
     changelog: `
+      <h4>1.3.0</h4>
+      <ul>
+        <li>💳 PAYMENT GATEWAY TRACKING! See all payment methods</li>
+        <li>💰 Stripe detection & integration</li>
+        <li>📊 Last 30 days stats (orders & revenue)</li>
+        <li>🎨 Enhanced WooCommerce section with payment badges</li>
+        <li>✅ Shows enabled/disabled payment gateways</li>
+        <li>🗑️ Removed duplicate Quick Actions</li>
+      </ul>
       <h4>1.2.0</h4>
       <ul>
         <li>🛒 WOOCOMMERCE SUPPORT! Track products, orders & sales</li>

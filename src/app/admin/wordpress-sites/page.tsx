@@ -73,6 +73,14 @@ interface WordPressSite {
   processingOrders?: number;
   totalRevenue?: string;
   currency?: string;
+  hasStripe?: boolean;
+  paymentGateways?: Array<{
+    id: string;
+    title: string;
+    enabled: boolean;
+  }>;
+  recentOrders30d?: number;
+  recentRevenue30d?: string;
 }
 
 function WordPressSitesPage() {
@@ -540,18 +548,25 @@ function WordPressSitesPage() {
                     </div>
                   )}
 
-                  {/* NEW: WooCommerce Stats */}
+                  {/* NEW: WooCommerce & Payments */}
                   {selectedSite.hasWooCommerce && (
                     <div className="col-span-2 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-xl p-6 border border-cyan-200 dark:border-cyan-800">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
                         <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        WooCommerce Store
+                        WooCommerce Store & Payments
+                        {selectedSite.hasStripe && (
+                          <span className="ml-2 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded text-xs font-medium">
+                            💳 Stripe Active
+                          </span>
+                        )}
                       </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      
+                      {/* Products & Orders */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         {selectedSite.totalProducts !== undefined && (
-                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-cyan-500">
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Products</p>
                             <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{selectedSite.totalProducts}</p>
                             {selectedSite.publishedProducts !== undefined && (
@@ -563,7 +578,7 @@ function WordPressSitesPage() {
                           </div>
                         )}
                         {selectedSite.totalOrders !== undefined && (
-                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Orders</p>
                             <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{selectedSite.totalOrders}</p>
                             {selectedSite.completedOrders !== undefined && (
@@ -575,7 +590,7 @@ function WordPressSitesPage() {
                           </div>
                         )}
                         {selectedSite.totalRevenue && (
-                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg col-span-2">
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg col-span-2 border-l-4 border-emerald-500">
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Revenue</p>
                             <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                               {selectedSite.currency || '$'}{selectedSite.totalRevenue}
@@ -584,6 +599,50 @@ function WordPressSitesPage() {
                           </div>
                         )}
                       </div>
+
+                      {/* Recent Stats (Last 30 Days) */}
+                      {(selectedSite.recentOrders30d !== undefined || selectedSite.recentRevenue30d) && (
+                        <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg p-4 mb-4">
+                          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">📊 Last 30 Days</p>
+                          <div className="grid grid-cols-2 gap-4">
+                            {selectedSite.recentOrders30d !== undefined && (
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Orders</p>
+                                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{selectedSite.recentOrders30d}</p>
+                              </div>
+                            )}
+                            {selectedSite.recentRevenue30d && (
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Revenue</p>
+                                <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                                  {selectedSite.currency || '$'}{selectedSite.recentRevenue30d}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Payment Gateways */}
+                      {selectedSite.paymentGateways && selectedSite.paymentGateways.length > 0 && (
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">💳 Payment Methods</p>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedSite.paymentGateways.map((gateway, index) => (
+                              <span
+                                key={index}
+                                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  gateway.enabled
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                                }`}
+                              >
+                                {gateway.enabled ? '✓' : '○'} {gateway.title}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -849,87 +908,6 @@ function WordPressSitesPage() {
                     >
                       Create Administrator
                     </button>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('/api/admin/wordpress-sites/trigger-sync', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ siteId: manageSite._id, siteUrl: manageSite.siteUrl }),
-                            });
-                            if (response.ok) {
-                              setSuccess('Sync request sent!');
-                              setTimeout(() => {
-                                setSuccess('');
-                                fetchSites();
-                              }, 2000);
-                            }
-                          } catch (err) {
-                            setError('Failed to trigger sync');
-                          }
-                        }}
-                        className="px-4 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors font-medium"
-                      >
-                        🔄 Force Sync
-                      </button>
-                      <button
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('/api/admin/wordpress-sites/check-updates', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ siteId: manageSite._id, siteUrl: manageSite.siteUrl }),
-                            });
-                            if (response.ok) {
-                              setSuccess('Update check requested!');
-                              setTimeout(() => setSuccess(''), 2000);
-                            }
-                          } catch (err) {
-                            setError('Failed to check updates');
-                          }
-                        }}
-                        className="px-4 py-3 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors font-medium"
-                      >
-                        ⚡ Check Updates
-                      </button>
-                      <button
-                        onClick={() => {
-                          window.open(`${manageSite.siteUrl}/wp-admin`, '_blank');
-                        }}
-                        className="px-4 py-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors font-medium"
-                      >
-                        🔗 Open WP Admin
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (confirm('Are you sure you want to remove this site from monitoring?')) {
-                            try {
-                              const response = await fetch(`/api/admin/wordpress-sites/${manageSite._id}`, {
-                                method: 'DELETE',
-                              });
-                              if (response.ok) {
-                                setSuccess('Site removed successfully!');
-                                setTimeout(() => {
-                                  setManageSite(null);
-                                  fetchSites();
-                                }, 1500);
-                              }
-                            } catch (err) {
-                              setError('Failed to remove site');
-                            }
-                          }
-                        }}
-                        className="px-4 py-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors font-medium"
-                      >
-                        🗑️ Remove Site
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>

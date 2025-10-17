@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -488,8 +488,59 @@ class TsvWeb_Monitor {
             
             $stats['total_revenue'] = $total_revenue ? number_format((float)$total_revenue, 2, '.', '') : '0.00';
             $stats['currency'] = get_woocommerce_currency_symbol();
+            
+            // Get active payment gateways
+            $payment_gateways = array();
+            if (function_exists('WC')) {
+                $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                foreach ($available_gateways as $gateway) {
+                    $payment_gateways[] = array(
+                        'id' => $gateway->id,
+                        'title' => $gateway->title,
+                        'enabled' => $gateway->enabled === 'yes',
+                    );
+                }
+            }
+            $stats['payment_gateways'] = $payment_gateways;
+            
+            // Check for Stripe
+            $has_stripe = false;
+            foreach ($payment_gateways as $gateway) {
+                if (strpos(strtolower($gateway['id']), 'stripe') !== false && $gateway['enabled']) {
+                    $has_stripe = true;
+                    break;
+                }
+            }
+            $stats['has_stripe'] = $has_stripe;
+            
+            // Get recent orders (last 30 days)
+            $thirty_days_ago = date('Y-m-d', strtotime('-30 days'));
+            $recent_orders = $wpdb->get_var($wpdb->prepare("
+                SELECT COUNT(*) 
+                FROM {$wpdb->posts} 
+                WHERE post_type = 'shop_order' 
+                AND post_status = 'wc-completed'
+                AND post_date >= %s
+            ", $thirty_days_ago));
+            $stats['recent_orders_30d'] = (int)$recent_orders;
+            
+            // Get recent revenue (last 30 days)
+            $recent_revenue = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(meta_value) 
+                FROM {$wpdb->postmeta} 
+                WHERE meta_key = '_order_total' 
+                AND post_id IN (
+                    SELECT ID FROM {$wpdb->posts} 
+                    WHERE post_type = 'shop_order' 
+                    AND post_status = 'wc-completed'
+                    AND post_date >= %s
+                )
+            ", $thirty_days_ago));
+            $stats['recent_revenue_30d'] = $recent_revenue ? number_format((float)$recent_revenue, 2, '.', '') : '0.00';
+            
         } else {
             $stats['has_woocommerce'] = false;
+            $stats['has_stripe'] = false;
         }
         
         return $stats;
