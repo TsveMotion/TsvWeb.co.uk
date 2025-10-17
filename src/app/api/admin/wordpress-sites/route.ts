@@ -4,6 +4,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/db';
 import mongoose from 'mongoose';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // WordPress Stats Schema (same as in stats route)
 const WordPressStatsSchema = new mongoose.Schema({
   siteUrl: { type: String, required: true, unique: true },

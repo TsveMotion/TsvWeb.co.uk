@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import mongoose from 'mongoose';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // WordPress Stats Schema
 const WordPressStatsSchema = new mongoose.Schema({
   siteUrl: { type: String, required: true, unique: true },

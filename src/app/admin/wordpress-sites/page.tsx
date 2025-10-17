@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import withAdminAuth from '@/components/admin/with-admin-auth';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 interface WordPressSite {
   _id: string;
   siteUrl: string;
