@@ -294,7 +294,7 @@ class TsvWeb_Monitor {
         
         $args = array(
             'id'    => 'tsvweb-logo',
-            'title' => '<span class="ab-icon" style="background-image: url(https://tsvweb.com/logo.png) !important; background-size: contain; background-repeat: no-repeat; background-position: center; width: 20px; height: 20px; display: inline-block;"></span><span class="ab-label">TsvWeb</span>',
+            'title' => '<span class="ab-icon" style="background-image: url(https://tsvweb.com/TsvWeb_Logo_DarkTheme.png) !important; background-size: contain; background-repeat: no-repeat; background-position: center; width: 20px; height: 20px; display: inline-block;"></span><span class="ab-label">TsvWeb</span>',
             'href'  => 'https://tsvweb.com',
             'meta'  => array(
                 'title' => 'Powered by TsvWeb',
@@ -309,7 +309,7 @@ class TsvWeb_Monitor {
         ?>
         <style type="text/css">
             #login h1 a, .login h1 a {
-                background-image: url(https://tsvweb.com/logo.png) !important;
+                background-image: url(https://tsvweb.com/TsvWeb_Logo_DarkTheme.png) !important;
                 height: 80px;
                 width: 320px;
                 background-size: contain;

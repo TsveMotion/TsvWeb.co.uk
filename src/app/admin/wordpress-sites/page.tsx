@@ -120,15 +120,29 @@ function WordPressSitesPage() {
                   Monitor all your client WordPress websites from one dashboard
                 </p>
               </div>
-              <a
-                href="/download/wordpress-plugin"
-                className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all border border-white/30 font-medium"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download Plugin
-              </a>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setApiKeySite({ url: '', name: 'New Site' });
+                    setShowApiKeyModal(true);
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-green-500/90 hover:bg-green-600 backdrop-blur-sm text-white rounded-lg transition-all border border-white/30 font-medium"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  Generate API Key
+                </button>
+                <a
+                  href="/download/wordpress-plugin"
+                  className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all border border-white/30 font-medium"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download Plugin
+                </a>
+              </div>
             </div>
           </div>
         </div>
