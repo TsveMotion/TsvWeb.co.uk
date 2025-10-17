@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const PLUGIN_INFO = {
   name: 'TsvWeb Monitor',
   slug: 'tsvweb-monitor',
-  version: '1.1.0',
+  version: '1.2.0',
   author: 'TsvWeb',
   homepage: 'https://tsvweb.com',
   download_url: 'https://tsvweb.com/wordpress-plugin/tsvweb-monitor.zip',
@@ -18,6 +18,16 @@ const PLUGIN_INFO = {
   sections: {
     description: 'Sends basic website statistics to TsvWeb dashboard for monitoring',
     changelog: `
+      <h4>1.2.0</h4>
+      <ul>
+        <li>🛒 WOOCOMMERCE SUPPORT! Track products, orders & sales</li>
+        <li>💰 Total Revenue tracking</li>
+        <li>📦 Product counts (published & drafts)</li>
+        <li>📊 Order statistics (completed & processing)</li>
+        <li>🎯 Quick Actions - Force Sync, Check Updates, Open WP Admin, Remove Site</li>
+        <li>✨ Removed Request Update & Change Password sections</li>
+        <li>🔧 Fixed create-admin 405/500 errors</li>
+      </ul>
       <h4>1.1.0</h4>
       <ul>
         <li>🎨 ENHANCED ADMIN UI! Beautiful new sections for all data</li>

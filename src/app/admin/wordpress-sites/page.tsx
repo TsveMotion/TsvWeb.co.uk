@@ -63,6 +63,16 @@ interface WordPressSite {
   themeAuthor?: string;
   siteDescription?: string;
   adminEmail?: string;
+  // WooCommerce fields
+  hasWooCommerce?: boolean;
+  totalProducts?: number;
+  publishedProducts?: number;
+  draftProducts?: number;
+  totalOrders?: number;
+  completedOrders?: number;
+  processingOrders?: number;
+  totalRevenue?: string;
+  currency?: string;
 }
 
 function WordPressSitesPage() {
@@ -530,6 +540,53 @@ function WordPressSitesPage() {
                     </div>
                   )}
 
+                  {/* NEW: WooCommerce Stats */}
+                  {selectedSite.hasWooCommerce && (
+                    <div className="col-span-2 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-xl p-6 border border-cyan-200 dark:border-cyan-800">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        WooCommerce Store
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {selectedSite.totalProducts !== undefined && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Products</p>
+                            <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{selectedSite.totalProducts}</p>
+                            {selectedSite.publishedProducts !== undefined && (
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1">✓ {selectedSite.publishedProducts} published</p>
+                            )}
+                            {selectedSite.draftProducts !== undefined && selectedSite.draftProducts > 0 && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">📝 {selectedSite.draftProducts} drafts</p>
+                            )}
+                          </div>
+                        )}
+                        {selectedSite.totalOrders !== undefined && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Orders</p>
+                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{selectedSite.totalOrders}</p>
+                            {selectedSite.completedOrders !== undefined && (
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1">✓ {selectedSite.completedOrders} completed</p>
+                            )}
+                            {selectedSite.processingOrders !== undefined && selectedSite.processingOrders > 0 && (
+                              <p className="text-xs text-yellow-600 dark:text-yellow-400">⏳ {selectedSite.processingOrders} processing</p>
+                            )}
+                          </div>
+                        )}
+                        {selectedSite.totalRevenue && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg col-span-2">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Revenue</p>
+                            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                              {selectedSite.currency || '$'}{selectedSite.totalRevenue}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All-time sales</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* NEW: Plugin List */}
                   {selectedSite.pluginList && selectedSite.pluginList.length > 0 && (
                     <div className="col-span-2 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-6 border border-orange-200 dark:border-orange-800">
@@ -633,110 +690,85 @@ function WordPressSitesPage() {
                 )}
 
                 <div className="space-y-6">
-                  {/* Request Update Section */}
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-center mb-4">
-                      <div className="p-3 bg-blue-500 rounded-lg mr-3">
-                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {/* Quick Actions */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={async () => {
+                          setSuccess('Forcing sync...');
+                          try {
+                            const response = await fetch('/api/admin/wordpress-sites/force-sync', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ siteId: manageSite._id }),
+                            });
+                            if (response.ok) {
+                              setSuccess('Sync requested successfully!');
+                              setTimeout(() => {
+                                setSuccess('');
+                                fetchSites();
+                              }, 2000);
+                            }
+                          } catch (err) {
+                            setError('Failed to force sync');
+                          }
+                        }}
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl hover:shadow-lg transition-all"
+                      >
+                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Request Update</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Send update request to WordPress site</p>
-                      </div>
-                    </div>
-                    <textarea
-                      value={updateRequest}
-                      onChange={(e) => setUpdateRequest(e.target.value)}
-                      placeholder="e.g., Please update WordPress to latest version, update all plugins, check for security issues..."
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white mb-3"
-                      rows={4}
-                    />
-                    <button
-                      onClick={async () => {
-                        if (!updateRequest.trim()) {
-                          setError('Please enter an update request');
-                          return;
-                        }
-                        try {
-                          const response = await fetch('/api/admin/wordpress-sites/request-update', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              siteId: manageSite._id,
-                              siteUrl: manageSite.siteUrl,
-                              request: updateRequest,
-                            }),
-                          });
-                          if (response.ok) {
-                            setSuccess('Update request sent successfully!');
-                            setUpdateRequest('');
-                            setTimeout(() => setSuccess(''), 3000);
-                          } else {
-                            setError('Failed to send update request');
-                          }
-                        } catch (err) {
-                          setError('Error sending update request');
-                        }
-                      }}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
-                    >
-                      Send Update Request
-                    </button>
-                  </div>
+                        <span className="font-semibold text-green-700 dark:text-green-400">Force Sync</span>
+                      </button>
 
-                  {/* Change Admin Password Section */}
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-                    <div className="flex items-center mb-4">
-                      <div className="p-3 bg-purple-500 rounded-lg mr-3">
-                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                      <button
+                        onClick={() => window.open(`${manageSite.siteUrl}/wp-admin/update-core.php`, '_blank')}
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl hover:shadow-lg transition-all"
+                      >
+                        <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Change Admin Password</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Update WordPress admin password remotely</p>
-                      </div>
-                    </div>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new admin password"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white mb-3"
-                    />
-                    <button
-                      onClick={async () => {
-                        if (!newPassword || newPassword.length < 8) {
-                          setError('Password must be at least 8 characters');
-                          return;
-                        }
-                        try {
-                          const response = await fetch('/api/admin/wordpress-sites/change-password', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              siteId: manageSite._id,
-                              siteUrl: manageSite.siteUrl,
-                              newPassword: newPassword,
-                            }),
-                          });
-                          if (response.ok) {
-                            setSuccess('Password change request sent successfully!');
-                            setNewPassword('');
-                            setTimeout(() => setSuccess(''), 3000);
-                          } else {
-                            setError('Failed to send password change request');
+                        <span className="font-semibold text-yellow-700 dark:text-yellow-400">Check Updates</span>
+                      </button>
+
+                      <button
+                        onClick={() => window.open(`${manageSite.siteUrl}/wp-admin`, '_blank')}
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl hover:shadow-lg transition-all"
+                      >
+                        <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span className="font-semibold text-blue-700 dark:text-blue-400">Open WP Admin</span>
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to remove this site from monitoring?')) {
+                            try {
+                              const response = await fetch(`/api/admin/wordpress-sites/${manageSite._id}`, {
+                                method: 'DELETE',
+                              });
+                              if (response.ok) {
+                                setSuccess('Site removed successfully!');
+                                setTimeout(() => {
+                                  setManageSite(null);
+                                  fetchSites();
+                                }, 1500);
+                              }
+                            } catch (err) {
+                              setError('Failed to remove site');
+                            }
                           }
-                        } catch (err) {
-                          setError('Error sending password change request');
-                        }
-                      }}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
-                    >
-                      Change Password
-                    </button>
+                        }}
+                        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl hover:shadow-lg transition-all"
+                      >
+                        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span className="font-semibold text-red-700 dark:text-red-400">Remove Site</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Create Administrator Section */}
@@ -749,7 +781,7 @@ function WordPressSitesPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Create Administrator</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Create a new admin user remotely</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Add a new admin user to WordPress</p>
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -757,26 +789,29 @@ function WordPressSitesPage() {
                         type="email"
                         value={newAdminEmail}
                         onChange={(e) => setNewAdminEmail(e.target.value)}
-                        placeholder="Admin email address"
+                        placeholder="Email address"
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                       />
                       <input
                         type="text"
                         value={newAdminUsername}
                         onChange={(e) => setNewAdminUsername(e.target.value)}
-                        placeholder="Admin username"
+                        placeholder="Username"
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                       />
                       <input
                         type="password"
                         value={newAdminPassword}
                         onChange={(e) => setNewAdminPassword(e.target.value)}
-                        placeholder="Admin password (min 8 characters)"
+                        placeholder="Password (min 8 characters)"
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                       />
                     </div>
                     <button
                       onClick={async () => {
+                        setError('');
+                        setSuccess('');
+                        
                         if (!newAdminEmail || !newAdminUsername || !newAdminPassword) {
                           setError('All fields are required');
                           return;

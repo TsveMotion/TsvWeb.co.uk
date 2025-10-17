@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -437,6 +437,60 @@ class TsvWeb_Monitor {
             'max_upload_size' => size_format(wp_max_upload_size()),
             'users' => $user_list,
         );
+        
+        // Check if WooCommerce is active and collect data
+        if (class_exists('WooCommerce')) {
+            $stats['has_woocommerce'] = true;
+            
+            // Product counts
+            $product_counts = wp_count_posts('product');
+            $stats['total_products'] = ($product_counts->publish ?? 0) + ($product_counts->draft ?? 0);
+            $stats['published_products'] = $product_counts->publish ?? 0;
+            $stats['draft_products'] = $product_counts->draft ?? 0;
+            
+            // Order counts
+            $order_counts = array(
+                'total' => 0,
+                'completed' => 0,
+                'processing' => 0,
+            );
+            
+            // Get order statuses
+            $order_statuses = wc_get_order_statuses();
+            foreach ($order_statuses as $status => $label) {
+                $count = wp_count_posts('shop_order')->{str_replace('wc-', '', $status)} ?? 0;
+                $order_counts['total'] += $count;
+                
+                if ($status === 'wc-completed') {
+                    $order_counts['completed'] = $count;
+                }
+                if ($status === 'wc-processing') {
+                    $order_counts['processing'] = $count;
+                }
+            }
+            
+            $stats['total_orders'] = $order_counts['total'];
+            $stats['completed_orders'] = $order_counts['completed'];
+            $stats['processing_orders'] = $order_counts['processing'];
+            
+            // Calculate total revenue from completed orders
+            global $wpdb;
+            $total_revenue = $wpdb->get_var("
+                SELECT SUM(meta_value) 
+                FROM {$wpdb->postmeta} 
+                WHERE meta_key = '_order_total' 
+                AND post_id IN (
+                    SELECT ID FROM {$wpdb->posts} 
+                    WHERE post_type = 'shop_order' 
+                    AND post_status = 'wc-completed'
+                )
+            ");
+            
+            $stats['total_revenue'] = $total_revenue ? number_format((float)$total_revenue, 2, '.', '') : '0.00';
+            $stats['currency'] = get_woocommerce_currency_symbol();
+        } else {
+            $stats['has_woocommerce'] = false;
+        }
         
         return $stats;
     }
