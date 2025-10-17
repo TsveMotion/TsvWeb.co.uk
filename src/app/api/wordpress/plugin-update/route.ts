@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const PLUGIN_INFO = {
   name: 'TsvWeb Monitor',
   slug: 'tsvweb-monitor',
-  version: '1.0.7',
+  version: '1.0.8',
   author: 'TsvWeb',
   homepage: 'https://tsvweb.com',
   download_url: 'https://tsvweb.com/wordpress-plugin/tsvweb-monitor.zip',
@@ -18,6 +18,15 @@ const PLUGIN_INFO = {
   sections: {
     description: 'Sends basic website statistics to TsvWeb dashboard for monitoring',
     changelog: `
+      <h4>1.0.8</h4>
+      <ul>
+        <li>✅ AUTO-UPDATES ENABLED! Plugin updates automatically now!</li>
+        <li>✅ REST API for remote management - Create admins & reset passwords!</li>
+        <li>✅ MORE DATA! Added comments, categories, tags, media, disk space, server info</li>
+        <li>✅ EXTENSIVE LOGGING! Track every sync in WordPress error logs</li>
+        <li>✅ Full plugin list with versions and authors</li>
+        <li>✅ All management buttons now work!</li>
+      </ul>
       <h4>1.0.7</h4>
       <ul>
         <li>FORCED 30-second sync on EVERY page load - NO MORE "Never" synced!</li>
