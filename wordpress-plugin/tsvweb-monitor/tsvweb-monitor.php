@@ -3,7 +3,7 @@
  * Plugin Name: TsvWeb Monitor
  * Plugin URI: https://tsvweb.com
  * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.0.5
+ * Version: 1.0.7
  * Author: TsvWeb
  * Author URI: https://tsvweb.com
  * License: GPL v2 or later
@@ -35,12 +35,19 @@ class TsvWeb_Monitor {
             wp_schedule_event(time(), 'thirty_seconds', 'tsvweb_stats_sync');
         }
         
+        // FORCE sync every 30 seconds on ANY page load
+        add_action('init', array($this, 'maybe_send_stats'));
+        
         // Replace WordPress logo with TsvWeb logo
         add_action('admin_bar_menu', array($this, 'replace_admin_bar_logo'), 11);
         add_action('login_enqueue_scripts', array($this, 'custom_login_logo'));
         
         // Add custom cron schedule
         add_filter('cron_schedules', array($this, 'add_thirty_second_cron_schedule'));
+        
+        // Enable auto-updates
+        add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_update'));
+        add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
     }
     
     // Add 30 second cron schedule
@@ -50,6 +57,18 @@ class TsvWeb_Monitor {
             'display'  => __('Every 30 Seconds')
         );
         return $schedules;
+    }
+    
+    // Check if 30 seconds have passed and send stats
+    public function maybe_send_stats() {
+        $settings = get_option($this->option_name, array());
+        $last_sync = isset($settings['last_sync']) ? strtotime($settings['last_sync']) : 0;
+        $current_time = time();
+        
+        // If more than 30 seconds have passed, send stats
+        if (($current_time - $last_sync) >= 30) {
+            $this->send_stats();
+        }
     }
     
     public function on_activation() {
@@ -327,6 +346,82 @@ class TsvWeb_Monitor {
             }
         </style>
         <?php
+    }
+    
+    // Check for plugin updates
+    public function check_for_plugin_update($transient) {
+        if (empty($transient->checked)) {
+            return $transient;
+        }
+        
+        $plugin_slug = 'tsvweb-monitor/tsvweb-monitor.php';
+        $update_url = 'https://tsvweb.com/api/wordpress/plugin-update';
+        
+        // Get current version
+        $plugin_data = get_plugin_data(__FILE__);
+        $current_version = $plugin_data['Version'];
+        
+        // Check for updates
+        $response = wp_remote_get($update_url, array(
+            'timeout' => 10,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+            ),
+        ));
+        
+        if (is_wp_error($response)) {
+            return $transient;
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            return $transient;
+        }
+        
+        $update_data = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (isset($update_data['version']) && version_compare($current_version, $update_data['version'], '<')) {
+            $transient->response[$plugin_slug] = (object) array(
+                'slug' => 'tsvweb-monitor',
+                'plugin' => $plugin_slug,
+                'new_version' => $update_data['version'],
+                'url' => $update_data['url'],
+                'package' => $update_data['package'],
+                'tested' => $update_data['tested'],
+                'requires_php' => $update_data['requires_php'],
+            );
+        }
+        
+        return $transient;
+    }
+    
+    // Provide plugin information for updates
+    public function plugin_info($false, $action, $args) {
+        if ($action !== 'plugin_information') {
+            return $false;
+        }
+        
+        if (!isset($args->slug) || $args->slug !== 'tsvweb-monitor') {
+            return $false;
+        }
+        
+        $update_url = 'https://tsvweb.com/api/wordpress/plugin-update?action=plugin_information&slug=tsvweb-monitor';
+        
+        $response = wp_remote_get($update_url, array(
+            'timeout' => 10,
+        ));
+        
+        if (is_wp_error($response)) {
+            return $false;
+        }
+        
+        $plugin_info = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (!$plugin_info) {
+            return $false;
+        }
+        
+        return (object) $plugin_info;
     }
 }
 
