@@ -137,48 +137,136 @@ export default function AdminInquiriesNew() {
     }
   };
 
+  const stats = {
+    total: inquiries.length,
+    new: inquiries.filter(i => i.status === 'new').length,
+    read: inquiries.filter(i => i.status === 'read').length,
+    replied: inquiries.filter(i => i.status === 'replied').length,
+    archived: inquiries.filter(i => i.status === 'archived').length,
+    urgent: inquiries.filter(i => i.urgency === 'critical' || i.urgency === 'high').length
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Mail className="w-6 h-6 text-blue-600" />
-              </div>
+        {/* Header with Gradient */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-xl shadow-lg p-8 text-white">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Inquiries</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{inquiries.length} total inquiries</p>
+                <div className="flex items-center space-x-3 mb-2">
+                  <Mail className="w-10 h-10" />
+                  <h1 className="text-3xl font-bold">Contact Inquiries</h1>
+                </div>
+                <p className="text-purple-100 text-lg">
+                  Manage and respond to customer inquiries
+                </p>
+              </div>
+              <button
+                onClick={fetchInquiries}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all disabled:opacity-50 border border-white/30"
+              >
+                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Mail className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
-            <button
-              onClick={fetchInquiries}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
           </div>
 
-          {/* Filters */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">New</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{stats.new}</p>
+              </div>
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-blue-400 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Read</p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{stats.read}</p>
+              </div>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Eye className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Replied</p>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">{stats.replied}</p>
+              </div>
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <Send className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-gray-500 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Archived</p>
+                <p className="text-3xl font-bold text-gray-600 dark:text-gray-400 mt-2">{stats.archived}</p>
+              </div>
+              <div className="p-3 bg-gray-100 dark:bg-gray-900/30 rounded-lg">
+                <Archive className="w-8 h-8 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-red-500 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Urgent</p>
+                <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{stats.urgent}</p>
+              </div>
+              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search inquiries..."
+                placeholder="Search by name, email, subject, or message..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-w-[150px]"
             >
               <option value="all">All Status</option>
               <option value="new">New</option>
@@ -189,35 +277,34 @@ export default function AdminInquiriesNew() {
           </div>
         </div>
 
+
         {/* Inquiries Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* List */}
           <div className="lg:col-span-1 space-y-3">
             {isLoading ? (
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center border border-gray-200 dark:border-gray-700">
-                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center shadow-md">
+                <RefreshCw className="w-12 h-12 animate-spin mx-auto mb-4 text-purple-500" />
+                <p className="text-gray-600 dark:text-gray-400 font-medium">Loading inquiries...</p>
               </div>
             ) : filteredInquiries.length === 0 ? (
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center border border-gray-200 dark:border-gray-700">
-                <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                <p className="text-gray-600 dark:text-gray-400">No inquiries found</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center shadow-md">
+                <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No inquiries found</p>
+                <p className="text-gray-600 dark:text-gray-400">Try adjusting your search or filters</p>
               </div>
             ) : (
               filteredInquiries.map((inquiry) => (
                 <div
                   key={inquiry._id}
                   onClick={() => setSelectedInquiry(inquiry)}
-                  className={`rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow border-2 ${
-                    inquiry.urgency === 'critical' ? getUrgencyColor('critical').bg + ' ' + getUrgencyColor('critical').border :
-                    inquiry.urgency === 'high' ? getUrgencyColor('high').bg + ' ' + getUrgencyColor('high').border :
-                    'bg-white dark:bg-gray-800'
+                  className={`rounded-xl p-5 cursor-pointer hover:shadow-xl transition-all duration-300 border-2 transform hover:-translate-y-1 ${
+                    inquiry.urgency === 'critical' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
+                    inquiry.urgency === 'high' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500' :
+                    'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                   } ${
-                    selectedInquiry?._id === inquiry._id ? 'border-blue-500' : 
-                    inquiry.urgency === 'critical' ? '' :
-                    inquiry.urgency === 'high' ? '' :
-                    'border-gray-200 dark:border-gray-700'
+                    selectedInquiry?._id === inquiry._id ? 'border-purple-500 shadow-lg ring-2 ring-purple-200 dark:ring-purple-800' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -250,8 +337,8 @@ export default function AdminInquiriesNew() {
           {/* Detail View */}
           <div className="lg:col-span-2">
             {selectedInquiry ? (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                <div className="p-6 border-b border-gray-200">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
@@ -329,10 +416,13 @@ export default function AdminInquiriesNew() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full flex items-center justify-center p-12 border border-gray-200 dark:border-gray-700">
-                <div className="text-center text-gray-500 dark:text-gray-400">
-                  <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                  <p className="text-lg font-medium">Select an inquiry to view details</p>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl h-full flex items-center justify-center p-12 border border-purple-200 dark:border-gray-700">
+                <div className="text-center">
+                  <div className="p-6 bg-white dark:bg-gray-800 rounded-full inline-block mb-4 shadow-lg">
+                    <Mail className="w-20 h-20 text-purple-500" />
+                  </div>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">Select an Inquiry</p>
+                  <p className="text-gray-600 dark:text-gray-400">Click on an inquiry from the list to view details and respond</p>
                 </div>
               </div>
             )}

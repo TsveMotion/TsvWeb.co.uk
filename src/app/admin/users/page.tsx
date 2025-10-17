@@ -193,23 +193,38 @@ function UserAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header with Gradient */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl shadow-lg p-8 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-3 mb-2">
+                  <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <h1 className="text-3xl font-bold">User Management</h1>
+                </div>
+                <p className="text-purple-100 text-lg">
+                  Manage user accounts, roles, and permissions
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => handleOpenModal()}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-royal-blue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue"
+                className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all border border-white/30 font-medium"
               >
-                <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
                 Add User
               </button>
             </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
             
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-4 dark:bg-red-900/20">
@@ -242,20 +257,20 @@ function UserAdmin() {
             )}
             
             {loading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-royal-blue"></div>
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+              <div className="bg-white dark:bg-gray-800 shadow-xl overflow-hidden rounded-xl">
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                   {users.length > 0 ? (
                     users.map((user) => (
-                      <li key={user.id}>
-                        <div className="px-4 py-4 sm:px-6">
+                      <li key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                        <div className="px-6 py-5">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-royal-blue flex items-center justify-center">
-                                <span className="text-white font-medium">
+                              <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg">
+                                <span className="text-white font-bold text-lg">
                                   {user.name.charAt(0).toUpperCase()}
                                 </span>
                               </div>
@@ -284,20 +299,24 @@ function UserAdmin() {
                               <button
                                 type="button"
                                 onClick={() => handleOpenModal(user)}
-                                className="text-royal-blue hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="inline-flex items-center px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors text-xs font-medium"
+                                title="Edit user"
                               >
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
+                                <span className="ml-1">Edit</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteUser(user.id)}
-                                className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                className="inline-flex items-center px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-xs font-medium"
+                                title="Delete user"
                               >
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                 </svg>
+                                <span className="ml-1">Delete</span>
                               </button>
                             </div>
                           </div>
@@ -323,17 +342,23 @@ function UserAdmin() {
                       </li>
                     ))
                   ) : (
-                    <li className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
-                      No users found. Click "Add User" to create one.
+                    <li className="px-6 py-12 text-center">
+                      <div className="p-6 bg-purple-100 dark:bg-purple-900/20 rounded-full inline-block mb-4">
+                        <svg className="h-12 w-12 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No users found</p>
+                      <p className="text-gray-500 dark:text-gray-400">Click "Add User" to create your first user</p>
                     </li>
                   )}
                 </ul>
               </div>
             )}
-          </div>
+        </div>
           
-          {/* User Modal */}
-          {isModalOpen && (
+        {/* User Modal */}
+        {isModalOpen && (
             <div className="fixed z-10 inset-0 overflow-y-auto">
               <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div className="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -538,7 +563,6 @@ function UserAdmin() {
               </div>
             </div>
           )}
-        </div>
       </div>
     </div>
   )

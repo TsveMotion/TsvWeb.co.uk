@@ -158,19 +158,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-y-auto border-r border-gray-700">
+        <div className="flex flex-col flex-grow bg-white dark:bg-gradient-to-b dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-y-auto border-r border-gray-200 dark:border-gray-700 shadow-lg">
           {/* Logo */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <h1 className="text-xl font-bold text-white">TsvWeb Admin</h1>
-              <p className="text-xs text-gray-400 mt-0.5">Management Portal</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">TsvWeb Admin</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Management Portal</p>
             </div>
-            <SparklesIcon className="h-6 w-6 text-blue-400" />
+            <SparklesIcon className="h-6 w-6 text-blue-500 dark:text-blue-400" />
           </div>
 
           {/* Quick Actions */}
-          <div className="px-4 py-4 border-b border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
+          <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2">
               {quickActions.filter(action => action.roles.includes(userRole)).map((action) => {
                 const Icon = action.icon
@@ -201,7 +201,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <div key={section.title} className="mb-4">
                   <button
                     onClick={() => toggleSection(sectionKey)}
-                    className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-colors"
+                    className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
                   >
                     <span>{section.title}</span>
                     {isExpanded ? (
@@ -223,7 +223,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                               isActive
                                 ? 'bg-blue-600 text-white shadow-lg'
-                                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                             }`}
                           >
                             <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -244,7 +244,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </nav>
 
           {/* User Info */}
-          <div className="px-4 py-4 border-t border-gray-700">
+          <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
@@ -252,8 +252,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
               </div>
               <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-white truncate">{session?.user?.name || 'Admin'}</p>
-                <p className="text-xs text-gray-400 capitalize">{userRole}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session?.user?.name || 'Admin'}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{userRole}</p>
               </div>
             </div>
           </div>
@@ -264,14 +264,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-gradient-to-b dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-y-auto shadow-xl">
             {/* Mobile sidebar content (same as desktop) */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
               <div>
-                <h1 className="text-xl font-bold text-white">TsvWeb Admin</h1>
-                <p className="text-xs text-gray-400 mt-0.5">Management Portal</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">TsvWeb Admin</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Management Portal</p>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setSidebarOpen(false)} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
