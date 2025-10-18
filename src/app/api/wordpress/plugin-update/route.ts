@@ -9,8 +9,8 @@ const PLUGIN_INFO = {
   slug: 'tsvweb-monitor',
   version: '1.3.0',
   author: 'TsvWeb',
-  homepage: 'https://tsvweb.com',
-  download_url: 'https://tsvweb.com/wordpress-plugin/tsvweb-monitor.zip',
+  homepage: 'https://tsvweb.co.uk',
+  download_url: 'https://tsvweb.co.uk/wordpress-plugin/tsvweb-monitor.zip',
   requires: '5.0',
   requires_php: '7.4',
   tested: '6.8.3',
@@ -105,8 +105,8 @@ export async function GET(request: NextRequest) {
         last_updated: PLUGIN_INFO.last_updated,
         sections: PLUGIN_INFO.sections,
         banners: {
-          low: 'https://tsvweb.com/TsvWeb_Logo_DarkTheme.png',
-          high: 'https://tsvweb.com/TsvWeb_Logo_DarkTheme.png'
+          low: 'https://tsvweb.co.uk/TsvWeb_Logo_DarkTheme.png',
+          high: 'https://tsvweb.co.uk/TsvWeb_Logo_DarkTheme.png'
         }
       });
     }
