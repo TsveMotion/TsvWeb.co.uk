@@ -8,6 +8,7 @@ Fixed three critical issues:
 
 ---
 
+
 ## 1. Default Theme Changed to Light
 
 **File Modified:** `src/app/layout.tsx`
