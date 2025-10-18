@@ -10,18 +10,28 @@ export const runtime = 'nodejs';
 const WordPressStatsSchema = new mongoose.Schema({
   siteUrl: { type: String, required: true, unique: true },
   siteName: { type: String, required: true },
+  siteDescription: String,
+  adminEmail: String,
   wordpressVersion: String,
   phpVersion: String,
   mysqlVersion: String,
+  serverSoftware: String,
+  
+  // Content stats
   totalPosts: Number,
+  draftPosts: Number,
   totalPages: Number,
+  draftPages: Number,
+  totalComments: Number,
+  approvedComments: Number,
+  pendingComments: Number,
+  spamComments: Number,
+  totalCategories: Number,
+  totalTags: Number,
+  totalMedia: Number,
+  
+  // Users
   totalUsers: Number,
-  activePlugins: Number,
-  activeTheme: String,
-  themeVersion: String,
-  siteHealth: String,
-  memoryLimit: String,
-  maxUploadSize: String,
   users: [{
     id: Number,
     email: String,
@@ -30,10 +40,66 @@ const WordPressStatsSchema = new mongoose.Schema({
     registered: String,
     role: String
   }],
+  
+  // Plugins & Theme
+  activePlugins: Number,
+  totalPlugins: Number,
+  pluginList: [{
+    name: String,
+    version: String,
+    active: Boolean,
+    author: String
+  }],
+  activeTheme: String,
+  themeVersion: String,
+  themeAuthor: String,
+  
+  // System info
+  siteHealth: String,
+  memoryLimit: String,
+  maxUploadSize: String,
+  uploadMaxFilesize: String,
+  postMaxSize: String,
+  maxExecutionTime: Number,
+  diskFreeSpace: String,
+  diskTotalSpace: String,
+  
+  // Site settings
+  isMultisite: Boolean,
+  siteLanguage: String,
+  timezone: String,
+  
+  // WooCommerce
+  hasWooCommerce: Boolean,
+  totalProducts: Number,
+  publishedProducts: Number,
+  draftProducts: Number,
+  totalOrders: Number,
+  completedOrders: Number,
+  processingOrders: Number,
+  totalRevenue: String,
+  currency: String,
+  hasStripe: Boolean,
+  paymentGateways: [{
+    id: String,
+    title: String,
+    enabled: Boolean
+  }],
+  recentOrders30d: Number,
+  recentRevenue30d: String,
+  
   // Customer binding
   customerId: { type: String, default: null, index: true },
   customerEmail: { type: String, default: null },
   customerName: { type: String, default: null },
+  plan: { type: String, default: 'Standard' },
+  
+  // Payment tracking
+  paymentStatus: { type: String, default: 'unknown' },
+  paymentAmount: String,
+  nextPaymentDate: String,
+  paymentMessage: String,
+  
   lastUpdated: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
@@ -113,19 +179,68 @@ export async function POST(request: NextRequest) {
     const statsData = {
       siteUrl: data.site_url,
       siteName: data.site_name,
+      siteDescription: data.site_description,
+      adminEmail: data.admin_email,
       wordpressVersion: data.wordpress_version,
       phpVersion: data.php_version,
       mysqlVersion: data.mysql_version,
+      serverSoftware: data.server_software,
+      
+      // Content stats
       totalPosts: data.total_posts,
+      draftPosts: data.draft_posts,
       totalPages: data.total_pages,
+      draftPages: data.draft_pages,
+      totalComments: data.total_comments,
+      approvedComments: data.approved_comments,
+      pendingComments: data.pending_comments,
+      spamComments: data.spam_comments,
+      totalCategories: data.total_categories,
+      totalTags: data.total_tags,
+      totalMedia: data.total_media,
+      
+      // Users
       totalUsers: data.total_users,
+      users: data.users || [],
+      
+      // Plugins & Theme
       activePlugins: data.active_plugins,
+      totalPlugins: data.total_plugins,
+      pluginList: data.plugin_list || [],
       activeTheme: data.active_theme,
       themeVersion: data.theme_version,
+      themeAuthor: data.theme_author,
+      
+      // System info
       siteHealth: data.site_health,
       memoryLimit: data.memory_limit,
       maxUploadSize: data.max_upload_size,
-      users: data.users || [],
+      uploadMaxFilesize: data.upload_max_filesize,
+      postMaxSize: data.post_max_size,
+      maxExecutionTime: data.max_execution_time,
+      diskFreeSpace: data.disk_free_space,
+      diskTotalSpace: data.disk_total_space,
+      
+      // Site settings
+      isMultisite: data.is_multisite,
+      siteLanguage: data.site_language,
+      timezone: data.timezone,
+      
+      // WooCommerce
+      hasWooCommerce: data.has_woocommerce,
+      totalProducts: data.total_products,
+      publishedProducts: data.published_products,
+      draftProducts: data.draft_products,
+      totalOrders: data.total_orders,
+      completedOrders: data.completed_orders,
+      processingOrders: data.processing_orders,
+      totalRevenue: data.total_revenue,
+      currency: data.currency,
+      hasStripe: data.has_stripe,
+      paymentGateways: data.payment_gateways || [],
+      recentOrders30d: data.recent_orders_30d,
+      recentRevenue30d: data.recent_revenue_30d,
+      
       lastUpdated: new Date(),
     };
     
