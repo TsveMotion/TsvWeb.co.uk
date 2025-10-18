@@ -112,16 +112,33 @@ export async function POST(request: NextRequest) {
       
       console.log('WordPress response status:', wpResponse.status);
       
+      // Get response text first
+      const responseText = await wpResponse.text();
+      console.log('Response text (first 200 chars):', responseText.substring(0, 200));
+      
+      // Try to parse as JSON
       let wpData;
       try {
-        wpData = await wpResponse.json();
+        wpData = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('Failed to parse WordPress response:', parseError);
-        const text = await wpResponse.text();
-        console.log('Response text:', text.substring(0, 200));
+        console.error('Failed to parse WordPress response as JSON:', parseError);
+        
+        // Check if it's HTML (plugin not installed or REST API not working)
+        if (responseText.trim().startsWith('<!') || responseText.trim().startsWith('<html')) {
+          return NextResponse.json(
+            { 
+              error: 'WordPress REST API endpoint not found. Please ensure the TsvWeb Monitor plugin is installed and activated.',
+              details: 'The WordPress site returned HTML instead of JSON. This usually means the REST API endpoint does not exist.'
+            },
+            { status: 500 }
+          );
+        }
         
         return NextResponse.json(
-          { error: 'Invalid response from WordPress site', responseText: text.substring(0, 200) },
+          { 
+            error: 'Invalid response from WordPress site', 
+            responseText: responseText.substring(0, 200) 
+          },
           { status: 500 }
         );
       }

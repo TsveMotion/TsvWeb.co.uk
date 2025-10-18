@@ -1008,6 +1008,115 @@ class TsvWeb_Monitor {
                 </div>
             </div>
             
+            <!-- WooCommerce Revenue (if WooCommerce is active) -->
+            <?php if (class_exists('WooCommerce')): 
+                global $wpdb;
+                
+                // Get total revenue from completed orders
+                $total_revenue = $wpdb->get_var("
+                    SELECT SUM(meta_value) 
+                    FROM {$wpdb->postmeta} 
+                    WHERE meta_key = '_order_total' 
+                    AND post_id IN (
+                        SELECT ID FROM {$wpdb->posts} 
+                        WHERE post_type = 'shop_order' 
+                        AND post_status IN ('wc-completed', 'wc-processing')
+                    )
+                ");
+                
+                // Get revenue from last 30 days
+                $thirty_days_ago = date('Y-m-d H:i:s', strtotime('-30 days'));
+                $recent_revenue = $wpdb->get_var($wpdb->prepare("
+                    SELECT SUM(meta_value) 
+                    FROM {$wpdb->postmeta} 
+                    WHERE meta_key = '_order_total' 
+                    AND post_id IN (
+                        SELECT ID FROM {$wpdb->posts} 
+                        WHERE post_type = 'shop_order' 
+                        AND post_status IN ('wc-completed', 'wc-processing')
+                        AND post_date >= %s
+                    )
+                ", $thirty_days_ago));
+                
+                // Get order counts
+                $order_counts = wp_count_posts('shop_order');
+                $completed_orders = isset($order_counts->{'wc-completed'}) ? $order_counts->{'wc-completed'} : 0;
+                $processing_orders = isset($order_counts->{'wc-processing'}) ? $order_counts->{'wc-processing'} : 0;
+                $total_orders = $completed_orders + $processing_orders;
+                
+                // Get product count
+                $product_counts = wp_count_posts('product');
+                $total_products = $product_counts->publish;
+                
+                // Get currency
+                $currency_symbol = get_woocommerce_currency_symbol();
+                
+                // Check if Stripe is active
+                $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                $has_stripe = isset($payment_gateways['stripe']) || isset($payment_gateways['stripe_cc']);
+            ?>
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h2 style="color: white; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px;">
+                    <span class="dashicons dashicons-cart" style="font-size: 24px; vertical-align: middle;"></span>
+                    WooCommerce Revenue & Sales
+                </h2>
+                
+                <div class="tsvweb-grid" style="margin-top: 20px;">
+                    <div class="stat-box" style="background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">💰 Total Revenue</h3>
+                        <div class="stat-value" style="color: #2d3748; font-size: 36px;">
+                            <?php echo $currency_symbol . number_format((float)$total_revenue, 2); ?>
+                        </div>
+                        <p style="color: #718096; font-size: 12px; margin-top: 5px;">All-time earnings</p>
+                    </div>
+                    
+                    <div class="stat-box" style="background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="color: #48bb78; margin-bottom: 10px;">📈 Last 30 Days</h3>
+                        <div class="stat-value" style="color: #2d3748; font-size: 36px;">
+                            <?php echo $currency_symbol . number_format((float)$recent_revenue, 2); ?>
+                        </div>
+                        <p style="color: #718096; font-size: 12px; margin-top: 5px;">Recent revenue</p>
+                    </div>
+                    
+                    <div class="stat-box" style="background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="color: #ed8936; margin-bottom: 10px;">🛍️ Total Orders</h3>
+                        <div class="stat-value" style="color: #2d3748; font-size: 36px;">
+                            <?php echo number_format($total_orders); ?>
+                        </div>
+                        <p style="color: #718096; font-size: 12px; margin-top: 5px;">
+                            <?php echo number_format($completed_orders); ?> completed, 
+                            <?php echo number_format($processing_orders); ?> processing
+                        </p>
+                    </div>
+                    
+                    <div class="stat-box" style="background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="color: #9f7aea; margin-bottom: 10px;">📦 Products</h3>
+                        <div class="stat-value" style="color: #2d3748; font-size: 36px;">
+                            <?php echo number_format($total_products); ?>
+                        </div>
+                        <p style="color: #718096; font-size: 12px; margin-top: 5px;">Published products</p>
+                    </div>
+                </div>
+                
+                <?php if ($has_stripe): ?>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 2px solid rgba(255,255,255,0.2);">
+                    <p style="margin: 0; font-size: 14px;">
+                        <span class="dashicons dashicons-yes-alt" style="color: #48bb78;"></span>
+                        <strong>Stripe Payment Gateway Active</strong> - Accepting card payments
+                    </p>
+                </div>
+                <?php endif; ?>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="<?php echo admin_url('admin.php?page=wc-reports'); ?>" 
+                       class="button button-primary button-large" 
+                       style="background: white; color: #667eea; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        View Detailed Reports →
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <!-- Support Request Form -->
             <div class="card">
                 <h2>Contact TsvWeb Support</h2>
