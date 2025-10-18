@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Agreement from '@/models/Agreement';
 import { sendEmail } from '@/lib/email';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -26,8 +27,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     agreement.status = 'sent';
     agreement.sentAt = new Date();
     agreement.companySignedAt = agreement.companySignedAt ?? new Date();
-    agreement.companySignerName = agreement.companySignerName || session.name || 'TsvWeb';
-    agreement.updatedBy = session.email || 'admin';
+    agreement.companySignerName = agreement.companySignerName || session.user.name || 'TsvWeb';
+    agreement.updatedBy = session.user.email || 'admin';
     await agreement.save();
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';

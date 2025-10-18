@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Agreement from '@/models/Agreement';
 import { put, del } from '@vercel/blob';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await connectToDatabase();
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     agreement.pdfOriginalName = file.name;
     agreement.pdfSize = file.size;
     agreement.pdfMimeType = file.type;
-    agreement.updatedBy = session.email || 'admin';
+    agreement.updatedBy = session.user.email || 'admin';
     await agreement.save();
 
     return NextResponse.json({ success: true, agreement });
@@ -55,8 +56,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -83,7 +84,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     agreement.pdfOriginalName = undefined as any;
     agreement.pdfSize = undefined as any;
     agreement.pdfMimeType = undefined as any;
-    agreement.updatedBy = session.email || 'admin';
+    agreement.updatedBy = session.user.email || 'admin';
     await agreement.save();
 
     return NextResponse.json({ success: true });

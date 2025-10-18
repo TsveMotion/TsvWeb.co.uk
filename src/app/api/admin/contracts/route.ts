@@ -3,10 +3,17 @@ import { ObjectId } from 'mongodb';
 import Contract from '@/models/Contract';
 import { connectToDatabase } from '@/lib/db';
 import clientPromise from '@/lib/mongodb';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // GET - Fetch all contracts with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectToDatabase();
     
     const { searchParams } = new URL(request.url);
@@ -65,6 +72,11 @@ export async function GET(request: NextRequest) {
 // POST - Create new contract
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectToDatabase();
 
     const body = await request.json();
@@ -124,8 +136,8 @@ export async function POST(request: NextRequest) {
       files: [],
       emailsSent: [],
       notes: [],
-      createdBy: 'admin', // TODO: Replace with actual admin user ID when auth is implemented
-      updatedBy: 'admin'  // TODO: Replace with actual admin user ID when auth is implemented
+      createdBy: session.user.email || 'admin',
+      updatedBy: session.user.email || 'admin'
     });
 
     await contract.save();

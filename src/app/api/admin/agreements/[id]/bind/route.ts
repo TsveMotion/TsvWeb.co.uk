@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/db';
 import Agreement from '@/models/Agreement';
 import clientPromise from '@/lib/mongodb';
@@ -7,8 +8,8 @@ import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     ag.userId = userId;
     ag.clientName = (user as any).name || ag.clientName;
     ag.clientEmail = (user as any).email || ag.clientEmail;
-    ag.updatedBy = session.email || 'admin';
+    ag.updatedBy = session.user.email || 'admin';
     await ag.save();
 
     return NextResponse.json({ success: true, agreement: ag });

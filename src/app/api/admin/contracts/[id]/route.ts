@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Contract from '@/models/Contract';
 import { connectToDatabase } from '@/lib/db';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // GET - Fetch specific contract
 export async function GET(
@@ -9,8 +10,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -41,8 +42,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -51,7 +52,7 @@ export async function PUT(
     const body = await request.json();
     const updateData = {
       ...body,
-      updatedBy: session.email || 'admin'
+      updatedBy: session.user.email || 'admin'
     };
 
     // Handle date fields
@@ -98,8 +99,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -145,8 +146,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

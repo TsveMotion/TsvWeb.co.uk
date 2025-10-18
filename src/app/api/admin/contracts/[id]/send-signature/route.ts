@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contract from '@/models/Contract';
 import { connectToDatabase } from '@/lib/db';
 import nodemailer from 'nodemailer';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // POST - Send contract for e-signature
 export async function POST(
@@ -10,8 +11,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -35,7 +36,7 @@ export async function POST(
       $push: {
         emailsSent: {
           sentAt: new Date(),
-          sentBy: session.email,
+          sentBy: session.user.email,
           recipient: (contract as any).clientEmail,
           subject: 'Contract Ready for Signature',
           status: 'sent'
