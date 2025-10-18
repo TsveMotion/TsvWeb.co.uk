@@ -6,15 +6,15 @@ const DEFAULT_SEO_CONFIG = {
   titleTemplate: '%s | TsvWeb - Professional Web Design Services',
   defaultTitle: 'TsvWeb - Professional Web Design & Development Services',
   description: 'TsvWeb offers professional web design and development services for businesses of all sizes. Contact us for a custom website that drives results.',
-  canonical: 'https://tsvweb.com',
+  canonical: 'https://tsvweb.co.uk',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tsvweb.com',
+    url: 'https://tsvweb.co.uk',
     siteName: 'TsvWeb',
     images: [
       {
-        url: 'https://tsvweb.com/images/og-image.jpg',
+        url: 'https://tsvweb.co.uk/images/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'TsvWeb - Professional Web Design & Development Services',

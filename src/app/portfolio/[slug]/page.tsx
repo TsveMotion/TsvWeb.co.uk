@@ -3,9 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import Navbar from '@/components/navigation/navbar';
 import Footer from '@/components/navigation/footer';
-import PageSEO from '@/components/seo/page-seo';
 import { connectToDatabase } from '@/lib/db';
 import { Portfolio } from '@/models/Portfolio';
 import PortfolioGallery from '@/components/portfolio/portfolio-gallery';
@@ -47,6 +47,66 @@ type Props = {
   params: { slug: string }
 }
 
+// Generate metadata for SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    await connectToDatabase();
+    const item = await Portfolio.findOne({ slug: params.slug }).lean();
+    
+    if (!item) {
+      return {
+        title: 'Project Not Found | TsvWeb Portfolio',
+        description: 'This portfolio project could not be found.',
+        robots: { index: false, follow: true }
+      };
+    }
+    
+    const portfolioItem = JSON.parse(JSON.stringify(item));
+    const description = portfolioItem.description?.substring(0, 160) || `${portfolioItem.title} - Professional web design and development project by TsvWeb Birmingham.`;
+    const keywords = [
+      portfolioItem.projectType,
+      ...(portfolioItem.technologies || []),
+      'web design Birmingham',
+      'web development',
+      'TsvWeb portfolio'
+    ].filter(Boolean).join(', ');
+    
+    return {
+      title: `${portfolioItem.title} | TsvWeb Portfolio`,
+      description,
+      keywords,
+      alternates: {
+        canonical: `https://tsvweb.co.uk/portfolio/${params.slug}`,
+      },
+      openGraph: {
+        title: `${portfolioItem.title} | TsvWeb Portfolio`,
+        description,
+        url: `https://tsvweb.co.uk/portfolio/${params.slug}`,
+        type: 'website',
+        images: [{
+          url: portfolioItem.thumbnailImage || portfolioItem.images?.[0] || 'https://tsvweb.co.uk/TsvWeb_Logo.png',
+          width: 1200,
+          height: 630,
+          alt: `${portfolioItem.title} - Screenshot`
+        }]
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${portfolioItem.title} | TsvWeb Portfolio`,
+        description,
+        images: [portfolioItem.thumbnailImage || portfolioItem.images?.[0] || 'https://tsvweb.co.uk/TsvWeb_Logo.png']
+      }
+    };
+  } catch (error) {
+    console.error('Error generating portfolio metadata:', error);
+    return {
+      title: 'Portfolio Project | TsvWeb',
+      description: 'View our portfolio of professional web design and development projects.',
+      robots: { index: false, follow: true }
+    };
+  }
+}
+
 export default async function PortfolioDetailPage({ params }: Props) {
   const { slug } = params;
   
@@ -71,21 +131,71 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
   
   const activeImage = portfolioItem.thumbnailImage || (portfolioItem.images && portfolioItem.images.length > 0 ? portfolioItem.images[0] : '');
+  
+  // CreativeWork Schema for portfolio project
+  const creativeWorkSchema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "@id": `https://tsvweb.co.uk/portfolio/${portfolioItem.slug}`,
+    "name": portfolioItem.title,
+    "description": portfolioItem.description,
+    "creator": {
+      "@type": "Organization",
+      "name": "TsvWeb",
+      "@id": "https://tsvweb.co.uk/#organization"
+    },
+    "dateCreated": portfolioItem.completionDate || portfolioItem.createdAt,
+    "image": {
+      "@type": "ImageObject",
+      "url": portfolioItem.thumbnailImage || portfolioItem.images?.[0] || 'https://tsvweb.co.uk/TsvWeb_Logo.png',
+      "width": 1200,
+      "height": 630,
+      "caption": portfolioItem.title
+    },
+    "url": portfolioItem.projectUrl || `https://tsvweb.co.uk/portfolio/${portfolioItem.slug}`,
+    "keywords": [portfolioItem.projectType, ...(portfolioItem.technologies || [])].filter(Boolean).join(', '),
+    "genre": portfolioItem.projectType,
+    "about": {
+      "@type": "Thing",
+      "name": portfolioItem.projectType
+    }
+  };
+  
+  // Breadcrumb Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://tsvweb.co.uk/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Portfolio",
+        "item": "https://tsvweb.co.uk/portfolio"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": portfolioItem.title,
+        "item": `https://tsvweb.co.uk/portfolio/${portfolioItem.slug}`
+      }
+    ]
+  };
 
   return (
     <main className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <PageSEO 
-        title={`${portfolioItem.title} - Portfolio | TsvWeb`}
-        description={portfolioItem.description.substring(0, 160)}
-        canonical={`https://tsvweb.com/portfolio/${portfolioItem.slug}`}
-        structuredData={{
-          type: 'WebSite',
-          data: {
-            name: portfolioItem.title,
-            description: portfolioItem.description.substring(0, 160),
-            url: `https://tsvweb.com/portfolio/${portfolioItem.slug}`,
-          }
-        }}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <Navbar />
       

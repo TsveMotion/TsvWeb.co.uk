@@ -1,83 +1,175 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-
 import Navbar from '@/components/navigation/navbar';
 import Footer from '@/components/navigation/footer';
-import PageSEO from '@/components/seo/page-seo';
+import { BlogService } from '@/services/blog-service';
 import { BlogPost } from '@/types/blog';
 
-export default function BlogPostPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+type Props = {
+  params: { slug: string }
+}
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(`/api/blog/${slug}`);
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            setPost(result.data);
-            
-            // Fetch related posts
-            const relatedResponse = await fetch(`/api/blog?category=${result.data.category}&limit=3&exclude=${result.data.id}`);
-            if (relatedResponse.ok) {
-              const relatedData = await relatedResponse.json();
-              setRelatedPosts(relatedData.posts || []);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching blog post:', error);
-      } finally {
-        setLoading(false);
+// Generate metadata for SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const post = await BlogService.getPostBySlug(params.slug);
+    
+    if (!post || post.status !== 'Published') {
+      return {
+        title: 'Post Not Found | TsvWeb Blog',
+        description: 'This blog post could not be found or is no longer available.',
+        robots: { index: false, follow: true }
+      };
+    }
+    
+    const description = post.excerpt || post.seoDescription || post.title;
+    const keywords = post.tags?.join(', ') || 'web design Birmingham, WordPress, SEO';
+    
+    return {
+      title: `${post.title} | TsvWeb Blog`,
+      description,
+      keywords,
+      alternates: {
+        canonical: `https://tsvweb.co.uk/blog/${post.slug}`,
+      },
+      openGraph: {
+        title: post.title,
+        description,
+        url: `https://tsvweb.co.uk/blog/${post.slug}`,
+        type: 'article',
+        publishedTime: post.date,
+        modifiedTime: post.date,
+        authors: [post.author || 'TsvWeb Team'],
+        tags: post.tags,
+        images: [{
+          url: post.featuredImage || 'https://tsvweb.co.uk/TsvWeb_Logo.png',
+          width: 1200,
+          height: 630,
+          alt: post.title
+        }]
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description,
+        images: [post.featuredImage || 'https://tsvweb.co.uk/TsvWeb_Logo.png']
       }
     };
+  } catch (error) {
+    console.error('Error generating blog metadata:', error);
+    return {
+      title: 'Blog Post | TsvWeb',
+      description: 'Read our latest web design and SEO insights.',
+      robots: { index: false, follow: true }
+    };
+  }
+}
 
-    if (slug) {
-      fetchPost();
+export default async function BlogPostPage({ params }: Props) {
+  let post: BlogPost | null = null;
+  let relatedPosts: BlogPost[] = [];
+  
+  try {
+    post = await BlogService.getPostBySlug(params.slug);
+    
+    if (!post || post.status !== 'Published') {
+      notFound();
     }
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <main className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-royal-blue"></div>
-        </div>
-        <Footer />
-      </main>
-    );
+    
+    // Fetch related posts
+    if (post.category) {
+      const allPosts = await BlogService.getPublishedPosts();
+      relatedPosts = allPosts
+        .filter(p => p.category === post.category && p.id !== post.id)
+        .slice(0, 3);
+    }
+  } catch (error) {
+    console.error('Error fetching blog post:', error);
+    notFound();
   }
-
+  
   if (!post) {
-    return (
-      <main className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Post Not Found</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">The blog post you're looking for doesn't exist.</p>
-            <Link href="/blog" className="btn-primary">
-              Back to Blog
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </main>
-    );
+    notFound();
   }
+  
+  // Article Schema for SEO
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `https://tsvweb.co.uk/blog/${post.slug}`,
+    "headline": post.title,
+    "description": post.excerpt || post.seoDescription,
+    "image": {
+      "@type": "ImageObject",
+      "url": post.featuredImage || 'https://tsvweb.co.uk/TsvWeb_Logo.png',
+      "width": 1200,
+      "height": 630
+    },
+    "datePublished": post.date,
+    "dateModified": post.date,
+    "author": {
+      "@type": "Person",
+      "name": post.author || 'TsvWeb Team',
+      "url": "https://tsvweb.co.uk/about"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "TsvWeb",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://tsvweb.co.uk/TsvWeb_Logo.png",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://tsvweb.co.uk/blog/${post.slug}`
+    },
+    "keywords": post.tags?.join(', '),
+    "articleSection": post.category,
+    "wordCount": post.content?.split(' ').length || 0,
+    "inLanguage": "en-GB"
+  };
+  
+  // Breadcrumb Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://tsvweb.co.uk/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://tsvweb.co.uk/blog"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title,
+        "item": `https://tsvweb.co.uk/blog/${post.slug}`
+      }
+    ]
+  };
 
   return (
     <main className="min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <Navbar />
       
       {/* Hero Section */}
