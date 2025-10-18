@@ -1,13 +1,14 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { notFound } from 'next/navigation';
 import Navbar from '@/components/navigation/navbar';
 import Footer from '@/components/navigation/footer';
 import PageSEO from '@/components/seo/page-seo';
+import { connectToDatabase } from '@/lib/db';
+import { Portfolio } from '@/models/Portfolio';
+import PortfolioGallery from '@/components/portfolio/portfolio-gallery';
 
 // Define the Portfolio item type
 interface PortfolioItem {
@@ -27,92 +28,49 @@ interface PortfolioItem {
   updatedAt: string;
 }
 
-export default function PortfolioDetailPage() {
-  const { slug } = useParams();
-  const [portfolioItem, setPortfolioItem] = useState<PortfolioItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [activeImage, setActiveImage] = useState('');
-
-  useEffect(() => {
-    const fetchPortfolioItem = async () => {
-      setIsLoading(true);
-      setError('');
-      try {
-        const response = await fetch(`/api/portfolio/${slug}`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch portfolio item: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          setPortfolioItem(data.data);
-          setActiveImage(data.data.thumbnailImage || (data.data.images && data.data.images.length > 0 ? data.data.images[0] : ''));
-        } else {
-          throw new Error(data.message || 'Failed to fetch portfolio item');
-        }
-      } catch (error: any) {
-        console.error('Error fetching portfolio item:', error);
-        setError(error.message || 'Failed to load portfolio item. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+// Generate static params for all portfolio items
+export async function generateStaticParams() {
+  try {
+    await connectToDatabase();
+    const portfolioItems = await Portfolio.find({}).select('slug').lean();
     
-    if (slug) {
-      fetchPortfolioItem();
+    return portfolioItems.map((item: any) => ({
+      slug: item.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
+type Props = {
+  params: { slug: string }
+}
+
+export default async function PortfolioDetailPage({ params }: Props) {
+  const { slug } = params;
+  
+  let portfolioItem: PortfolioItem | null = null;
+  
+  try {
+    await connectToDatabase();
+    const item = await Portfolio.findOne({ slug }).lean();
+    
+    if (!item) {
+      notFound();
     }
-  }, [slug]);
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-royal-blue"></div>
-        </div>
-      </div>
-    );
+    
+    portfolioItem = JSON.parse(JSON.stringify(item));
+  } catch (error) {
+    console.error('Error fetching portfolio item:', error);
+    notFound();
   }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center py-12">
-          <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Error</h3>
-          <p className="mt-1 text-sm text-red-500">{error}</p>
-          <div className="mt-6">
-            <Link href="/portfolio" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue">
-              Back to Portfolio
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  
   if (!portfolioItem) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center py-12">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No Portfolio Item Found</h3>
-          <p className="mt-1 text-sm text-gray-500">The portfolio item you're looking for doesn't exist or has been removed.</p>
-          <div className="mt-6">
-            <Link href="/portfolio" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-royal-blue hover:bg-royal-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-royal-blue">
-              Back to Portfolio
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    notFound();
   }
+  
+  const activeImage = portfolioItem.thumbnailImage || (portfolioItem.images && portfolioItem.images.length > 0 ? portfolioItem.images[0] : '');
 
   return (
     <main className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -177,70 +135,10 @@ export default function PortfolioDetailPage() {
       {/* Portfolio Detail */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Image Gallery */}
-        <div className="space-y-6">
-          <div className="relative h-[450px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700 transform hover:scale-[1.02] transition-transform duration-300">
-            {activeImage ? (
-              <Image 
-                src={activeImage} 
-                alt={portfolioItem.title} 
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-                className="object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-royal-blue via-blue-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold p-8 text-center">
-                {portfolioItem.title}
-              </div>
-            )}
-          </div>
-          
-          {/* Thumbnail Gallery */}
-          <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-            {/* Always include thumbnail image in the gallery if it exists */}
-            {portfolioItem.thumbnailImage && (
-              <button 
-                onClick={() => setActiveImage(portfolioItem.thumbnailImage)}
-                className={`relative h-24 w-24 overflow-hidden rounded-xl transition-all duration-300 ${
-                  activeImage === portfolioItem.thumbnailImage 
-                    ? 'ring-4 ring-royal-blue scale-110 shadow-xl' 
-                    : 'hover:scale-105 hover:shadow-lg ring-2 ring-gray-200 dark:ring-gray-700'
-                }`}
-              >
-                <Image 
-                  src={portfolioItem.thumbnailImage} 
-                  alt={`${portfolioItem.title} - Thumbnail`}
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                />
-              </button>
-            )}
-            
-            {/* Show all other project images */}
-            {portfolioItem.images && portfolioItem.images.length > 0 && 
-              portfolioItem.images.map((image, index) => (
-                <button 
-                  key={index}
-                  onClick={() => setActiveImage(image)}
-                  className={`relative h-24 w-24 overflow-hidden rounded-xl transition-all duration-300 ${
-                    activeImage === image 
-                      ? 'ring-4 ring-royal-blue scale-110 shadow-xl' 
-                      : 'hover:scale-105 hover:shadow-lg ring-2 ring-gray-200 dark:ring-gray-700'
-                  }`}
-                >
-                  <Image 
-                    src={image} 
-                    alt={`${portfolioItem.title} - Image ${index + 1}`}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                </button>
-              ))
-            }
-          </div>
-        </div>
+        <PortfolioGallery 
+          portfolioItem={portfolioItem}
+          activeImage={activeImage}
+        />
 
         {/* Project Details */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
