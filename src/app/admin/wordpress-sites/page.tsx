@@ -81,6 +81,10 @@ interface WordPressSite {
   }>;
   recentOrders30d?: number;
   recentRevenue30d?: string;
+  // Customer binding
+  customerId?: string;
+  customerEmail?: string;
+  customerName?: string;
 }
 
 function WordPressSitesPage() {
@@ -96,6 +100,9 @@ function WordPressSitesPage() {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [generatedApiKey, setGeneratedApiKey] = useState('');
   const [apiKeySite, setApiKeySite] = useState<{ url: string; name: string } | null>(null);
+  const [bindCustomerSite, setBindCustomerSite] = useState<WordPressSite | null>(null);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -114,6 +121,70 @@ function WordPressSitesPage() {
       console.error('Error fetching WordPress sites:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/admin/customers');
+      if (response.ok) {
+        const data = await response.json();
+        setCustomers(data.customers || []);
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  };
+
+  const handleBindCustomer = async () => {
+    if (!bindCustomerSite || !selectedCustomerId) return;
+
+    try {
+      const response = await fetch(`/api/admin/wordpress-sites/${bindCustomerSite._id}/bind-customer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: selectedCustomerId })
+      });
+
+      if (response.ok) {
+        setSuccess('Site bound to customer successfully!');
+        setBindCustomerSite(null);
+        setSelectedCustomerId('');
+        fetchSites();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to bind site');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error binding site:', error);
+      setError('Failed to bind site to customer');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const handleUnbindCustomer = async (siteId: string) => {
+    if (!confirm('Are you sure you want to unbind this site from the customer?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/wordpress-sites/${siteId}/bind-customer`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setSuccess('Site unbound from customer successfully!');
+        fetchSites();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to unbind site');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error unbinding site:', error);
+      setError('Failed to unbind site from customer');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -348,32 +419,70 @@ function WordPressSitesPage() {
                     <span>Updated {formatDate(site.lastUpdated)}</span>
                   </div>
 
+                  {/* Customer Binding Info */}
+                  {site.customerName && (
+                    <div className="mt-3 px-3 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            Assigned to: {site.customerName}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnbindCustomer(site._id);
+                          }}
+                          className="text-xs text-red-600 dark:text-red-400 hover:underline"
+                        >
+                          Unbind
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBindCustomerSite(site);
+                        fetchCustomers();
+                      }}
+                      className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors text-xs font-medium"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {site.customerName ? 'Change' : 'Bind'}
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setManageSite(site);
                       }}
-                      className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors text-sm font-medium"
+                      className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors text-xs font-medium"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      Manage Site
+                      Manage
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedSite(site);
                       }}
-                      className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium"
+                      className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-xs font-medium"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      View Details
+                      View
                     </button>
                   </div>
                 </div>
@@ -1059,6 +1168,77 @@ function WordPressSitesPage() {
             </div>
           </div>
         )}
+
+      {/* Bind Customer Modal */}
+      {bindCustomerSite && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setBindCustomerSite(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Bind to Customer</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Assign {bindCustomerSite.siteName} to a customer
+                </p>
+              </div>
+              <button
+                onClick={() => setBindCustomerSite(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select Customer
+                </label>
+                <select
+                  value={selectedCustomerId}
+                  onChange={(e) => setSelectedCustomerId(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Select a customer --</option>
+                  {customers.map((customer) => (
+                    <option key={customer._id} value={customer._id}>
+                      {customer.name || customer.username} ({customer.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {bindCustomerSite.customerName && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                    <strong>Currently assigned to:</strong> {bindCustomerSite.customerName}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setBindCustomerSite(null);
+                    setSelectedCustomerId('');
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleBindCustomer}
+                  disabled={!selectedCustomerId}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Bind Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

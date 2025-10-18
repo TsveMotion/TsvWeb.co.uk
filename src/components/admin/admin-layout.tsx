@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
+import NotificationDropdown from './NotificationDropdown'
 import {
   HomeIcon,
   NewspaperIcon,
@@ -53,6 +54,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession()
   const { theme, setTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [userRole, setUserRole] = useState<string>('admin')
   const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'content', 'business', 'communication', 'system'])
@@ -159,21 +161,40 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
+      <div className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:w-20' : 'lg:w-72'}`}>
         <div className="flex flex-col flex-grow bg-white dark:bg-gradient-to-b dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-y-auto border-r border-gray-200 dark:border-gray-700 shadow-lg">
           {/* Logo */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">TsvWeb Admin</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Management Portal</p>
-            </div>
-            <SparklesIcon className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+            {!sidebarCollapsed ? (
+              <>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">TsvWeb Admin</h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Management Portal</p>
+                </div>
+                <button
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  title="Collapse sidebar"
+                >
+                  <ChevronRightIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="mx-auto p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title="Expand sidebar"
+              >
+                <Bars3Icon className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+              </button>
+            )}
           </div>
 
           {/* Quick Actions */}
-          <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-2">
+          {!sidebarCollapsed && (
+            <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
+              <div className="grid grid-cols-2 gap-2">
               {quickActions.filter(action => action.roles.includes(userRole)).map((action) => {
                 const Icon = action.icon
                 return (
@@ -187,8 +208,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </Link>
                 )
               })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-4 space-y-1">
@@ -201,20 +223,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
               return (
                 <div key={section.title} className="mb-4">
-                  <button
-                    onClick={() => toggleSection(sectionKey)}
-                    className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
-                  >
-                    <span>{section.title}</span>
-                    {isExpanded ? (
-                      <ChevronDownIcon className="h-4 w-4" />
-                    ) : (
-                      <ChevronRightIcon className="h-4 w-4" />
-                    )}
-                  </button>
+                  {!sidebarCollapsed && (
+                    <button
+                      onClick={() => toggleSection(sectionKey)}
+                      className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
+                    >
+                      <span>{section.title}</span>
+                      {isExpanded ? (
+                        <ChevronDownIcon className="h-4 w-4" />
+                      ) : (
+                        <ChevronRightIcon className="h-4 w-4" />
+                      )}
+                    </button>
+                  )}
                   
-                  {isExpanded && (
-                    <div className="mt-1 space-y-1">
+                  {(isExpanded || sidebarCollapsed) && (
+                    <div className={`mt-1 space-y-1 ${sidebarCollapsed ? 'flex flex-col items-center' : ''}`}>
                       {filteredItems.map((item) => {
                         const Icon = item.icon
                         const isActive = pathname === item.href
@@ -222,18 +246,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           <Link
                             key={item.name}
                             href={item.href}
-                            className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            title={sidebarCollapsed ? item.name : ''}
+                            className={`flex items-center ${sidebarCollapsed ? 'justify-center w-12 h-12' : 'px-3 py-2.5'} text-sm font-medium rounded-lg transition-all duration-200 ${
                               isActive
                                 ? 'bg-blue-600 text-white shadow-lg'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                             }`}
                           >
-                            <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                            <span className="flex-1">{item.name}</span>
-                            {item.badge && (
-                              <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full">
-                                {item.badge}
-                              </span>
+                            <Icon className={`h-5 w-5 flex-shrink-0 ${!sidebarCollapsed ? 'mr-3' : ''}`} />
+                            {!sidebarCollapsed && (
+                              <>
+                                <span className="flex-1">{item.name}</span>
+                                {item.badge && (
+                                  <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </>
                             )}
                           </Link>
                         )
@@ -247,17 +276,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           {/* User Info */}
           <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
+            {sidebarCollapsed ? (
+              <div className="flex justify-center">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
                   {session?.user?.name?.charAt(0) || 'A'}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session?.user?.name || 'Admin'}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{userRole}</p>
+            ) : (
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                    {session?.user?.name?.charAt(0) || 'A'}
+                  </div>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session?.user?.name || 'Admin'}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{userRole}</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -283,7 +320,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* Main content */}
-      <div className="lg:pl-72">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
         {/* Top Navigation */}
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button
@@ -307,13 +344,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-x-4 lg:gap-x-6">
-            <button
-              type="button"
-              className="relative p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-            >
-              <BellIcon className="h-6 w-6" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
-            </button>
+            <NotificationDropdown />
 
             <button
               onClick={toggleTheme}

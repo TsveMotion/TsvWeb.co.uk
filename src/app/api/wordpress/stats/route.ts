@@ -30,6 +30,10 @@ const WordPressStatsSchema = new mongoose.Schema({
     registered: String,
     role: String
   }],
+  // Customer binding
+  customerId: { type: String, default: null, index: true },
+  customerEmail: { type: String, default: null },
+  customerName: { type: String, default: null },
   lastUpdated: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });

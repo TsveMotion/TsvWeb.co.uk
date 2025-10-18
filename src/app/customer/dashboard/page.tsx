@@ -8,6 +8,7 @@ import { Sun, Moon, Settings } from 'lucide-react'
 import SupportTicketModal from '@/components/customer/support-ticket-modal'
 import AccountSettingsModal from '@/components/customer/account-settings-modal'
 import AnnouncementPopup from '@/components/customer/AnnouncementPopup'
+import WordPressSitesWidget from '@/components/customer/WordPressSitesWidget'
 
 interface CustomerData {
   id: string
@@ -606,6 +607,11 @@ export default function CustomerDashboard() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* WordPress Sites Section */}
+          <div className="mt-8">
+            <WordPressSitesWidget />
           </div>
         </div>
       </main>

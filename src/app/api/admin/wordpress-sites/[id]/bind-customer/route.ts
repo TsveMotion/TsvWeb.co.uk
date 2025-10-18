@@ -2,13 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/db';
+import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
-// WordPress Stats Schema (same as in stats route)
+// WordPress Stats Schema
 const WordPressStatsSchema = new mongoose.Schema({
   siteUrl: { type: String, required: true, unique: true },
   siteName: { type: String, required: true },
@@ -24,7 +22,6 @@ const WordPressStatsSchema = new mongoose.Schema({
   siteHealth: String,
   memoryLimit: String,
   maxUploadSize: String,
-  // Customer binding
   customerId: { type: String, default: null, index: true },
   customerEmail: { type: String, default: null },
   customerName: { type: String, default: null },
@@ -34,7 +31,11 @@ const WordPressStatsSchema = new mongoose.Schema({
 
 const WordPressStats = mongoose.models.WordPressStats || mongoose.model('WordPressStats', WordPressStatsSchema);
 
-export async function GET(request: NextRequest) {
+// POST - Bind WordPress site to customer
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     // Verify authentication
     const session = await getServerSession(authOptions);
@@ -47,20 +48,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Connect to database
     await connectToDatabase();
 
-    // Fetch all WordPress sites
-    const sites = await WordPressStats.find({}).sort({ lastUpdated: -1 });
+    const { customerId } = await request.json();
+
+    if (!customerId) {
+      return NextResponse.json({ error: 'Customer ID required' }, { status: 400 });
+    }
+
+    // Get user details from users collection (same as /admin/users)
+    const mongoClient = await clientPromise;
+    const db = mongoClient.db();
+    
+    const user = await db.collection('users').findOne({ 
+      _id: new ObjectId(customerId) 
+    });
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Update WordPress site with customer binding
+    const site = await WordPressStats.findByIdAndUpdate(
+      params.id,
+      {
+        customerId: user._id.toString(),
+        customerEmail: user.email,
+        customerName: user.name || user.username
+      },
+      { new: true }
+    );
+
+    if (!site) {
+      return NextResponse.json({ error: 'WordPress site not found' }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
-      sites: sites,
-      count: sites.length,
+      message: 'Site bound to customer successfully',
+      site
     });
 
   } catch (error) {
-    console.error('Error fetching WordPress sites:', error);
+    console.error('Error binding site to customer:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -68,7 +98,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+// DELETE - Unbind WordPress site from customer
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     // Verify authentication
     const session = await getServerSession(authOptions);
@@ -77,31 +111,35 @@ export async function DELETE(request: NextRequest) {
     }
     
     const userRole = (session.user as any).role;
-    if (userRole !== 'admin') {
+    if (userRole !== 'admin' && userRole !== 'editor') {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get site ID from URL
-    const url = new URL(request.url);
-    const siteId = url.pathname.split('/').pop();
-
-    if (!siteId) {
-      return NextResponse.json({ error: 'Site ID required' }, { status: 400 });
-    }
-
-    // Connect to database
     await connectToDatabase();
 
-    // Delete the site
-    await WordPressStats.findByIdAndDelete(siteId);
+    // Remove customer binding
+    const site = await WordPressStats.findByIdAndUpdate(
+      params.id,
+      {
+        customerId: null,
+        customerEmail: null,
+        customerName: null
+      },
+      { new: true }
+    );
+
+    if (!site) {
+      return NextResponse.json({ error: 'WordPress site not found' }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Site removed successfully',
+      message: 'Site unbound from customer successfully',
+      site
     });
 
   } catch (error) {
-    console.error('Error deleting WordPress site:', error);
+    console.error('Error unbinding site from customer:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
