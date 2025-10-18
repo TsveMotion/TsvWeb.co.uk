@@ -38,7 +38,7 @@ Disallow: /my-registries
 Disallow: /account/api/
 
 # Host
-Host: https://tsvweb.com
+Host: https://tsvweb.co.uk
 
 # Sitemaps
-Sitemap: https://tsvweb.com/sitemap.xml
+Sitemap: https://tsvweb.co.uk/sitemap.xml

@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tsvweb.com'),
+  metadataBase: new URL('https://tsvweb.co.uk'),
   title: 'Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb',
   description: 'Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google, mobile-ready in 48 hours. Trusted by 500+ Birmingham businesses. Free quote + SEO checklist today!',
   keywords: 'web design Birmingham, Birmingham web design, website design Birmingham, affordable web design Birmingham, SEO Birmingham, Birmingham web developer, local SEO Birmingham, mobile website design Birmingham, e-commerce Birmingham, restaurant website Birmingham',
@@ -34,12 +34,12 @@ export const metadata: Metadata = {
     apple: '/TsvWeb_Favicon.png',
   },
   alternates: {
-    canonical: 'https://tsvweb.com',
+    canonical: 'https://tsvweb.co.uk',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tsvweb.com',
+    url: 'https://tsvweb.co.uk',
     siteName: 'TsvWeb',
     title: 'Web Design Birmingham | Get 3x More Leads in 30 Days | TsvWeb',
     description: 'Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google. Trusted by 500+ Birmingham businesses. Free quote today!',
@@ -70,13 +70,13 @@ export default function RootLayout({
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": "https://tsvweb.com/#organization",
+    "@id": "https://tsvweb.co.uk/#organization",
     "name": "TsvWeb",
     "alternateName": "TsvWeb Birmingham Web Design",
-    "url": "https://tsvweb.com",
+    "url": "https://tsvweb.co.uk",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://tsvweb.com/TsvWeb_Logo.png",
+      "url": "https://tsvweb.co.uk/TsvWeb_Logo.png",
       "width": 1200,
       "height": 630
     },
@@ -101,14 +101,14 @@ export default function RootLayout({
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    "@id": "https://tsvweb.com/#localbusiness",
+    "@id": "https://tsvweb.co.uk/#localbusiness",
     "name": "TsvWeb - Web Design Birmingham",
     "alternateName": "TsvWeb Birmingham Web Developer",
     "description": "Professional web design services in Birmingham from £30/month. Expert web developer creating SEO-optimised, mobile-ready websites for Birmingham businesses. Specializing in local SEO, e-commerce, and custom web development.",
-    "url": "https://tsvweb.com",
+    "url": "https://tsvweb.co.uk",
     "telephone": "+447444358808",
     "email": "hello@tsvweb.com",
-    "image": "https://tsvweb.com/TsvWeb_Logo.png",
+    "image": "https://tsvweb.co.uk/TsvWeb_Logo.png",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "318 Shady Ln",
@@ -193,18 +193,18 @@ export default function RootLayout({
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": "https://tsvweb.com/#website",
-    "url": "https://tsvweb.com",
+    "@id": "https://tsvweb.co.uk/#website",
+    "url": "https://tsvweb.co.uk",
     "name": "TsvWeb - Web Design Birmingham",
     "description": "Professional web design Birmingham from £30/month. Get 3x more leads, rank #1 on Google. Trusted by 500+ Birmingham businesses.",
     "publisher": {
-      "@id": "https://tsvweb.com/#organization"
+      "@id": "https://tsvweb.co.uk/#organization"
     },
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://tsvweb.com/search?q={search_term_string}"
+        "urlTemplate": "https://tsvweb.co.uk/search?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     },

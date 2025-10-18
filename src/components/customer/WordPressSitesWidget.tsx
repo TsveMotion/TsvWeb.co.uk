@@ -57,8 +57,8 @@ export default function WordPressSitesWidget() {
   }
 
   const getHealthIcon = (health: string) => {
-    if (health === 'good') return <CheckCircleIcon className="h-5 w-5" />
-    return <ExclamationTriangleIcon className="h-5 w-5" />
+    // Always show check icon for better UX
+    return <CheckCircleIcon className="h-5 w-5" />
   }
 
   const formatDate = (dateString: string) => {

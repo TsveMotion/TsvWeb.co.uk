@@ -7,6 +7,10 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const pathname = request.nextUrl.pathname
   
+  // NOTE: NO redirects from .com to .co.uk
+  // The .com domain is heavily spammed (43K+ fake pages)
+  // We want a FRESH START with .co.uk - separate deployment, separate SEO
+  
   // SPAM URL PROTECTION: Block spam product pages and gambling URLs with 410 Gone
   // These are fake product pages from negative SEO attack (34.5K+ pages)
   
