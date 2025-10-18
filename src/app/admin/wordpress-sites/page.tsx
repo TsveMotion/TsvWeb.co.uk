@@ -112,6 +112,14 @@ function WordPressSitesPage() {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // Helper function to decode HTML entities (like &pound; to £)
+  const decodeHtmlEntity = (str: string) => {
+    if (typeof window === 'undefined') return str;
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = str;
+    return textarea.value;
+  };
+
   useEffect(() => {
     fetchSites();
   }, []);
@@ -754,7 +762,7 @@ function WordPressSitesPage() {
                           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg col-span-2 border-l-4 border-emerald-500">
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Revenue</p>
                             <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                              {selectedSite.currency || '$'}{selectedSite.totalRevenue}
+                              {selectedSite.currency ? decodeHtmlEntity(selectedSite.currency) : '$'}{selectedSite.totalRevenue}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All-time sales</p>
                           </div>
@@ -776,7 +784,7 @@ function WordPressSitesPage() {
                               <div>
                                 <p className="text-xs text-gray-600 dark:text-gray-400">Revenue</p>
                                 <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">
-                                  {selectedSite.currency || '$'}{selectedSite.recentRevenue30d}
+                                  {selectedSite.currency ? decodeHtmlEntity(selectedSite.currency) : '$'}{selectedSite.recentRevenue30d}
                                 </p>
                               </div>
                             )}

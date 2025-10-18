@@ -91,6 +91,46 @@ export default function SupportTicketsPage() {
     }
   };
 
+  const updateTicketStatus = async (ticketId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/wordpress/support/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        fetchTickets();
+        if (selectedTicket?._id === ticketId) {
+          setSelectedTicket({ ...selectedTicket, status: newStatus as any });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      alert('Failed to update ticket status');
+    }
+  };
+
+  const deleteTicket = async (ticketId: string) => {
+    if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/wordpress/support/${ticketId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchTickets();
+        setSelectedTicket(null);
+      }
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      alert('Failed to delete ticket');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -265,8 +305,56 @@ export default function SupportTicketsPage() {
                 </div>
 
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Change Status</h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button
+                      onClick={() => updateTicketStatus(selectedTicket._id, 'open')}
+                      disabled={selectedTicket.status === 'open'}
+                      className={`px-4 py-2 rounded-lg transition-all ${
+                        selectedTicket.status === 'open'
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      Open
+                    </button>
+                    <button
+                      onClick={() => updateTicketStatus(selectedTicket._id, 'in_progress')}
+                      disabled={selectedTicket.status === 'in_progress'}
+                      className={`px-4 py-2 rounded-lg transition-all ${
+                        selectedTicket.status === 'in_progress'
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                      }`}
+                    >
+                      In Progress
+                    </button>
+                    <button
+                      onClick={() => updateTicketStatus(selectedTicket._id, 'resolved')}
+                      disabled={selectedTicket.status === 'resolved'}
+                      className={`px-4 py-2 rounded-lg transition-all ${
+                        selectedTicket.status === 'resolved'
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      Resolved
+                    </button>
+                    <button
+                      onClick={() => updateTicketStatus(selectedTicket._id, 'closed')}
+                      disabled={selectedTicket.status === 'closed'}
+                      className={`px-4 py-2 rounded-lg transition-all ${
+                        selectedTicket.status === 'closed'
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                      }`}
+                    >
+                      Closed
+                    </button>
+                  </div>
+
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <a
                       href={`mailto:${selectedTicket.userEmail}?subject=Re: ${selectedTicket.subject}`}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all"
@@ -281,6 +369,12 @@ export default function SupportTicketsPage() {
                     >
                       Open WP Admin
                     </a>
+                    <button
+                      onClick={() => deleteTicket(selectedTicket._id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                    >
+                      🗑️ Delete Ticket
+                    </button>
                   </div>
                 </div>
               </div>
