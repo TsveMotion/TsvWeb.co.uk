@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contract from '@/models/Contract';
 import { connectToDatabase } from '@/lib/db';
 import { put, del } from '@vercel/blob';
-import { verifySession } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // POST - Upload files to contract
 export async function POST(
@@ -10,8 +11,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -68,7 +69,7 @@ export async function POST(
         size: file.size,
         mimeType: file.type,
         uploadedAt: new Date(),
-        uploadedBy: session.email || 'admin'
+        uploadedBy: session.user.email || 'admin'
       };
 
       uploadedFiles.push(fileInfo);
@@ -76,7 +77,7 @@ export async function POST(
 
     // Update contract with new files
     contract.files = [...contract.files, ...uploadedFiles];
-    contract.updatedBy = session.email || 'admin';
+    contract.updatedBy = session.user.email || 'admin';
     await contract.save();
 
     return NextResponse.json({
@@ -101,8 +102,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await verifySession(request as any);
-    if (!session?.authenticated || session.role !== 'admin') {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -135,7 +136,7 @@ export async function DELETE(
 
     // Update contract to remove file
     contract.files = contract.files.filter((f: any) => f.filename !== filename);
-    contract.updatedBy = session.email || 'admin';
+    contract.updatedBy = session.user.email || 'admin';
     await contract.save();
 
     return NextResponse.json({

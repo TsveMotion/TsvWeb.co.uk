@@ -276,8 +276,20 @@ export default function ContractsAdmin() {
       });
 
       if (response.ok) {
-        // Refresh the contract data to show the new file
-        loadContracts();
+        const data = await response.json();
+        
+        // Update the selected contract immediately with the new file
+        const updatedContract = {
+          ...selectedContract,
+          files: data.contract?.files || [...(selectedContract.files || []), data.file]
+        };
+        setSelectedContract(updatedContract);
+        
+        // Also update in the contracts list
+        setContracts(contracts.map(c => 
+          c._id === selectedContract._id ? updatedContract : c
+        ));
+        
         alert('File uploaded successfully!');
       } else {
         alert('Error uploading file');
@@ -304,8 +316,24 @@ export default function ContractsAdmin() {
     try {
       const res = await fetch(`/api/admin/agreements/${agreement._id}/upload`, { method: 'POST', body: fd });
       if (res.ok) {
-        await loadAgreements();
-        alert('Agreement PDF uploaded');
+        const data = await res.json();
+        
+        // Update the selected agreement immediately
+        if (selectedAgreement && selectedAgreement._id === agreement._id) {
+          setSelectedAgreement({
+            ...selectedAgreement,
+            pdfPath: data.agreement?.pdfPath || data.pdfPath
+          });
+        }
+        
+        // Update in agreements list
+        setAgreements(agreements.map(a => 
+          a._id === agreement._id 
+            ? { ...a, pdfPath: data.agreement?.pdfPath || data.pdfPath }
+            : a
+        ));
+        
+        alert('Agreement PDF uploaded successfully!');
       } else {
         const err = await res.json().catch(() => ({} as any));
         alert('Upload failed: ' + (err.error || res.statusText));

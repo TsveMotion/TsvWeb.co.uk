@@ -173,6 +173,27 @@ const nextConfig = {
       },
     ]
   },
+
+  // Webpack configuration to handle PDF.js properly
+  webpack: (config, { isServer }) => {
+    // Fix for pdfjs-dist
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+      encoding: false,
+    };
+
+    // Ignore canvas module warnings
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        canvas: false,
+        encoding: false,
+      };
+    }
+
+    return config;
+  },
 }
 
 module.exports = nextConfig
