@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: TsvWeb Monitor
- * Plugin URI: https://tsvweb.com
- * Description: Sends basic website statistics to TsvWeb dashboard for monitoring
- * Version: 1.3.0
+ * Plugin URI: https://tsvweb.co.uk
+ * Description: Complete monitoring and management solution for TsvWeb-managed WordPress sites. Includes client verification, support portal, payment tracking, and remote management tools.
+ * Version: 2.0.0
  * Author: TsvWeb
- * Author URI: https://tsvweb.com
+ * Author URI: https://tsvweb.co.uk
  * License: GPL v2 or later
  * Text Domain: tsvweb-monitor
- * Update URI: https://tsvweb.com/wp-content/plugins/tsvweb-monitor/
+ * Update URI: https://tsvweb.co.uk/wp-content/plugins/tsvweb-monitor/
  * Requires at least: 5.0
  * Requires PHP: 7.4
  */
@@ -19,13 +19,20 @@ if (!defined('ABSPATH')) {
 }
 
 class TsvWeb_Monitor {
-    private $api_url = 'https://tsvweb.com/api/wordpress/stats';
+    private $api_url = 'https://tsvweb.co.uk/api/wordpress/stats';
+    private $verify_url = 'https://tsvweb.co.uk/api/wordpress/verify';
+    private $support_url = 'https://tsvweb.co.uk/api/wordpress/support';
+    private $payment_url = 'https://tsvweb.co.uk/api/wordpress/payment-status';
     private $option_name = 'tsvweb_monitor_settings';
+    private $payment_option = 'tsvweb_payment_info';
     
     public function __construct() {
         // Admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        
+        // Dashboard widget
+        add_action('wp_dashboard_setup', array($this, 'add_dashboard_widget'));
         
         // Send stats every 30 seconds
         add_action('tsvweb_stats_sync', array($this, 'send_stats'));
@@ -41,6 +48,8 @@ class TsvWeb_Monitor {
         // Replace WordPress logo with TsvWeb logo
         add_action('admin_bar_menu', array($this, 'replace_admin_bar_logo'), 11);
         add_action('login_enqueue_scripts', array($this, 'custom_login_logo'));
+        add_filter('login_headerurl', array($this, 'custom_login_url'));
+        add_filter('login_headertext', array($this, 'custom_login_title'));
         
         // Add custom cron schedule
         add_filter('cron_schedules', array($this, 'add_thirty_second_cron_schedule'));
@@ -186,12 +195,35 @@ class TsvWeb_Monitor {
     }
     
     public function add_admin_menu() {
-        add_options_page(
-            'TsvWeb Monitor Settings',
-            'TsvWeb Monitor',
-            'manage_options', // Only administrators can access
-            'tsvweb-monitor',
+        // Main TsvWeb Control page (for clients)
+        add_menu_page(
+            'TsvWeb Control',
+            'TsvWeb Control',
+            'read', // All logged-in users can see this
+            'tsvweb-control',
+            array($this, 'control_page'),
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI4IiBmaWxsPSIjMDA3Y2JhIi8+PC9zdmc+',
+            3
+        );
+        
+        // Settings submenu (admin only)
+        add_submenu_page(
+            'tsvweb-control',
+            'TsvWeb Settings',
+            'Settings',
+            'manage_options',
+            'tsvweb-settings',
             array($this, 'settings_page')
+        );
+        
+        // Admin Tools submenu (admin only, hidden from clients)
+        add_submenu_page(
+            'tsvweb-control',
+            'TsvWeb Admin Tools',
+            'Admin Tools',
+            'manage_options',
+            'tsvweb-admin-tools',
+            array($this, 'admin_tools_page')
         );
     }
     
@@ -612,8 +644,8 @@ class TsvWeb_Monitor {
         
         $args = array(
             'id'    => 'tsvweb-logo',
-            'title' => '<span class="ab-icon" style="background-image: url(https://tsvweb.com/TsvWeb_Logo_DarkTheme.png) !important; background-size: contain; background-repeat: no-repeat; background-position: center; width: 20px; height: 20px; display: inline-block;"></span><span class="ab-label">TsvWeb</span>',
-            'href'  => 'https://tsvweb.com',
+            'title' => '<span class="ab-icon" style="background-image: url(https://tsvweb.co.uk/TsvWeb_Logo_DarkTheme.png) !important; background-size: contain; background-repeat: no-repeat; background-position: center; width: 20px; height: 20px; display: inline-block;"></span><span class="ab-label">TsvWeb</span>',
+            'href'  => 'https://tsvweb.co.uk',
             'meta'  => array(
                 'title' => 'Powered by TsvWeb',
                 'target' => '_blank'
@@ -627,7 +659,7 @@ class TsvWeb_Monitor {
         ?>
         <style type="text/css">
             #login h1 a, .login h1 a {
-                background-image: url(https://tsvweb.com/TsvWeb_Logo_DarkTheme.png) !important;
+                background-image: url(https://tsvweb.co.uk/TsvWeb_Logo_DarkTheme.png) !important;
                 height: 80px;
                 width: 320px;
                 background-size: contain;
@@ -638,6 +670,16 @@ class TsvWeb_Monitor {
         <?php
     }
     
+    // Custom login URL
+    public function custom_login_url() {
+        return 'https://tsvweb.co.uk';
+    }
+    
+    // Custom login title
+    public function custom_login_title() {
+        return 'Powered by TsvWeb';
+    }
+    
     // Check for plugin updates
     public function check_for_plugin_update($transient) {
         if (empty($transient->checked)) {
@@ -645,7 +687,7 @@ class TsvWeb_Monitor {
         }
         
         $plugin_slug = 'tsvweb-monitor/tsvweb-monitor.php';
-        $update_url = 'https://tsvweb.com/api/wordpress/plugin-update';
+        $update_url = 'https://tsvweb.co.uk/api/wordpress/plugin-update';
         
         // Get current version
         $plugin_data = get_plugin_data(__FILE__);
@@ -695,7 +737,7 @@ class TsvWeb_Monitor {
             return $false;
         }
         
-        $update_url = 'https://tsvweb.com/api/wordpress/plugin-update?action=plugin_information&slug=tsvweb-monitor';
+        $update_url = 'https://tsvweb.co.uk/api/wordpress/plugin-update?action=plugin_information&slug=tsvweb-monitor';
         
         $response = wp_remote_get($update_url, array(
             'timeout' => 10,
@@ -712,6 +754,576 @@ class TsvWeb_Monitor {
         }
         
         return (object) $plugin_info;
+    }
+    
+    // ========== NEW FEATURES ==========
+    
+    /**
+     * Verify client is authorized TsvWeb customer
+     */
+    public function verify_client() {
+        $settings = get_option($this->option_name, array());
+        $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        if (empty($api_key)) {
+            return array(
+                'verified' => false,
+                'message' => 'No API key configured'
+            );
+        }
+        
+        // Check cache first
+        $cache_key = 'tsvweb_verification_' . md5($api_key);
+        $cached = get_transient($cache_key);
+        if ($cached !== false) {
+            return $cached;
+        }
+        
+        // Verify with API
+        $response = wp_remote_post($this->verify_url, array(
+            'timeout' => 10,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+            'body' => json_encode(array(
+                'site_url' => get_site_url(),
+                'site_name' => get_bloginfo('name'),
+            )),
+        ));
+        
+        if (is_wp_error($response)) {
+            return array(
+                'verified' => false,
+                'message' => 'Connection error: ' . $response->get_error_message()
+            );
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        $result = array(
+            'verified' => $response_code === 200 && isset($body['verified']) && $body['verified'],
+            'message' => isset($body['message']) ? $body['message'] : 'Unknown status',
+            'client_name' => isset($body['client_name']) ? $body['client_name'] : '',
+            'plan' => isset($body['plan']) ? $body['plan'] : 'Standard',
+        );
+        
+        // Cache for 1 hour
+        set_transient($cache_key, $result, HOUR_IN_SECONDS);
+        
+        return $result;
+    }
+    
+    /**
+     * Get payment status from API
+     */
+    public function get_payment_status() {
+        $settings = get_option($this->option_name, array());
+        $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        if (empty($api_key)) {
+            return array(
+                'status' => 'unknown',
+                'message' => 'Not configured'
+            );
+        }
+        
+        // Check cache
+        $cache_key = 'tsvweb_payment_status';
+        $cached = get_transient($cache_key);
+        if ($cached !== false) {
+            return $cached;
+        }
+        
+        $response = wp_remote_get($this->payment_url, array(
+            'timeout' => 10,
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+        ));
+        
+        if (is_wp_error($response)) {
+            return array(
+                'status' => 'unknown',
+                'message' => 'Unable to fetch payment status'
+            );
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        $result = array(
+            'status' => isset($body['status']) ? $body['status'] : 'unknown',
+            'message' => isset($body['message']) ? $body['message'] : '',
+            'next_payment' => isset($body['next_payment']) ? $body['next_payment'] : '',
+            'amount' => isset($body['amount']) ? $body['amount'] : '',
+        );
+        
+        // Cache for 6 hours
+        set_transient($cache_key, $result, 6 * HOUR_IN_SECONDS);
+        
+        return $result;
+    }
+    
+    /**
+     * TsvWeb Control Page (Main client-facing page)
+     */
+    public function control_page() {
+        $verification = $this->verify_client();
+        $payment = $this->get_payment_status();
+        $settings = get_option($this->option_name, array());
+        $last_sync = isset($settings['last_sync']) ? $settings['last_sync'] : 'Never';
+        
+        // Handle support form submission
+        if (isset($_POST['submit_support']) && check_admin_referer('tsvweb_support', 'tsvweb_support_nonce')) {
+            $this->handle_support_request();
+        }
+        
+        ?>
+        <div class="wrap tsvweb-control">
+            <h1>
+                <span class="dashicons dashicons-admin-site" style="color: #007cba;"></span>
+                TsvWeb Control Panel
+            </h1>
+            
+            <style>
+                .tsvweb-control .card { max-width: 100%; margin-bottom: 20px; }
+                .tsvweb-control .status-badge { 
+                    display: inline-block; 
+                    padding: 4px 12px; 
+                    border-radius: 3px; 
+                    font-size: 12px; 
+                    font-weight: 600;
+                }
+                .status-verified { background: #d4edda; color: #155724; }
+                .status-unverified { background: #f8d7da; color: #721c24; }
+                .status-paid { background: #d1ecf1; color: #0c5460; }
+                .status-overdue { background: #fff3cd; color: #856404; }
+                .tsvweb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+                .stat-box { background: #f0f0f1; padding: 15px; border-radius: 4px; }
+                .stat-box h3 { margin-top: 0; font-size: 14px; color: #646970; }
+                .stat-box .stat-value { font-size: 32px; font-weight: 600; color: #1d2327; }
+            </style>
+            
+            <!-- Verification Status -->
+            <div class="card">
+                <h2>Website Status</h2>
+                <table class="form-table">
+                    <tr>
+                        <th>Verification Status:</th>
+                        <td>
+                            <?php if ($verification['verified']): ?>
+                                <span class="status-badge status-verified">✓ Verified TsvWeb Client</span>
+                                <?php if (!empty($verification['client_name'])): ?>
+                                    <p>Client: <strong><?php echo esc_html($verification['client_name']); ?></strong></p>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="status-badge status-unverified">✗ Not Verified</span>
+                                <p><?php echo esc_html($verification['message']); ?></p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Service Plan:</th>
+                        <td><?php echo esc_html($verification['plan'] ?? 'Standard'); ?></td>
+                    </tr>
+                    <tr>
+                        <th>Last Sync:</th>
+                        <td><?php echo esc_html($last_sync); ?></td>
+                    </tr>
+                    <tr>
+                        <th>WordPress Version:</th>
+                        <td><?php echo esc_html(get_bloginfo('version')); ?></td>
+                    </tr>
+                    <tr>
+                        <th>PHP Version:</th>
+                        <td><?php echo esc_html(PHP_VERSION); ?></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Payment Status -->
+            <div class="card">
+                <h2>Payment Status</h2>
+                <table class="form-table">
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            <?php if ($payment['status'] === 'paid'): ?>
+                                <span class="status-badge status-paid">✓ Paid</span>
+                            <?php elseif ($payment['status'] === 'overdue'): ?>
+                                <span class="status-badge status-overdue">⚠ Payment Overdue</span>
+                            <?php else: ?>
+                                <span class="status-badge"><?php echo esc_html(ucfirst($payment['status'])); ?></span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php if (!empty($payment['message'])): ?>
+                    <tr>
+                        <th>Details:</th>
+                        <td><?php echo esc_html($payment['message']); ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($payment['next_payment'])): ?>
+                    <tr>
+                        <th>Next Payment Due:</th>
+                        <td><?php echo esc_html($payment['next_payment']); ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($payment['amount'])): ?>
+                    <tr>
+                        <th>Amount:</th>
+                        <td>£<?php echo esc_html($payment['amount']); ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+            
+            <!-- Website Overview Stats -->
+            <div class="card">
+                <h2>Website Overview</h2>
+                <div class="tsvweb-grid">
+                    <?php
+                    $posts_count = wp_count_posts('post');
+                    $pages_count = wp_count_posts('page');
+                    $users_count = count_users();
+                    $comments_count = wp_count_comments();
+                    ?>
+                    <div class="stat-box">
+                        <h3>Total Posts</h3>
+                        <div class="stat-value"><?php echo number_format($posts_count->publish); ?></div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Total Pages</h3>
+                        <div class="stat-value"><?php echo number_format($pages_count->publish); ?></div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Total Users</h3>
+                        <div class="stat-value"><?php echo number_format($users_count['total_users']); ?></div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Comments</h3>
+                        <div class="stat-value"><?php echo number_format($comments_count->approved); ?></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Support Request Form -->
+            <div class="card">
+                <h2>Contact TsvWeb Support</h2>
+                <p>Need help? Send us a message and we'll get back to you as soon as possible.</p>
+                
+                <form method="post" action="">
+                    <?php wp_nonce_field('tsvweb_support', 'tsvweb_support_nonce'); ?>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th><label for="support_subject">Subject</label></th>
+                            <td>
+                                <input type="text" id="support_subject" name="support_subject" class="regular-text" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="support_message">Message</label></th>
+                            <td>
+                                <textarea id="support_message" name="support_message" rows="6" class="large-text" required></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="support_priority">Priority</label></th>
+                            <td>
+                                <select id="support_priority" name="support_priority">
+                                    <option value="low">Low</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <?php submit_button('Send Support Request', 'primary', 'submit_support'); ?>
+                </form>
+            </div>
+            
+            <p style="text-align: center; color: #646970;">
+                Powered by <a href="https://tsvweb.co.uk" target="_blank">TsvWeb</a> | 
+                <a href="mailto:support@tsvweb.co.uk">support@tsvweb.co.uk</a>
+            </p>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Handle support request submission
+     */
+    private function handle_support_request() {
+        $subject = sanitize_text_field($_POST['support_subject']);
+        $message = sanitize_textarea_field($_POST['support_message']);
+        $priority = sanitize_text_field($_POST['support_priority']);
+        
+        $settings = get_option($this->option_name, array());
+        $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        $current_user = wp_get_current_user();
+        
+        $response = wp_remote_post($this->support_url, array(
+            'timeout' => 15,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+            'body' => json_encode(array(
+                'site_url' => get_site_url(),
+                'site_name' => get_bloginfo('name'),
+                'subject' => $subject,
+                'message' => $message,
+                'priority' => $priority,
+                'user_email' => $current_user->user_email,
+                'user_name' => $current_user->display_name,
+                'wp_version' => get_bloginfo('version'),
+                'php_version' => PHP_VERSION,
+            )),
+        ));
+        
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+            echo '<div class="notice notice-success"><p><strong>Support request sent successfully!</strong> We\'ll get back to you soon.</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p><strong>Failed to send support request.</strong> Please try again or email us directly at support@tsvweb.co.uk</p></div>';
+        }
+    }
+    
+    /**
+     * Admin Tools Page (TsvWeb staff only)
+     */
+    public function admin_tools_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Access denied');
+        }
+        
+        // Handle manual actions
+        if (isset($_POST['force_sync']) && check_admin_referer('tsvweb_admin_tools', 'tsvweb_admin_nonce')) {
+            $this->send_stats();
+            echo '<div class="notice notice-success"><p>Stats synced successfully!</p></div>';
+        }
+        
+        if (isset($_POST['clear_cache']) && check_admin_referer('tsvweb_admin_tools', 'tsvweb_admin_nonce')) {
+            delete_transient('tsvweb_verification_' . md5(get_option($this->option_name)['api_key'] ?? ''));
+            delete_transient('tsvweb_payment_status');
+            echo '<div class="notice notice-success"><p>Cache cleared!</p></div>';
+        }
+        
+        $settings = get_option($this->option_name, array());
+        
+        ?>
+        <div class="wrap">
+            <h1>TsvWeb Admin Tools</h1>
+            <p><em>These tools are for TsvWeb staff only and are hidden from clients.</em></p>
+            
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <form method="post" action="" style="display: inline-block; margin-right: 10px;">
+                    <?php wp_nonce_field('tsvweb_admin_tools', 'tsvweb_admin_nonce'); ?>
+                    <button type="submit" name="force_sync" class="button button-primary">Force Sync Now</button>
+                </form>
+                
+                <form method="post" action="" style="display: inline-block;">
+                    <?php wp_nonce_field('tsvweb_admin_tools', 'tsvweb_admin_nonce'); ?>
+                    <button type="submit" name="clear_cache" class="button">Clear Cache</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>System Information</h2>
+                <table class="widefat">
+                    <tr>
+                        <th>Plugin Version</th>
+                        <td>2.0.0</td>
+                    </tr>
+                    <tr>
+                        <th>API URL</th>
+                        <td><?php echo esc_html($this->api_url); ?></td>
+                    </tr>
+                    <tr>
+                        <th>API Key Configured</th>
+                        <td><?php echo !empty($settings['api_key']) ? 'Yes' : 'No'; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Last Sync</th>
+                        <td><?php echo esc_html($settings['last_sync'] ?? 'Never'); ?></td>
+                    </tr>
+                    <tr>
+                        <th>Cron Status</th>
+                        <td><?php echo wp_next_scheduled('tsvweb_stats_sync') ? 'Scheduled' : 'Not Scheduled'; ?></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>Recent Error Logs</h2>
+                <p>Check your server error logs for entries starting with "TsvWeb Monitor"</p>
+                <code>tail -f /path/to/error.log | grep "TsvWeb Monitor"</code>
+            </div>
+            
+            <div class="card">
+                <h2>Remote Management Endpoints</h2>
+                <table class="widefat">
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/wp-json/tsvweb/v1/create-admin</code></td>
+                            <td>POST</td>
+                            <td>Create admin user remotely</td>
+                        </tr>
+                        <tr>
+                            <td><code>/wp-json/tsvweb/v1/reset-password</code></td>
+                            <td>POST</td>
+                            <td>Reset user password remotely</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><em>All endpoints require API key authentication via X-API-Key header</em></p>
+            </div>
+            
+            <div class="card">
+                <h2>Database Options</h2>
+                <table class="widefat">
+                    <tr>
+                        <th>Option Name</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>tsvweb_monitor_settings</td>
+                        <td><pre><?php echo esc_html(print_r(get_option($this->option_name), true)); ?></pre></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Add Dashboard Widget
+     */
+    public function add_dashboard_widget() {
+        wp_add_dashboard_widget(
+            'tsvweb_dashboard_widget',
+            '<span class="dashicons dashicons-admin-site" style="color: #007cba;"></span> TsvWeb Monitor',
+            array($this, 'dashboard_widget_content')
+        );
+    }
+    
+    /**
+     * Dashboard Widget Content
+     */
+    public function dashboard_widget_content() {
+        $verification = $this->verify_client();
+        $payment = $this->get_payment_status();
+        $settings = get_option($this->option_name, array());
+        $last_sync = isset($settings['last_sync']) ? $settings['last_sync'] : 'Never';
+        
+        ?>
+        <style>
+            .tsvweb-widget { font-size: 13px; }
+            .tsvweb-widget .status-row { 
+                display: flex; 
+                justify-content: space-between; 
+                padding: 8px 0; 
+                border-bottom: 1px solid #f0f0f1; 
+            }
+            .tsvweb-widget .status-row:last-child { border-bottom: none; }
+            .tsvweb-widget .status-label { font-weight: 600; color: #646970; }
+            .tsvweb-widget .status-value { color: #1d2327; }
+            .tsvweb-widget .status-good { color: #00a32a; }
+            .tsvweb-widget .status-warning { color: #dba617; }
+            .tsvweb-widget .status-error { color: #d63638; }
+            .tsvweb-widget .widget-button { 
+                display: inline-block; 
+                margin-top: 10px; 
+                padding: 6px 12px; 
+                background: #007cba; 
+                color: white; 
+                text-decoration: none; 
+                border-radius: 3px; 
+                font-size: 12px;
+            }
+            .tsvweb-widget .widget-button:hover { background: #005a87; color: white; }
+        </style>
+        
+        <div class="tsvweb-widget">
+            <div class="status-row">
+                <span class="status-label">Status:</span>
+                <span class="status-value <?php echo $verification['verified'] ? 'status-good' : 'status-error'; ?>">
+                    <?php echo $verification['verified'] ? '✓ Verified' : '✗ Not Verified'; ?>
+                </span>
+            </div>
+            
+            <div class="status-row">
+                <span class="status-label">Payment:</span>
+                <span class="status-value <?php 
+                    echo $payment['status'] === 'paid' ? 'status-good' : 
+                         ($payment['status'] === 'overdue' ? 'status-error' : 'status-warning'); 
+                ?>">
+                    <?php echo esc_html(ucfirst($payment['status'])); ?>
+                </span>
+            </div>
+            
+            <?php if (!empty($payment['next_payment'])): ?>
+            <div class="status-row">
+                <span class="status-label">Next Payment:</span>
+                <span class="status-value"><?php echo esc_html($payment['next_payment']); ?></span>
+            </div>
+            <?php endif; ?>
+            
+            <div class="status-row">
+                <span class="status-label">Last Sync:</span>
+                <span class="status-value"><?php 
+                    if ($last_sync === 'Never') {
+                        echo '<span class="status-warning">Never</span>';
+                    } else {
+                        $time_diff = human_time_diff(strtotime($last_sync), current_time('timestamp'));
+                        echo esc_html($time_diff . ' ago');
+                    }
+                ?></span>
+            </div>
+            
+            <div class="status-row">
+                <span class="status-label">WordPress:</span>
+                <span class="status-value"><?php echo esc_html(get_bloginfo('version')); ?></span>
+            </div>
+            
+            <div class="status-row">
+                <span class="status-label">PHP:</span>
+                <span class="status-value"><?php echo esc_html(PHP_VERSION); ?></span>
+            </div>
+            
+            <?php if ($payment['status'] === 'overdue'): ?>
+            <div style="background: #fff3cd; padding: 10px; margin-top: 10px; border-left: 3px solid #dba617;">
+                <strong>⚠ Payment Overdue</strong><br>
+                Please contact TsvWeb to update your payment.
+            </div>
+            <?php endif; ?>
+            
+            <div style="margin-top: 15px; text-align: center;">
+                <a href="<?php echo admin_url('admin.php?page=tsvweb-control'); ?>" class="widget-button">
+                    Open TsvWeb Control
+                </a>
+                <a href="mailto:support@tsvweb.co.uk" class="widget-button" style="background: #50575e;">
+                    Contact Support
+                </a>
+            </div>
+            
+            <p style="text-align: center; margin-top: 15px; color: #646970; font-size: 11px;">
+                Managed by <a href="https://tsvweb.co.uk" target="_blank">TsvWeb</a>
+            </p>
+        </div>
+        <?php
     }
 }
 

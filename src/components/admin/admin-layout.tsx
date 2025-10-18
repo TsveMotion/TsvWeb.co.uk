@@ -30,7 +30,8 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   RocketLaunchIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline'
 
 interface AdminLayoutProps {
@@ -122,6 +123,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { name: 'Users', href: '/admin/users', icon: UserGroupIcon, allowedRoles: ['admin', 'editor'] },
         { name: 'WordPress Sites', href: '/admin/wordpress-sites', icon: GlobeAltIcon, allowedRoles: ['admin', 'editor'] },
+        { name: 'Support Tickets', href: '/admin/support-tickets', icon: TicketIcon, allowedRoles: ['admin', 'editor'] },
         { name: 'Settings', href: '/admin/settings', icon: CogIcon, allowedRoles: ['admin'] }
       ]
     }
