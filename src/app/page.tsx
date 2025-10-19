@@ -7,6 +7,7 @@ import { useSession, signIn } from 'next-auth/react'
 import Navbar from '@/components/navigation/navbar'
 import Footer from '@/components/navigation/footer'
 import FAQSchema from '@/components/seo/FAQSchema'
+import MaintenanceModal from '@/components/MaintenanceModal'
 
 interface UptimeStats {
   totalMonitors: number
@@ -142,6 +143,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <FAQSchema faqs={faqData} />
+      <MaintenanceModal />
       <Navbar />
 
       {/* Hero Section with Email Capture */}

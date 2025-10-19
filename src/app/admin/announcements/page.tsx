@@ -14,7 +14,9 @@ import {
   ArchiveBoxIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  WrenchScrewdriverIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline'
 
 interface Announcement {
@@ -31,6 +33,18 @@ interface Announcement {
   updatedAt: string
 }
 
+interface MaintenanceMode {
+  _id?: string
+  isEnabled: boolean
+  message: string
+  scope: 'tsvweb' | 'all'
+  scheduledStart?: string
+  scheduledEnd?: string
+  autoDisable: boolean
+  autoDisableDuration?: number
+  customMessage?: string
+}
+
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -38,9 +52,20 @@ export default function AnnouncementsPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  
+  // Maintenance Mode state
+  const [maintenanceMode, setMaintenanceMode] = useState<MaintenanceMode>({
+    isEnabled: false,
+    message: '⚠️ SERVICES MAY BE DOWN\nWEBSITES ARE ALL UNDER MAINTENANCE',
+    scope: 'tsvweb',
+    autoDisable: false
+  })
+  const [isMaintenanceLoading, setIsMaintenanceLoading] = useState(false)
+  const [maintenanceSaveStatus, setMaintenanceSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   useEffect(() => {
     fetchAnnouncements()
+    fetchMaintenanceMode()
   }, [])
 
   const fetchAnnouncements = async () => {
@@ -57,6 +82,81 @@ export default function AnnouncementsPage() {
       console.error('Error fetching announcements:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchMaintenanceMode = async () => {
+    try {
+      const response = await fetch('/api/admin/maintenance')
+      if (!response.ok) throw new Error('Failed to fetch')
+      
+      const data = await response.json()
+      if (data.success && data.data) {
+        setMaintenanceMode(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching maintenance mode:', error)
+    }
+  }
+
+  const handleMaintenanceToggle = async () => {
+    setIsMaintenanceLoading(true)
+    setMaintenanceSaveStatus('idle')
+    
+    try {
+      const response = await fetch('/api/admin/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...maintenanceMode,
+          isEnabled: !maintenanceMode.isEnabled
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setMaintenanceMode(data.data)
+          setMaintenanceSaveStatus('success')
+          setTimeout(() => setMaintenanceSaveStatus('idle'), 3000)
+        }
+      } else {
+        setMaintenanceSaveStatus('error')
+      }
+    } catch (error) {
+      console.error('Error toggling maintenance mode:', error)
+      setMaintenanceSaveStatus('error')
+    } finally {
+      setIsMaintenanceLoading(false)
+    }
+  }
+
+  const handleMaintenanceSave = async () => {
+    setIsMaintenanceLoading(true)
+    setMaintenanceSaveStatus('idle')
+    
+    try {
+      const response = await fetch('/api/admin/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(maintenanceMode)
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setMaintenanceMode(data.data)
+          setMaintenanceSaveStatus('success')
+          setTimeout(() => setMaintenanceSaveStatus('idle'), 3000)
+        }
+      } else {
+        setMaintenanceSaveStatus('error')
+      }
+    } catch (error) {
+      console.error('Error saving maintenance mode:', error)
+      setMaintenanceSaveStatus('error')
+    } finally {
+      setIsMaintenanceLoading(false)
     }
   }
 
@@ -168,6 +268,161 @@ export default function AnnouncementsPage() {
             Create Announcement
           </Link>
         </div>
+      </div>
+
+      {/* Maintenance Mode Section */}
+      <div className="mb-8 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl shadow-lg border-2 border-red-200 dark:border-red-800 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <WrenchScrewdriverIcon className="h-8 w-8 mr-3 text-red-600 dark:text-red-400" />
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Maintenance Mode</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Control website downtime notifications</p>
+            </div>
+          </div>
+          
+          {/* Toggle Switch */}
+          <button
+            onClick={handleMaintenanceToggle}
+            disabled={isMaintenanceLoading}
+            className={`relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
+              maintenanceMode.isEnabled 
+                ? 'bg-red-600 dark:bg-red-500' 
+                : 'bg-gray-300 dark:bg-gray-600'
+            } ${isMaintenanceLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <span
+              className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform ${
+                maintenanceMode.isEnabled ? 'translate-x-12' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Status Badge */}
+        <div className="mb-6">
+          <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${
+            maintenanceMode.isEnabled 
+              ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' 
+              : 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+          }`}>
+            {maintenanceMode.isEnabled ? '🔴 MAINTENANCE MODE ACTIVE' : '✅ All Systems Operational'}
+          </span>
+        </div>
+
+        {/* Configuration Form */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Scope Selection */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              <GlobeAltIcon className="h-5 w-5 inline mr-2" />
+              Scope
+            </label>
+            <select
+              value={maintenanceMode.scope}
+              onChange={(e) => setMaintenanceMode({...maintenanceMode, scope: e.target.value as 'tsvweb' | 'all'})}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-medium"
+            >
+              <option value="tsvweb">Only tsvweb.co.uk</option>
+              <option value="all">All TSVWeb Client Websites</option>
+            </select>
+          </div>
+
+          {/* Auto-disable Duration */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              <ClockIcon className="h-5 w-5 inline mr-2" />
+              Auto-disable After (minutes)
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="Leave empty for manual disable"
+              value={maintenanceMode.autoDisableDuration || ''}
+              onChange={(e) => setMaintenanceMode({
+                ...maintenanceMode, 
+                autoDisable: !!e.target.value,
+                autoDisableDuration: e.target.value ? parseInt(e.target.value) : undefined
+              })}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Custom Message */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              ⚠️ Popup Message
+            </label>
+            <textarea
+              value={maintenanceMode.message}
+              onChange={(e) => setMaintenanceMode({...maintenanceMode, message: e.target.value})}
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono"
+              placeholder="⚠️ SERVICES MAY BE DOWN&#10;WEBSITES ARE ALL UNDER MAINTENANCE"
+            />
+          </div>
+
+          {/* Scheduled Start/End (Optional) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              Scheduled Start (Optional)
+            </label>
+            <input
+              type="datetime-local"
+              value={maintenanceMode.scheduledStart || ''}
+              onChange={(e) => setMaintenanceMode({...maintenanceMode, scheduledStart: e.target.value})}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              Scheduled End (Optional)
+            </label>
+            <input
+              type="datetime-local"
+              value={maintenanceMode.scheduledEnd || ''}
+              onChange={(e) => setMaintenanceMode({...maintenanceMode, scheduledEnd: e.target.value})}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={handleMaintenanceSave}
+            disabled={isMaintenanceLoading}
+            className={`px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 ${
+              isMaintenanceLoading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isMaintenanceLoading ? 'Saving...' : 'Save Settings'}
+          </button>
+
+          {maintenanceSaveStatus === 'success' && (
+            <div className="flex items-center text-green-700 dark:text-green-400 font-semibold">
+              <CheckCircleIcon className="h-5 w-5 mr-2" />
+              Settings saved successfully!
+            </div>
+          )}
+
+          {maintenanceSaveStatus === 'error' && (
+            <div className="flex items-center text-red-700 dark:text-red-400 font-semibold">
+              <XCircleIcon className="h-5 w-5 mr-2" />
+              Failed to save settings
+            </div>
+          )}
+        </div>
+
+        {/* Warning Message */}
+        {maintenanceMode.isEnabled && (
+          <div className="mt-6 p-4 bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-red-800 dark:text-red-300 font-semibold text-center">
+              ⚠️ WARNING: Maintenance mode is currently ACTIVE. Users will see a blocking popup on affected websites.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
