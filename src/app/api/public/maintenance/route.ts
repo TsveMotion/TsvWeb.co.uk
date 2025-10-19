@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     // Get the most recent maintenance mode record
     const maintenanceMode = await MaintenanceMode.findOne({})
       .sort({ updatedAt: -1 })
-      .select('isEnabled message scope scheduledStart scheduledEnd')
+      .select('isEnabled message scope scheduledStart scheduledEnd enabledAt')
       .lean()
 
     // If no record exists or maintenance is disabled, return disabled state
@@ -27,10 +27,33 @@ export async function GET(request: NextRequest) {
     const now = new Date()
     let isCurrentlyActive = maintenanceMode.isEnabled
 
+    // If there's a schedule, check if we're within the scheduled window
     if (maintenanceMode.scheduledStart && maintenanceMode.scheduledEnd) {
+      const startTime = new Date(maintenanceMode.scheduledStart)
+      const endTime = new Date(maintenanceMode.scheduledEnd)
+      
+      // Only show maintenance if we're within the scheduled window
       isCurrentlyActive = 
-        now >= new Date(maintenanceMode.scheduledStart) && 
-        now <= new Date(maintenanceMode.scheduledEnd)
+        maintenanceMode.isEnabled &&
+        now >= startTime && 
+        now <= endTime
+      
+      // If we're past the scheduled end time, maintenance should be disabled
+      if (now > endTime) {
+        isCurrentlyActive = false
+      }
+    } else if (maintenanceMode.isEnabled && !maintenanceMode.scheduledStart && !maintenanceMode.scheduledEnd) {
+      // If maintenance is enabled but no schedule is set, check if it's been enabled for more than 24 hours
+      // This prevents maintenance mode from being stuck on indefinitely
+      if (maintenanceMode.enabledAt) {
+        const enabledAt = new Date(maintenanceMode.enabledAt)
+        const hoursSinceEnabled = (now.getTime() - enabledAt.getTime()) / (1000 * 60 * 60)
+        
+        // Auto-disable after 24 hours if no schedule is set
+        if (hoursSinceEnabled > 24) {
+          isCurrentlyActive = false
+        }
+      }
     }
 
     return NextResponse.json({
