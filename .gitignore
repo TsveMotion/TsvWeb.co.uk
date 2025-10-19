@@ -8,3 +8,6 @@ node_modules/
 
 # IndexNow temporary files
 indexnow-key.txt
+
+# Backup files
+backups-tsvweb/
