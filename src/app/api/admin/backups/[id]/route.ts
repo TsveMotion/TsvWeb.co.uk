@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getBackup } from '@/lib/backup-storage';
+import { downloadBackupFromDrive } from '@/lib/google-drive-backup';
 
 interface Params {
   params: {
@@ -20,7 +20,15 @@ export async function GET(request: NextRequest, { params }: Params) {
 
     const { id } = params;
     
-    const backup = await getBackup(id);
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      return NextResponse.json(
+        { success: false, message: 'User email not found' },
+        { status: 400 }
+      );
+    }
+    
+    const backup = await downloadBackupFromDrive(userEmail, id);
     
     if (!backup) {
       return NextResponse.json(

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/db';
 import mongoose from 'mongoose';
-import { saveBackup, generateBackupId } from '@/lib/backup-storage';
+import { uploadBackupToDrive } from '@/lib/google-drive-backup';
 
 // Database backup endpoint
 export async function POST(request: NextRequest) {
@@ -33,32 +33,45 @@ export async function POST(request: NextRequest) {
       backup.collections[collectionName] = data;
     }
 
-    // Generate backup ID and save to file system
-    const backupId = generateBackupId();
-    await saveBackup(backupId, backup);
-    
     const backupData = JSON.stringify(backup, null, 2);
     const filename = `tsvweb-backup-${type}-${Date.now()}.json`;
 
     if (destination === 'local') {
-      // Return download URL
+      // Return download URL for local download
       const blob = Buffer.from(backupData).toString('base64');
       return NextResponse.json({
         success: true,
         downloadUrl: `data:application/json;base64,${blob}`,
         filename,
-        backupId,
-        message: 'Backup created and saved successfully'
+        message: 'Backup downloaded successfully'
       });
     } else if (destination === 'google-drive') {
-      // TODO: Implement Google Drive upload
-      // For now, just save locally
-      return NextResponse.json({
-        success: true,
-        message: 'Backup saved locally (Google Drive integration pending)',
-        backupId,
-        filename
-      });
+      // Upload to Google Drive
+      try {
+        const userEmail = session.user.email;
+        if (!userEmail) {
+          return NextResponse.json(
+            { success: false, message: 'User email not found' },
+            { status: 400 }
+          );
+        }
+
+        const result = await uploadBackupToDrive(userEmail, backup, filename);
+        
+        return NextResponse.json({
+          success: true,
+          message: 'Backup uploaded to Google Drive successfully!',
+          fileId: result.fileId,
+          webViewLink: result.webViewLink,
+          filename
+        });
+      } catch (error: any) {
+        console.error('Google Drive upload error:', error);
+        return NextResponse.json(
+          { success: false, message: `Failed to upload to Google Drive: ${error.message}` },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ success: false, message: 'Invalid destination' }, { status: 400 });

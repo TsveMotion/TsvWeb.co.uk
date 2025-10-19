@@ -18,6 +18,8 @@ export interface IUser {
   resetPasswordExpires?: Date;
   googleId?: string;
   googleEmail?: string;
+  googleAccessToken?: string;
+  googleRefreshToken?: string;
   validatePassword: (password: string) => boolean;
 }
 
@@ -40,6 +42,8 @@ const UserSchema = new Schema<IUser>(
     resetPasswordExpires: { type: Date },
     googleId: { type: String },
     googleEmail: { type: String },
+    googleAccessToken: { type: String },
+    googleRefreshToken: { type: String },
   },
   {
     timestamps: true,

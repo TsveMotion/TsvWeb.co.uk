@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/db';
 import mongoose from 'mongoose';
-import { getBackup } from '@/lib/backup-storage';
+import { downloadBackupFromDrive } from '@/lib/google-drive-backup';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,8 +19,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Backup ID required' }, { status: 400 });
     }
 
-    // Get backup data
-    const backup = await getBackup(backupId);
+    // Get backup data from Google Drive
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      return NextResponse.json({ success: false, message: 'User email not found' }, { status: 400 });
+    }
+
+    const backup = await downloadBackupFromDrive(userEmail, backupId);
     
     if (!backup || !backup.collections) {
       return NextResponse.json({ success: false, message: 'Backup not found or invalid' }, { status: 404 });

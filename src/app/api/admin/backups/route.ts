@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { listBackups, deleteBackup } from '@/lib/backup-storage';
+import { listDriveBackups, deleteBackupFromDrive } from '@/lib/google-drive-backup';
 
 // List backups endpoint
 export async function GET(request: NextRequest) {
@@ -12,8 +12,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch backups from file system
-    const backups = await listBackups();
+    // Fetch backups from Google Drive
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      return NextResponse.json({ success: false, message: 'User email not found' }, { status: 400 });
+    }
+
+    const backups = await listDriveBackups(userEmail);
 
     return NextResponse.json({
       success: true,
@@ -44,7 +49,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Backup ID required' }, { status: 400 });
     }
 
-    const deleted = await deleteBackup(backupId);
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      return NextResponse.json({ success: false, message: 'User email not found' }, { status: 400 });
+    }
+
+    const deleted = await deleteBackupFromDrive(userEmail, backupId);
     
     if (deleted) {
       return NextResponse.json({

@@ -14,7 +14,8 @@ const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
+          response_type: "code",
+          scope: "openid email profile https://www.googleapis.com/auth/drive.file"
         }
       }
     }),
@@ -105,12 +106,26 @@ const authOptions: NextAuthOptions = {
           });
           
           if (dbUser) {
-            // Update Google ID if not set
-            if (!dbUser.googleId) {
-              dbUser.googleId = account.providerAccountId;
-              dbUser.googleEmail = profile.email;
-              await dbUser.save();
+            // Update Google ID and tokens
+            console.log('Saving Google tokens:', {
+              hasAccessToken: !!account.access_token,
+              hasRefreshToken: !!account.refresh_token,
+              email: profile.email
+            });
+            
+            dbUser.googleId = account.providerAccountId;
+            dbUser.googleEmail = profile.email;
+            
+            if (account.access_token) {
+              dbUser.googleAccessToken = account.access_token;
             }
+            if (account.refresh_token) {
+              dbUser.googleRefreshToken = account.refresh_token;
+            }
+            
+            await dbUser.save();
+            
+            console.log('Tokens saved successfully for:', profile.email);
             
             token.role = dbUser.role;
             token.id = dbUser._id.toString();
@@ -130,6 +145,8 @@ const authOptions: NextAuthOptions = {
                 email: profile.email?.toLowerCase(),
                 googleId: account.providerAccountId,
                 googleEmail: profile.email,
+                googleAccessToken: account.access_token,
+                googleRefreshToken: account.refresh_token,
                 role: 'admin',
                 username: profile.email?.split('@')[0] || 'admin',
               });
