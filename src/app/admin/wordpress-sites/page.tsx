@@ -1041,6 +1041,210 @@ function WordPressSitesPage() {
                     </div>
                   )}
 
+                  {/* AI Optimizer Management */}
+                  {selectedSite.hasWooCommerce && (
+                    <div className="col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        AI Product Optimizer
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Status</p>
+                          <p className={`text-lg font-bold ${selectedSite.aiOptimizerEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {selectedSite.aiOptimizerEnabled ? '✓ Enabled' : '○ Disabled'}
+                          </p>
+                        </div>
+                        {selectedSite.aiOptimizationsCount !== undefined && (
+                          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Optimizations</p>
+                            <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{selectedSite.aiOptimizationsCount}</p>
+                          </div>
+                        )}
+                        {selectedSite.aiTokensUsed !== undefined && (
+                          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Tokens Used</p>
+                            <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{selectedSite.aiTokensUsed.toLocaleString()}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank')}
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all"
+                        >
+                          Open Optimizer
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOptimizerControlSite(selectedSite);
+                            setSelectedSite(null);
+                          }}
+                          className="flex-1 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-purple-600 text-purple-600 dark:text-purple-400 font-medium rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                        >
+                          Control Settings
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment Management */}
+                  {(selectedSite.paymentStatus || selectedSite.customerId) && (
+                    <div className="col-span-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Payment & Billing
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        {selectedSite.paymentStatus && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Payment Status</p>
+                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                              selectedSite.paymentStatus === 'paid' 
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                                : selectedSite.paymentStatus === 'overdue'
+                                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                            }`}>
+                              {selectedSite.paymentStatus.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        {selectedSite.paymentAmount && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Amount</p>
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">£{selectedSite.paymentAmount}</p>
+                          </div>
+                        )}
+                        {selectedSite.nextPaymentDate && (
+                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg col-span-2">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Next Payment</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-white">{selectedSite.nextPaymentDate}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedSite.customerId && (
+                        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4">
+                          <p className="text-sm text-green-700 dark:text-green-400">
+                            ✓ Linked to customer: <strong>{selectedSite.customerName || selectedSite.customerEmail}</strong>
+                          </p>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin/admin.php?page=tsvweb-control`, '_blank')}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all"
+                      >
+                        View Payment Details
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Quick Management Actions */}
+                  <div className="col-span-2 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/50 dark:to-slate-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Quick Actions
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <button
+                        onClick={() => {
+                          setManageSite(selectedSite);
+                          setSelectedSite(null);
+                        }}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        <span className="text-sm font-medium text-green-700 dark:text-green-400">Full Manage</span>
+                      </button>
+
+                      <button
+                        onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin`, '_blank')}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-400">WP Admin</span>
+                      </button>
+
+                      {selectedSite.hasWooCommerce && (
+                        <button
+                          onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin/edit.php?post_type=product`, '_blank')}
+                          className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg hover:shadow-md transition-all"
+                        >
+                          <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <span className="text-sm font-medium text-purple-700 dark:text-purple-400">Products</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin/plugins.php`, '_blank')}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <span className="text-sm font-medium text-orange-700 dark:text-orange-400">Plugins</span>
+                      </button>
+
+                      <button
+                        onClick={() => window.open(`${selectedSite.siteUrl}/wp-admin/upload.php`, '_blank')}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-200 dark:border-pink-800 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <svg className="w-4 h-4 text-pink-600 dark:text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm font-medium text-pink-700 dark:text-pink-400">Media</span>
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          setSuccess('Syncing site data...');
+                          try {
+                            const response = await fetch('/api/admin/wordpress-sites/force-sync', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ siteId: selectedSite._id }),
+                            });
+                            if (response.ok) {
+                              setSuccess('Site synced successfully!');
+                              setTimeout(() => {
+                                setSuccess('');
+                                fetchSites();
+                              }, 2000);
+                            }
+                          } catch (err) {
+                            setError('Failed to sync site');
+                            setTimeout(() => setError(''), 3000);
+                          }
+                        }}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border border-teal-200 dark:border-teal-800 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <svg className="w-4 h-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span className="text-sm font-medium text-teal-700 dark:text-teal-400">Sync Now</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     <p>Last updated: {new Date(selectedSite.lastUpdated).toLocaleString()}</p>
                     <p>First connected: {new Date(selectedSite.createdAt).toLocaleString()}</p>
@@ -1166,6 +1370,73 @@ function WordPressSitesPage() {
                       </button>
                     </div>
                   </div>
+
+                  {/* AI Optimizer Management */}
+                  {manageSite.hasWooCommerce && (
+                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                      <div className="flex items-center mb-4">
+                        <div className="p-3 bg-purple-500 rounded-lg mr-3">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">AI Product Optimizer</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Manage AI-powered product optimization</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Status</p>
+                          <p className={`text-xl font-bold ${manageSite.aiOptimizerEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {manageSite.aiOptimizerEnabled ? '✓ Enabled' : '○ Disabled'}
+                          </p>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Optimizations</p>
+                          <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                            {manageSite.aiOptimizationsCount || 0}
+                          </p>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Tokens Used</p>
+                          <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                            {(manageSite.aiTokensUsed || 0).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {manageSite.aiTokensUsed && manageSite.aiTokensUsed > 0 && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 mb-4">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-700 dark:text-gray-300">Estimated Cost:</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400">
+                              ${((manageSite.aiTokensUsed / 1000) * 0.0025).toFixed(4)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => window.open(`${manageSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank')}
+                          className="px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all"
+                        >
+                          Open Optimizer
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOptimizerControlSite(manageSite);
+                            setManageSite(null);
+                          }}
+                          className="px-4 py-3 bg-white dark:bg-gray-700 border-2 border-purple-600 text-purple-600 dark:text-purple-400 font-medium rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Create Administrator Section */}
                   <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
@@ -1462,6 +1733,154 @@ function WordPressSitesPage() {
                 >
                   Bind Customer
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Optimizer Control Modal */}
+      {optimizerControlSite && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setOptimizerControlSite(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">AI Optimizer Control</h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Manage AI product optimizer for {optimizerControlSite.siteName}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setOptimizerControlSite(null)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {success && (
+                <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg">
+                  {success}
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-6">
+                {/* Current Status */}
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Current Status</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Status</p>
+                      <p className={`text-2xl font-bold ${optimizerControlSite.aiOptimizerEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {optimizerControlSite.aiOptimizerEnabled ? '✓ Enabled' : '○ Disabled'}
+                      </p>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Optimizations</p>
+                      <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {optimizerControlSite.aiOptimizationsCount || 0}
+                      </p>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Tokens Used</p>
+                      <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                        {(optimizerControlSite.aiTokensUsed || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cost Breakdown */}
+                {optimizerControlSite.aiTokensUsed && optimizerControlSite.aiTokensUsed > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Usage & Cost</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 dark:text-gray-300">Total Tokens:</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{optimizerControlSite.aiTokensUsed.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 dark:text-gray-300">Estimated Cost (GPT-4o):</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">
+                          ${((optimizerControlSite.aiTokensUsed / 1000) * 0.0025).toFixed(4)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 dark:text-gray-300">Avg. per Optimization:</span>
+                        <span className="font-bold text-gray-900 dark:text-white">
+                          {optimizerControlSite.aiOptimizationsCount 
+                            ? Math.round(optimizerControlSite.aiTokensUsed / optimizerControlSite.aiOptimizationsCount).toLocaleString()
+                            : 0} tokens
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Actions */}
+                <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/50 dark:to-slate-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => window.open(`${optimizerControlSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank')}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      Open Optimizer
+                    </button>
+                    <button
+                      onClick={() => window.open(`${optimizerControlSite.siteUrl}/wp-admin/edit.php?post_type=product`, '_blank')}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      View Products
+                    </button>
+                  </div>
+                </div>
+
+                {/* Information */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-sm text-blue-800 dark:text-blue-300">
+                      <p className="font-semibold mb-1">About AI Optimizer</p>
+                      <p>The AI Product Optimizer uses OpenAI's GPT-4o to automatically enhance product titles, descriptions, and SEO metadata. Enable/disable controls are managed directly in the WordPress admin panel.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setOptimizerControlSite(null)}
+                    className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      window.open(`${optimizerControlSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank');
+                      setOptimizerControlSite(null);
+                    }}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all"
+                  >
+                    Manage in WordPress
+                  </button>
+                </div>
               </div>
             </div>
           </div>
