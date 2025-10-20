@@ -1,0 +1,51 @@
+/**
+ * TsvWeb Product Optimizer - Admin Styles
+ */
+
+.tsvweb-po-actions {
+    margin: 20px 0;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.tsvweb-po-actions .button {
+    margin-right: 10px;
+}
+
+#tsvweb-po-messages {
+    margin: 20px 0;
+}
+
+#tsvweb-po-messages .notice {
+    margin: 5px 0;
+}
+
+.wp-list-table .tsvweb-po-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.wp-list-table td img {
+    max-width: 50px;
+    height: auto;
+}
+
+.wp-list-table .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.tsvweb-po-optimize-single:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.check-column {
+    width: 2.2em;
+    padding: 8px 0 0 3px;
+    vertical-align: top;
+}
