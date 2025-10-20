@@ -153,18 +153,114 @@
     <changefreq>monthly</changefreq>
   </url>
 
+  <!-- Industry Pages -->
+  <url>
+    <loc>https://tsvweb.co.uk/restaurants</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/barbers</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/plumbers</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/electricians</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/builders</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/cleaning</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/removals</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/ecommerce</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/marketing</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/trades</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Information & Resources -->
+  <url>
+    <loc>https://tsvweb.co.uk/information</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/pages</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Downloads -->
+  <url>
+    <loc>https://tsvweb.co.uk/download/wordpress-plugin</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://tsvweb.co.uk/download/wordpress-plugin/docs</loc>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
   <!-- Legal Pages -->
   <url>
     <loc>https://tsvweb.co.uk/privacy-policy</loc>
-    <lastmod>2025-10-17</lastmod>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.5</priority>
+    <changefreq>yearly</changefreq>
   </url>
   <url>
     <loc>https://tsvweb.co.uk/terms-of-service</loc>
-    <lastmod>2025-10-17</lastmod>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.5</priority>
+    <changefreq>yearly</changefreq>
   </url>
   <url>
     <loc>https://tsvweb.co.uk/cookie-policy</loc>
-    <lastmod>2025-10-17</lastmod>
+    <lastmod>2025-10-20</lastmod>
+    <priority>0.5</priority>
+    <changefreq>yearly</changefreq>
   </url>
 
 </urlset>

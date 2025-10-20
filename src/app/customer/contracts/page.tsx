@@ -185,24 +185,24 @@ export default function CustomerContracts() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-start mb-4">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Contracts & Documents</h1>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">View and download your contracts, signed documents, and invoices</p>
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">My Contracts & Documents</h1>
+                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">View and download your contracts, signed documents, and invoices</p>
                 </div>
               </div>
             </div>
             <button
               onClick={() => router.push('/customer/dashboard')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg font-medium transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg font-medium transition-colors shadow-sm w-full md:w-auto"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -221,38 +221,38 @@ export default function CustomerContracts() {
 
         {/* Monthly Payment Summary */}
         {totalMonthlyAmount > 0 && (
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-6 mb-8 text-white">
-            <div className="flex items-center justify-between">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-4 md:p-6 mb-6 md:mb-8 text-white">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <p className="text-blue-100 text-sm font-medium mb-1">Total Monthly Payment</p>
-                <p className="text-4xl font-bold">GBP {totalMonthlyAmount.toLocaleString()}<span className="text-xl font-normal text-blue-100">/month</span></p>
+                <p className="text-blue-100 text-xs md:text-sm font-medium mb-1">Total Monthly Payment</p>
+                <p className="text-3xl md:text-4xl font-bold">GBP {totalMonthlyAmount.toLocaleString()}<span className="text-lg md:text-xl font-normal text-blue-100">/month</span></p>
               </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2 justify-end mb-2">
-                  <svg className="w-5 h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="md:text-right">
+                <div className="flex items-center gap-2 md:justify-end mb-2">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <p className="text-blue-100 text-sm font-medium">Payment Due</p>
+                  <p className="text-blue-100 text-xs md:text-sm font-medium">Payment Due</p>
                 </div>
-                <p className="text-2xl font-bold">1st of every month</p>
+                <p className="text-xl md:text-2xl font-bold">1st of every month</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Filters */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Filter by Status</label>
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-6 md:mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
+              <div className="flex-1 sm:flex-initial">
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Filter by Status</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm min-w-[180px]"
+                  className="w-full px-3 md:px-4 py-2 md:py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm text-sm md:text-base sm:min-w-[180px]"
                 >
                   <option value="">All Contracts</option>
                   <option value="draft">Draft</option>
@@ -267,18 +267,18 @@ export default function CustomerContracts() {
                     setStatusFilter('')
                     setCurrentPage(1)
                   }}
-                  className="mt-7 px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                  className="sm:mt-7 px-4 py-2 md:py-2.5 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
                 >
                   Clear Filter
                 </button>
               )}
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+            <div className="text-left md:text-right">
+              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-1">
                 <span className="font-semibold">{contracts.length}</span> contract{contracts.length !== 1 ? 's' : ''} found
               </div>
               {totalMonthlyAmount > 0 && (
-                <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-base md:text-lg font-bold text-blue-600 dark:text-blue-400">
                   Total: GBP {totalMonthlyAmount.toLocaleString()}/month
                 </div>
               )}
@@ -348,11 +348,11 @@ export default function CustomerContracts() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center">
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 text-sm md:text-base rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
@@ -361,10 +361,10 @@ export default function CustomerContracts() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-2 rounded-md ${
+                      className={`px-3 py-2 text-sm md:text-base rounded-md ${
                         currentPage === page
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                          : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}
@@ -374,7 +374,7 @@ export default function CustomerContracts() {
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 text-sm md:text-base rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>
@@ -394,8 +394,8 @@ export default function CustomerContracts() {
 
         {/* Contract Detail Modal */}
         {showDetailModal && selectedContract && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50 overflow-y-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700 my-4">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <div>

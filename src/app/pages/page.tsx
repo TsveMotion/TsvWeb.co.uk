@@ -16,7 +16,9 @@ export default function AllPagesPage() {
         { name: "Portfolio", url: "/portfolio", description: "Our work showcase" },
         { name: "About", url: "/about", description: "About TsvWeb" },
         { name: "Contact", url: "/contact", description: "Get in touch" },
-        { name: "Blog", url: "/blog", description: "Web design insights" }
+        { name: "Blog", url: "/blog", description: "Web design insights" },
+        { name: "Information Hub", url: "/information", description: "Guides and resources" },
+        { name: "Request Quote", url: "/request-quote", description: "Get a free quote" }
       ]
     },
     {
@@ -36,7 +38,10 @@ export default function AllPagesPage() {
       icon: "🏢",
       pages: [
         { name: "Restaurants", url: "/restaurants", description: "Restaurant website design Birmingham" },
-        { name: "Barbers", url: "/barbers", description: "Barber website design Birmingham" }
+        { name: "Barbers", url: "/barbers", description: "Barber website design Birmingham" },
+        { name: "E-commerce", url: "/ecommerce", description: "Online store solutions" },
+        { name: "Marketing", url: "/marketing", description: "Digital marketing services" },
+        { name: "All Trades", url: "/trades", description: "Trade business websites" }
       ]
     },
     {
@@ -51,13 +56,30 @@ export default function AllPagesPage() {
       ]
     },
     {
+      category: "Customer Portal",
+      icon: "👤",
+      pages: [
+        { name: "Customer Login", url: "/customer/login", description: "Customer portal access" },
+        { name: "Customer Dashboard", url: "/customer/dashboard", description: "Your dashboard" },
+        { name: "My Contracts", url: "/customer/contracts", description: "View your contracts" },
+        { name: "Forgot Password", url: "/customer/forgot-password", description: "Reset your password" }
+      ]
+    },
+    {
+      category: "Tools & Downloads",
+      icon: "🔌",
+      pages: [
+        { name: "WordPress Plugin", url: "/download/wordpress-plugin", description: "Download our WordPress plugin" },
+        { name: "WordPress Plugin Docs", url: "/download/wordpress-plugin/docs", description: "Plugin documentation" }
+      ]
+    },
+    {
       category: "Legal & Admin",
       icon: "📄",
       pages: [
         { name: "Privacy Policy", url: "/privacy-policy", description: "Our privacy policy" },
         { name: "Terms of Service", url: "/terms-of-service", description: "Terms and conditions" },
-        { name: "Admin Login", url: "/admin/login", description: "Admin dashboard access" },
-        { name: "Customer Login", url: "/customer/login", description: "Customer portal access" }
+        { name: "Admin Login", url: "/admin/login", description: "Admin dashboard access" }
       ]
     }
   ]

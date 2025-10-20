@@ -585,6 +585,133 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sitemap Section */}
+      <section className="py-24 bg-white dark:bg-gray-900">
+        <div className="container-custom">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-4">
+              Explore Our <span className="text-[#007BFF]">Website</span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400">Everything you need to grow your business online</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {/* Services Column */}
+            <motion.div
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3 className="text-2xl font-black text-[#007BFF] mb-4">🛠️ Services</h3>
+              <ul className="space-y-2">
+                <li><Link href="/services" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">All Services</Link></li>
+                <li><Link href="/services/web-design" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Web Design</Link></li>
+                <li><Link href="/services/web-development" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Web Development</Link></li>
+                <li><Link href="/services/seo" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">SEO Services</Link></li>
+                <li><Link href="/services/ecommerce" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">E-commerce</Link></li>
+                <li><Link href="/services/booking" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Booking Systems</Link></li>
+                <li><Link href="/services/portfolio" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Portfolio Sites</Link></li>
+              </ul>
+            </motion.div>
+
+            {/* Industries Column */}
+            <motion.div
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <h3 className="text-2xl font-black text-[#007BFF] mb-4">🏢 Industries</h3>
+              <ul className="space-y-2">
+                <li><Link href="/restaurants" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Restaurants</Link></li>
+                <li><Link href="/barbers" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Barbers & Salons</Link></li>
+                <li><Link href="/plumbers" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Plumbers</Link></li>
+                <li><Link href="/electricians" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Electricians</Link></li>
+                <li><Link href="/cleaning" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Cleaning Services</Link></li>
+                <li><Link href="/removals" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Removals</Link></li>
+                <li><Link href="/builders" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Builders</Link></li>
+                <li><Link href="/trades" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">All Trades</Link></li>
+              </ul>
+            </motion.div>
+
+            {/* Resources Column */}
+            <motion.div
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h3 className="text-2xl font-black text-[#007BFF] mb-4">📚 Resources</h3>
+              <ul className="space-y-2">
+                <li><Link href="/portfolio" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Portfolio</Link></li>
+                <li><Link href="/blog" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Blog</Link></li>
+                <li><Link href="/information" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Information Hub</Link></li>
+                <li><Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Contact</Link></li>
+                <li><Link href="/marketing" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Marketing Services</Link></li>
+                <li><Link href="/download/wordpress-plugin" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">WordPress Plugin</Link></li>
+              </ul>
+            </motion.div>
+
+            {/* Customer Area Column */}
+            <motion.div
+              className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-[#007BFF]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <h3 className="text-2xl font-black text-[#007BFF] mb-4">👤 Customer Area</h3>
+              <ul className="space-y-2">
+                <li><Link href="/customer/login" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Customer Login</Link></li>
+                <li><Link href="/customer/dashboard" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Dashboard</Link></li>
+                <li><Link href="/customer/contracts" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">My Contracts</Link></li>
+                <li><Link href="/request-quote" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Request Quote</Link></li>
+                <li><Link href="/privacy-policy" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms-of-service" className="text-gray-700 dark:text-gray-300 hover:text-[#007BFF] transition-colors">Terms of Service</Link></li>
+              </ul>
+            </motion.div>
+          </div>
+
+          {/* Quick Stats */}
+          <motion.div 
+            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <div className="inline-flex flex-wrap justify-center gap-8 bg-gradient-to-r from-[#007BFF] to-[#0056D2] text-white px-12 py-6 rounded-lg">
+              <div className="text-center">
+                <div className="text-3xl font-black">50+</div>
+                <div className="text-sm opacity-90">Pages</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black">7</div>
+                <div className="text-sm opacity-90">Services</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black">8+</div>
+                <div className="text-sm opacity-90">Industries</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black">24/7</div>
+                <div className="text-sm opacity-90">Support</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
       <section id="quote-form" className="py-24 bg-gradient-to-r from-[#007BFF] to-[#0056D2]">
         <div className="container-custom">

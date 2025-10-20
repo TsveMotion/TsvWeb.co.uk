@@ -61,6 +61,9 @@ class TsvWeb_Monitor {
         
         // Add REST API endpoints for remote management
         add_action('rest_api_init', array($this, 'register_rest_routes'));
+        
+        // Register shortcodes
+        add_action('init', array($this, 'register_shortcodes'));
     }
     
     // Add 30 second cron schedule
@@ -1433,6 +1436,287 @@ class TsvWeb_Monitor {
             </p>
         </div>
         <?php
+    }
+    
+    /**
+     * Register all shortcodes
+     */
+    public function register_shortcodes() {
+        add_shortcode('tsvweb_contact_form', array($this, 'shortcode_contact_form'));
+        add_shortcode('tsvweb_services', array($this, 'shortcode_services'));
+        add_shortcode('tsvweb_portfolio', array($this, 'shortcode_portfolio'));
+        add_shortcode('tsvweb_made_by', array($this, 'shortcode_made_by'));
+    }
+    
+    /**
+     * Shortcode: Contact Form
+     * Usage: [tsvweb_contact_form title="Contact Us" button_text="Send Message"]
+     */
+    public function shortcode_contact_form($atts) {
+        $atts = shortcode_atts(array(
+            'title' => 'Contact Us',
+            'button_text' => 'Send Message'
+        ), $atts);
+        
+        ob_start();
+        ?>
+        <div class="tsvweb-contact-form" style="max-width: 600px; margin: 0 auto; padding: 30px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; color: #007cba; margin-bottom: 20px;"><?php echo esc_html($atts['title']); ?></h2>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="tsvweb_contact_submit">
+                <?php wp_nonce_field('tsvweb_contact', 'tsvweb_contact_nonce'); ?>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Name *</label>
+                    <input type="text" name="contact_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Email *</label>
+                    <input type="email" name="contact_email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Phone</label>
+                    <input type="tel" name="contact_phone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Message *</label>
+                    <textarea name="contact_message" required rows="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 12px; background: #007cba; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s;">
+                    <?php echo esc_html($atts['button_text']); ?>
+                </button>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
+     * Shortcode: Services List
+     * Usage: [tsvweb_services limit="6" columns="3"]
+     */
+    public function shortcode_services($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => 6,
+            'columns' => 3
+        ), $atts);
+        
+        $settings = get_option($this->option_name, array());
+        $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        if (empty($api_key)) {
+            return '<p style="color: red;">TsvWeb API key not configured. Please configure in TsvWeb Settings.</p>';
+        }
+        
+        // Fetch services from API
+        $response = wp_remote_get('https://tsvweb.co.uk/api/wordpress/services', array(
+            'timeout' => 10,
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+        ));
+        
+        if (is_wp_error($response)) {
+            return '<p>Unable to load services at this time.</p>';
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        $services = isset($body['services']) ? array_slice($body['services'], 0, $atts['limit']) : array();
+        
+        if (empty($services)) {
+            // Default services if API fails
+            $services = array(
+                array('name' => 'Web Design', 'description' => 'Professional website design', 'icon' => '🎨'),
+                array('name' => 'Web Development', 'description' => 'Custom web applications', 'icon' => '💻'),
+                array('name' => 'SEO Services', 'description' => 'Search engine optimization', 'icon' => '📈'),
+                array('name' => 'E-commerce', 'description' => 'Online store solutions', 'icon' => '🛒'),
+                array('name' => 'Maintenance', 'description' => 'Website maintenance & support', 'icon' => '🔧'),
+                array('name' => 'Hosting', 'description' => 'Fast & secure hosting', 'icon' => '☁️'),
+            );
+            $services = array_slice($services, 0, $atts['limit']);
+        }
+        
+        $column_width = 100 / $atts['columns'];
+        
+        ob_start();
+        ?>
+        <div class="tsvweb-services" style="display: grid; grid-template-columns: repeat(<?php echo esc_attr($atts['columns']); ?>, 1fr); gap: 20px; margin: 30px 0;">
+            <?php foreach ($services as $service): ?>
+            <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s;">
+                <div style="font-size: 48px; margin-bottom: 15px;"><?php echo isset($service['icon']) ? $service['icon'] : '⭐'; ?></div>
+                <h3 style="color: #007cba; margin-bottom: 10px; font-size: 20px;"><?php echo esc_html($service['name']); ?></h3>
+                <p style="color: #666; line-height: 1.6;"><?php echo esc_html($service['description']); ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <style>
+            @media (max-width: 768px) {
+                .tsvweb-services { grid-template-columns: 1fr !important; }
+            }
+        </style>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
+     * Shortcode: Portfolio Grid
+     * Usage: [tsvweb_portfolio limit="9" category="all"]
+     */
+    public function shortcode_portfolio($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => 9,
+            'category' => 'all'
+        ), $atts);
+        
+        $settings = get_option($this->option_name, array());
+        $api_key = isset($settings['api_key']) ? $settings['api_key'] : '';
+        
+        if (empty($api_key)) {
+            return '<p style="color: red;">TsvWeb API key not configured.</p>';
+        }
+        
+        // Fetch portfolio from API
+        $response = wp_remote_get('https://tsvweb.co.uk/api/wordpress/portfolio', array(
+            'timeout' => 10,
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+            ),
+        ));
+        
+        if (is_wp_error($response)) {
+            return '<p>Unable to load portfolio at this time.</p>';
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        $portfolio = isset($body['portfolio']) ? array_slice($body['portfolio'], 0, $atts['limit']) : array();
+        
+        if (empty($portfolio)) {
+            // Default portfolio items
+            $portfolio = array(
+                array('title' => 'E-commerce Store', 'image' => 'https://via.placeholder.com/400x300', 'category' => 'ecommerce'),
+                array('title' => 'Restaurant Website', 'image' => 'https://via.placeholder.com/400x300', 'category' => 'restaurant'),
+                array('title' => 'Business Website', 'image' => 'https://via.placeholder.com/400x300', 'category' => 'business'),
+            );
+            $portfolio = array_slice($portfolio, 0, $atts['limit']);
+        }
+        
+        ob_start();
+        ?>
+        <div class="tsvweb-portfolio" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0;">
+            <?php foreach ($portfolio as $item): ?>
+            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['title']); ?>" style="width: 100%; height: 200px; object-fit: cover;">
+                <div style="padding: 20px;">
+                    <h3 style="color: #007cba; margin-bottom: 10px;"><?php echo esc_html($item['title']); ?></h3>
+                    <?php if (isset($item['category'])): ?>
+                    <span style="display: inline-block; padding: 4px 12px; background: #007cba; color: white; border-radius: 3px; font-size: 12px;">
+                        <?php echo esc_html(ucfirst($item['category'])); ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <style>
+            @media (max-width: 768px) {
+                .tsvweb-portfolio { grid-template-columns: 1fr !important; }
+            }
+        </style>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
+     * Shortcode: Made by TsvWeb Badge
+     * Usage: [tsvweb_made_by style="dark" size="medium"]
+     * Styles: light, dark, minimal
+     * Sizes: small, medium, large
+     */
+    public function shortcode_made_by($atts) {
+        $atts = shortcode_atts(array(
+            'style' => 'dark',
+            'size' => 'medium'
+        ), $atts);
+        
+        $sizes = array(
+            'small' => array('padding' => '15px 20px', 'font' => '12px', 'logo' => '80px'),
+            'medium' => array('padding' => '20px 30px', 'font' => '14px', 'logo' => '120px'),
+            'large' => array('padding' => '30px 40px', 'font' => '16px', 'logo' => '150px')
+        );
+        
+        $size_config = isset($sizes[$atts['size']]) ? $sizes[$atts['size']] : $sizes['medium'];
+        
+        $styles = array(
+            'light' => array(
+                'bg' => 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                'text' => '#2c3e50',
+                'logo' => 'https://tsvweb.co.uk/TsvWeb_Logo.png'
+            ),
+            'dark' => array(
+                'bg' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'text' => '#ffffff',
+                'logo' => 'https://tsvweb.co.uk/TsvWeb_Logo_DarkTheme.png'
+            ),
+            'minimal' => array(
+                'bg' => '#ffffff',
+                'text' => '#333333',
+                'logo' => 'https://tsvweb.co.uk/TsvWeb_Logo.png'
+            )
+        );
+        
+        $style_config = isset($styles[$atts['style']]) ? $styles[$atts['style']] : $styles['dark'];
+        
+        ob_start();
+        ?>
+        <div class="tsvweb-made-by" style="
+            background: <?php echo $style_config['bg']; ?>;
+            padding: <?php echo $size_config['padding']; ?>;
+            text-align: center;
+            border-radius: 8px;
+            margin: 40px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        ">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <span style="
+                    color: <?php echo $style_config['text']; ?>;
+                    font-size: <?php echo $size_config['font']; ?>;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                ">Made with ❤️ by</span>
+                <a href="https://tsvweb.co.uk" target="_blank" rel="noopener" style="display: inline-block; transition: transform 0.3s;">
+                    <img src="<?php echo esc_url($style_config['logo']); ?>" 
+                         alt="TsvWeb" 
+                         style="height: 40px; width: auto; max-width: <?php echo $size_config['logo']; ?>; vertical-align: middle;">
+                </a>
+            </div>
+            <p style="
+                margin: 10px 0 0 0;
+                color: <?php echo $style_config['text']; ?>;
+                font-size: calc(<?php echo $size_config['font']; ?> - 2px);
+                opacity: 0.9;
+            ">
+                Professional Web Design & Development in Birmingham
+            </p>
+        </div>
+        <style>
+            .tsvweb-made-by a:hover img {
+                transform: scale(1.05);
+            }
+            @media (max-width: 600px) {
+                .tsvweb-made-by {
+                    padding: 20px 15px !important;
+                }
+                .tsvweb-made-by img {
+                    max-width: 100px !important;
+                }
+            }
+        </style>
+        <?php
+        return ob_get_clean();
     }
 }
 

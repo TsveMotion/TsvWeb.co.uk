@@ -59,10 +59,10 @@ export default function RequestQuotePage() {
           
           {/* Urgency Banner */}
           {urgencyTimer > 0 && (
-            <div className="mb-8 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-4 shadow-lg animate-pulse">
-              <div className="flex items-center justify-center gap-3 text-center flex-wrap">
-                <Clock className="w-5 h-5" />
-                <p className="font-bold">
+            <div className="mb-6 md:mb-8 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-3 md:p-4 shadow-lg animate-pulse">
+              <div className="flex items-center justify-center gap-2 md:gap-3 text-center flex-wrap">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                <p className="font-bold text-sm md:text-base">
                   ⚡ Limited Time: Free SEO Audit (Worth £99) - Only {urgencyTimer} spots left today!
                 </p>
               </div>
