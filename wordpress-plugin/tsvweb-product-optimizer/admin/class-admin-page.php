@@ -34,7 +34,7 @@ class TsvWeb_PO_Admin_Page {
             'woocommerce',
             __('Product Optimizer', 'tsvweb-product-optimizer'),
             __('Product Optimizer', 'tsvweb-product-optimizer'),
-            'manage_woocommerce',
+            TSVWEB_PO_CAP, // Use custom capability instead of manage_woocommerce
             'tsvweb-product-optimizer',
             array($this, 'render_admin_page')
         );
@@ -87,7 +87,7 @@ class TsvWeb_PO_Admin_Page {
      */
     public function render_admin_page() {
         // Check user capabilities
-        if (!current_user_can('manage_woocommerce')) {
+        if (!current_user_can(TSVWEB_PO_CAP)) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'tsvweb-product-optimizer'));
         }
 
