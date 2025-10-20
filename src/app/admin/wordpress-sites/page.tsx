@@ -1418,7 +1418,17 @@ function WordPressSitesPage() {
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-3 gap-3">
+                        <button
+                          onClick={() => handleToggleOptimizer(manageSite._id, manageSite.aiOptimizerEnabled || false)}
+                          className={`px-4 py-3 font-medium rounded-lg transition-all ${
+                            manageSite.aiOptimizerEnabled
+                              ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700'
+                              : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700'
+                          }`}
+                        >
+                          {manageSite.aiOptimizerEnabled ? 'Disable' : 'Enable'}
+                        </button>
                         <button
                           onClick={() => window.open(`${manageSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank')}
                           className="px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all"
@@ -1826,9 +1836,35 @@ function WordPressSitesPage() {
                   </div>
                 )}
 
-                {/* Quick Actions */}
+                {/* Control & Actions */}
                 <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/50 dark:to-slate-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Control & Actions</h3>
+                  
+                  {/* Toggle Button */}
+                  <div className="mb-4">
+                    <button
+                      onClick={() => {
+                        handleToggleOptimizer(optimizerControlSite._id, optimizerControlSite.aiOptimizerEnabled || false);
+                        setOptimizerControlSite(null);
+                      }}
+                      className={`w-full flex items-center justify-center gap-2 px-6 py-4 font-bold rounded-lg transition-all shadow-lg ${
+                        optimizerControlSite.aiOptimizerEnabled
+                          ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700'
+                          : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700'
+                      }`}
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        {optimizerControlSite.aiOptimizerEnabled ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        )}
+                      </svg>
+                      {optimizerControlSite.aiOptimizerEnabled ? 'Disable AI Optimizer' : 'Enable AI Optimizer'}
+                    </button>
+                  </div>
+
+                  {/* Quick Links */}
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => window.open(`${optimizerControlSite.siteUrl}/wp-admin/admin.php?page=tsvweb-product-optimizer`, '_blank')}

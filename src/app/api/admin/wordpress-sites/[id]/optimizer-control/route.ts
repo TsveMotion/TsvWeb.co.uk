@@ -1,41 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { connectToDatabase } from '@/lib/db';
-import mongoose from 'mongoose';
+import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-// WordPress Stats Schema - must match the schema used in other routes
-const WordPressStatsSchema = new mongoose.Schema({
-  siteUrl: { type: String, required: true, unique: true },
-  siteName: { type: String, required: true },
-  wordpressVersion: String,
-  phpVersion: String,
-  mysqlVersion: String,
-  totalPosts: Number,
-  totalPages: Number,
-  totalUsers: Number,
-  activePlugins: Number,
-  activeTheme: String,
-  themeVersion: String,
-  siteHealth: String,
-  memoryLimit: String,
-  maxUploadSize: String,
-  // Customer binding
-  customerId: { type: String, default: null, index: true },
-  customerEmail: { type: String, default: null },
-  customerName: { type: String, default: null },
-  // AI Optimizer control
-  aiOptimizerEnabled: { type: Boolean, default: false },
-  lastUpdated: { type: Date, default: Date.now },
-  createdAt: { type: Date, default: Date.now },
-}, { timestamps: true });
-
-// Use existing model or create new one
-const WordPressStats = mongoose.models.WordPressStats || mongoose.model('WordPressStats', WordPressStatsSchema);
 
 /**
  * POST /api/admin/wordpress-sites/[id]/optimizer-control
@@ -111,7 +82,7 @@ export async function POST(
 
     // Step 3: Validate site ID format
     const { id } = params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!ObjectId.isValid(id)) {
       console.error('❌ [Optimizer Control] Invalid site ID format:', id);
       return NextResponse.json(
         { 
@@ -122,30 +93,35 @@ export async function POST(
       );
     }
 
-    // Step 4: Connect to MongoDB using Mongoose
+    // Step 4: Connect to MongoDB directly (bypass Mongoose)
     console.log('🗄️ [Optimizer Control] Connecting to MongoDB...');
-    await connectToDatabase();
+    const client = await clientPromise;
+    const db = client.db('tsvweb');
 
-    console.log('📝 [Optimizer Control] Updating WordPress site with Mongoose...');
+    console.log('📝 [Optimizer Control] Updating WordPress site directly in MongoDB (no Mongoose)...');
     
-    // Update the site's optimizer status using Mongoose
-    const updatedSite = await WordPressStats.findByIdAndUpdate(
-      id,
+    // Update the site's optimizer status using direct MongoDB
+    const result = await db.collection('wordpressstats').findOneAndUpdate(
+      { _id: new ObjectId(id) },
       {
-        aiOptimizerEnabled: enabled,
-        updatedAt: new Date()
+        $set: {
+          aiOptimizerEnabled: enabled,
+          updatedAt: new Date()
+        }
       },
-      { new: true } // Return the updated document
+      { 
+        returnDocument: 'after' // Return the updated document
+      }
     );
 
     console.log('📊 [Optimizer Control] Update result:', {
-      found: !!updatedSite,
-      siteId: updatedSite?._id,
-      aiOptimizerEnabled: updatedSite?.aiOptimizerEnabled
+      found: !!result,
+      siteId: result?._id,
+      aiOptimizerEnabled: result?.aiOptimizerEnabled
     });
 
     // Check if site was found
-    if (!updatedSite) {
+    if (!result) {
       console.warn('⚠️ [Optimizer Control] Site not found with ID:', id);
       return NextResponse.json(
         { 
