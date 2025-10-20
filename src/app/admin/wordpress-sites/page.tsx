@@ -91,6 +91,10 @@ interface WordPressSite {
   paymentAmount?: string;
   nextPaymentDate?: string;
   paymentMessage?: string;
+  // AI Optimizer tracking
+  aiOptimizerEnabled?: boolean;
+  aiOptimizationsCount?: number;
+  aiTokensUsed?: number;
 }
 
 function WordPressSitesPage() {
@@ -111,6 +115,8 @@ function WordPressSitesPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [optimizerControlSite, setOptimizerControlSite] = useState<WordPressSite | null>(null);
+  const [showCostBreakdown, setShowCostBreakdown] = useState(false);
 
   // Helper function to decode HTML entities (like &pound; to £)
   const decodeHtmlEntity = (str: string) => {
@@ -202,6 +208,37 @@ function WordPressSitesPage() {
     }
   };
 
+  const handleToggleOptimizer = async (siteId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/wordpress-sites/${siteId}/optimizer-control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !currentStatus })
+      });
+
+      if (response.ok) {
+        setSuccess(`Optimizer ${!currentStatus ? 'enabled' : 'disabled'} successfully!`);
+        fetchSites();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to toggle optimizer');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error toggling optimizer:', error);
+      setError('Failed to toggle optimizer');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const calculateTotalAICost = () => {
+    const totalTokens = sites.reduce((sum, site) => sum + (site.aiTokensUsed || 0), 0);
+    const totalOptimizations = sites.reduce((sum, site) => sum + (site.aiOptimizationsCount || 0), 0);
+    const estimatedCost = (totalTokens / 1000) * 0.045; // GPT-4 average pricing
+    return { totalTokens, totalOptimizations, estimatedCost };
+  };
+
   const getHealthColor = (health: string) => {
     if (health.toLowerCase().includes('good')) {
       return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
@@ -289,7 +326,7 @@ function WordPressSitesPage() {
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 919-9" />
                 </svg>
               </div>
             </div>
@@ -342,6 +379,89 @@ function WordPressSitesPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* AI Optimizer Stats */}
+        <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-xl shadow-lg p-8 text-white mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              <div>
+                <h2 className="text-2xl font-bold">AI Product Optimizer</h2>
+                <p className="text-purple-100">Monitor AI usage and costs across all sites</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowCostBreakdown(!showCostBreakdown)}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all border border-white/30"
+            >
+              {showCostBreakdown ? 'Hide Details' : 'Show Details'}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex items-center gap-3 mb-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <p className="text-sm text-purple-100">Total Optimizations</p>
+              </div>
+              <p className="text-4xl font-bold">{calculateTotalAICost().totalOptimizations.toLocaleString()}</p>
+              <p className="text-xs text-purple-200 mt-1">Products optimized with AI</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex items-center gap-3 mb-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-sm text-purple-100">Tokens Used</p>
+              </div>
+              <p className="text-4xl font-bold">{calculateTotalAICost().totalTokens.toLocaleString()}</p>
+              <p className="text-xs text-purple-200 mt-1">OpenAI API tokens consumed</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex items-center gap-3 mb-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-purple-100">Estimated Cost</p>
+              </div>
+              <p className="text-4xl font-bold">${calculateTotalAICost().estimatedCost.toFixed(2)}</p>
+              <p className="text-xs text-purple-200 mt-1">Total AI usage cost (USD)</p>
+            </div>
+          </div>
+
+          {showCostBreakdown && (
+            <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <h3 className="text-lg font-semibold mb-4">Cost Breakdown by Site</h3>
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {sites.filter(site => site.aiOptimizationsCount && site.aiOptimizationsCount > 0).map(site => {
+                  const siteCost = ((site.aiTokensUsed || 0) / 1000) * 0.045;
+                  return (
+                    <div key={site._id} className="flex items-center justify-between bg-white/5 rounded-lg p-3">
+                      <div className="flex-1">
+                        <p className="font-medium">{site.siteName}</p>
+                        <p className="text-sm text-purple-200">{site.siteUrl}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">${siteCost.toFixed(2)}</p>
+                        <p className="text-xs text-purple-200">{site.aiOptimizationsCount} optimizations</p>
+                        <p className="text-xs text-purple-200">{(site.aiTokensUsed || 0).toLocaleString()} tokens</p>
+                      </div>
+                    </div>
+                  );
+                })}
+                {sites.filter(site => site.aiOptimizationsCount && site.aiOptimizationsCount > 0).length === 0 && (
+                  <p className="text-center text-purple-200 py-4">No AI optimizations performed yet</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sites Grid */}
@@ -500,6 +620,54 @@ function WordPressSitesPage() {
                             £{site.paymentAmount}
                           </span>
                         )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Optimizer Status */}
+                  {site.hasWooCommerce && (
+                    <div className={`mt-3 px-3 py-2 rounded-lg border ${
+                      site.aiOptimizerEnabled 
+                        ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' 
+                        : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 ${
+                            site.aiOptimizerEnabled 
+                              ? 'text-purple-600 dark:text-purple-400' 
+                              : 'text-gray-400 dark:text-gray-500'
+                          }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          <div>
+                            <span className={`text-xs font-semibold ${
+                              site.aiOptimizerEnabled 
+                                ? 'text-purple-700 dark:text-purple-300' 
+                                : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              AI Optimizer: {site.aiOptimizerEnabled ? 'Enabled' : 'Disabled'}
+                            </span>
+                            {site.aiOptimizationsCount && site.aiOptimizationsCount > 0 && (
+                              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                {site.aiOptimizationsCount} optimizations • {(site.aiTokensUsed || 0).toLocaleString()} tokens • ${(((site.aiTokensUsed || 0) / 1000) * 0.045).toFixed(2)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleOptimizer(site._id, site.aiOptimizerEnabled || false);
+                          }}
+                          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                            site.aiOptimizerEnabled
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50'
+                              : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50'
+                          }`}
+                        >
+                          {site.aiOptimizerEnabled ? 'Disable' : 'Enable'}
+                        </button>
                       </div>
                     </div>
                   )}
