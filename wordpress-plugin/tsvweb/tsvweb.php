@@ -107,6 +107,18 @@ class TsvWeb_Plugin {
     }
     
     public function register_rest_routes() {
+        // Add CORS support for REST API
+        add_action('rest_api_init', function() {
+            remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+            add_filter('rest_pre_serve_request', function($value) {
+                header('Access-Control-Allow-Origin: *');
+                header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+                header('Access-Control-Allow-Headers: Content-Type, X-API-Key, Authorization');
+                header('Access-Control-Allow-Credentials: true');
+                return $value;
+            });
+        }, 15);
+        
         register_rest_route('tsvweb/v1', '/create-admin', array(
             'methods' => 'POST',
             'callback' => array($this, 'rest_create_admin'),
@@ -116,6 +128,31 @@ class TsvWeb_Plugin {
         register_rest_route('tsvweb/v1', '/reset-password', array(
             'methods' => 'POST',
             'callback' => array($this, 'rest_reset_password'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        // Product Optimizer endpoints
+        register_rest_route('tsvweb/v1', '/optimizer/status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'rest_optimizer_status'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        register_rest_route('tsvweb/v1', '/optimizer/toggle', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'rest_optimizer_toggle'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        register_rest_route('tsvweb/v1', '/optimizer/stats', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'rest_optimizer_stats'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        register_rest_route('tsvweb/v1', '/optimizer/openai-key', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'rest_set_openai_key'),
             'permission_callback' => array($this, 'verify_api_key'),
         ));
     }
@@ -190,6 +227,87 @@ class TsvWeb_Plugin {
             'success' => true,
             'message' => 'Password reset successfully',
             'username' => $user->user_login
+        );
+    }
+    
+    /**
+     * REST: Get optimizer status
+     */
+    public function rest_optimizer_status($request) {
+        $enabled = get_option('tsvweb_optimizer_enabled', 'no') === 'yes';
+        $has_openai_key = !empty(get_option('tsvweb_openai_api_key', ''));
+        $has_woocommerce = class_exists('WooCommerce');
+        
+        return array(
+            'success' => true,
+            'enabled' => $enabled,
+            'openai_key_configured' => $has_openai_key,
+            'woocommerce_active' => $has_woocommerce,
+            'last_sync' => get_option('tsvweb_optimizer_last_sync', null)
+        );
+    }
+    
+    /**
+     * REST: Toggle optimizer on/off
+     */
+    public function rest_optimizer_toggle($request) {
+        $enabled = $request->get_param('enabled');
+        
+        if (!is_bool($enabled)) {
+            return new WP_Error('invalid_param', 'enabled must be a boolean', array('status' => 400));
+        }
+        
+        update_option('tsvweb_optimizer_enabled', $enabled ? 'yes' : 'no');
+        update_option('tsvweb_optimizer_last_sync', current_time('mysql'));
+        
+        return array(
+            'success' => true,
+            'message' => 'Optimizer ' . ($enabled ? 'enabled' : 'disabled') . ' successfully',
+            'enabled' => $enabled,
+            'timestamp' => current_time('mysql')
+        );
+    }
+    
+    /**
+     * REST: Get optimizer statistics
+     */
+    public function rest_optimizer_stats($request) {
+        if (!class_exists('TsvWeb_Product_Optimizer')) {
+            return array(
+                'success' => false,
+                'error' => 'Product Optimizer not available'
+            );
+        }
+        
+        $optimizer = new TsvWeb_Product_Optimizer();
+        $stats = $optimizer->get_stats();
+        
+        return array(
+            'success' => true,
+            'stats' => $stats
+        );
+    }
+    
+    /**
+     * REST: Set OpenAI API key (sent from TsvWeb server)
+     */
+    public function rest_set_openai_key($request) {
+        $api_key = $request->get_param('openai_key');
+        
+        if (empty($api_key)) {
+            return new WP_Error('missing_param', 'openai_key is required', array('status' => 400));
+        }
+        
+        // Validate key format
+        if (!preg_match('/^sk-[a-zA-Z0-9\-]+$/', $api_key)) {
+            return new WP_Error('invalid_key', 'Invalid OpenAI API key format', array('status' => 400));
+        }
+        
+        update_option('tsvweb_openai_api_key', $api_key);
+        
+        return array(
+            'success' => true,
+            'message' => 'OpenAI API key configured successfully'
         );
     }
     

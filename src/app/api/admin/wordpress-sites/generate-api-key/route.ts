@@ -69,6 +69,22 @@ export async function POST(request: NextRequest) {
       isActive: true,
     });
 
+    // Also store the full API key in the WordPress stats document for easy access
+    // This is needed for the optimizer control to work
+    const WordPressStatsSchema = new mongoose.Schema({}, { strict: false });
+    const WordPressStats = mongoose.models.WordPressStats || mongoose.model('WordPressStats', WordPressStatsSchema);
+    
+    await WordPressStats.updateOne(
+      { siteUrl: siteUrl },
+      { 
+        $set: { 
+          apiKey: apiKey, // Store full key for API calls
+          apiKeyId: newKey._id 
+        } 
+      },
+      { upsert: true }
+    );
+
     // Return the actual API key (only time it's shown in plain text)
     return NextResponse.json({
       success: true,

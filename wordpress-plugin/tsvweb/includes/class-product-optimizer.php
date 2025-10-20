@@ -15,7 +15,8 @@ class TsvWeb_Product_Optimizer {
     private $stats_option = 'tsvweb_optimizer_stats';
 
     public function __construct() {
-        $this->api_key = getenv('OPENAI_API_KEY');
+        // Get OpenAI key from WordPress options (sent from TsvWeb server)
+        $this->api_key = get_option('tsvweb_openai_api_key', '');
     }
 
     public function has_api_key() {

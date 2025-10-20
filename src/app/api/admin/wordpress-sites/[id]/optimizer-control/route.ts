@@ -132,6 +132,64 @@ export async function POST(
       );
     }
 
+    // Step 5: Get API key and sync with WordPress
+    const siteUrl = result.siteUrl;
+    const apiKey = result.apiKey; // Now stored in the document
+    
+    if (siteUrl && apiKey) {
+      console.log('🔄 [Optimizer Control] Syncing with WordPress plugin...');
+      console.log('🔗 [Optimizer Control] Site URL:', siteUrl);
+      console.log('🔑 [Optimizer Control] API Key:', apiKey.substring(0, 15) + '...');
+      
+      try {
+        // First, send OpenAI API key if enabling
+        if (enabled) {
+          const openaiKey = process.env.OPENAI_API_KEY;
+          if (openaiKey) {
+            console.log('🔑 [Optimizer Control] Sending OpenAI API key to WordPress...');
+            const keyResponse = await fetch(`${siteUrl}/wp-json/tsvweb/v1/optimizer/openai-key`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': apiKey
+              },
+              body: JSON.stringify({ openai_key: openaiKey })
+            });
+
+            if (keyResponse.ok) {
+              console.log('✅ [Optimizer Control] OpenAI key sent to WordPress');
+            } else {
+              const errorText = await keyResponse.text();
+              console.warn('⚠️ [Optimizer Control] Failed to send OpenAI key:', keyResponse.status, errorText);
+            }
+          }
+        }
+
+        // Then toggle the optimizer
+        const wpResponse = await fetch(`${siteUrl}/wp-json/tsvweb/v1/optimizer/toggle`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+          },
+          body: JSON.stringify({ enabled })
+        });
+
+        if (wpResponse.ok) {
+          const wpData = await wpResponse.json();
+          console.log('✅ [Optimizer Control] WordPress plugin synced:', wpData);
+        } else {
+          console.warn('⚠️ [Optimizer Control] WordPress sync failed:', wpResponse.status, wpResponse.statusText);
+          // Don't fail the whole request if WordPress sync fails
+        }
+      } catch (wpError) {
+        console.warn('⚠️ [Optimizer Control] WordPress sync error:', wpError);
+        // Don't fail the whole request if WordPress sync fails
+      }
+    } else {
+      console.log('ℹ️ [Optimizer Control] Skipping WordPress sync (no siteUrl or apiKey)');
+    }
+
     // Success response
     const message = `AI Optimizer ${enabled ? 'enabled' : 'disabled'} successfully`;
     console.log('✅ [Optimizer Control] Success:', message);
